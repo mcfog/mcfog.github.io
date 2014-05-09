@@ -1,0 +1,255 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>DSL style javascript design | McFog＠がんばらない</title>
+  <meta name="author" content="McFog W">
+  
+  <meta name="description" content="组织大表单应用中javascript代码的一种方法
+问题，动机，目的
+超过一屏，属性复杂到一定程度的录入界面/系统中，缺乏良好架构的javascript代码往往容易失控。尤其是当规模从小型表单开始逐渐变大时，javascript代码很容易演变成已DOM为核心的、缺乏结构、满是hack且难以维护的状态。
+我认为良好可维护的JS代码应该具有以下的特性
+
+单个文件应该控制在一千行以内
+依赖管理和合并，开发应该单看一个JS文件就知道它依赖别的哪些代码，而不是在HTML中直接列举所有依赖，或者更糟，把所有超过2个页面要用的JS全写一起。
+良好的代码复用，清晰的模块划分
+改变字段的表现形式或逻辑时，不应该需要修改/考虑/知道其他字段的逻辑和展现形式。改变DOM树结构、更换表单控件等改变展现方式的需求不应当对JS产生毁灭性打击。
+
+前三个问题基本可以归结为，超过一千行的或是需要复用的JS代码使用RequireJS / SeaJS 等方案进行分解和管理。由于这是复杂JS工程的共性，这里不多做展开讨论。本文主要关注最后一点，也就是如何解除字段逻辑和展示之间的耦合，如何解除字段和其他字段的耦合。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="DSL style javascript design"/>
+  <meta property="og:site_name" content="McFog＠がんばらない"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="McFog＠がんばらない" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//cdn.jsdelivr.net/html5shiv/3.7.0/html5shiv.js"></script><![endif]-->
+  <script src="//cdn.jsdelivr.net/jquery/1.10.2/jquery-1.10.2.min.js"></script>
+  
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41595211-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1>
+    <i class="icon-dollar"></i>
+    <a href="/">McFog＠がんばらない</a>
+    <b>McFog＠がんばらない</b>
+    <em>_</em>
+  </h1>
+  <h2><a href="/">McPress - the tech blog of mcfog</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/images/201306/form.jpg" class="thumb" />
+        
+        <time datetime="2013-06-03T12:02:05.000Z"><a href="/2013/06/dsl-style-javascript/">6月 3 2013</a></time>
+      
+      
+  
+    <h1 class="title">DSL style javascript design</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h2 id="组织大表单应用中javascript代码的一种方法">组织大表单应用中javascript代码的一种方法</h2>
+<h3 id="问题，动机，目的">问题，动机，目的</h3>
+<p>超过一屏，属性复杂到一定程度的录入界面/系统中，缺乏良好架构的javascript代码往往容易失控。尤其是当规模从小型表单开始逐渐变大时，javascript代码很容易演变成已DOM为核心的、缺乏结构、满是hack且难以维护的状态。</p>
+<p>我认为良好可维护的JS代码应该具有以下的特性</p>
+<ul>
+<li>单个文件应该控制在一千行以内</li>
+<li>依赖管理和合并，开发应该单看一个JS文件就知道它依赖别的哪些代码，而不是在HTML中直接列举所有依赖，或者更糟，把所有超过2个页面要用的JS全写一起。</li>
+<li>良好的代码复用，清晰的模块划分</li>
+<li>改变字段的表现形式或逻辑时，不应该需要修改/考虑/知道其他字段的逻辑和展现形式。改变DOM树结构、更换表单控件等改变展现方式的需求不应当对JS产生毁灭性打击。</li>
+</ul>
+<p>前三个问题基本可以归结为，超过一千行的或是需要复用的JS代码使用RequireJS / SeaJS 等方案进行分解和管理。由于这是复杂JS工程的共性，这里不多做展开讨论。本文主要关注最后一点，也就是如何解除字段逻辑和展示之间的耦合，如何解除字段和其他字段的耦合。</p>
+<p><a id="more"></a></p>
+<h3 id="解耦，协议，模板化">解耦，协议，模板化</h3>
+<p>解除耦合的做法不外乎将抽象出最小化的接口（协议）。字段可以有千奇百怪的各种逻辑，但抽象后发现其实针对单个字段来说，需要的最小接口非常小——简直太适合解耦、正交化了</p>
+<ul>
+<li><code>val</code> 方法，传值则写入，不传则读取（jQuery风格）</li>
+<li><code>setReadonly</code> 方法 设置只读</li>
+<li><code>setWritable</code> 方法 设为可写（当然设计成<code>setReadonly(false)</code>也不坏）</li>
+<li><code>change</code> 事件 值被改变时触发</li>
+<li><code>error</code> 事件 需要提示用户这个字段有问题时触发</li>
+</ul>
+<p>订好接口以后，每个字段只需要自己都实现接口，除了每个字段自己的实现代码之外，外部一律通过接口来和字段交互。这样代码就整体可控可维护，扩展性和可读性都能令人满意。</p>
+<p>有了这样的接口，我们的逻辑实现就可以非常语义化，比如折扣锁定为=现价/原价</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+</pre></td><td class="code"><pre>good.discount.setReadonly();
+<span class="keyword">var</span> discountUpdate = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    good.discount.val(good.price.val() / good.originalPrice.val());
+};
+good.price.addListener(<span class="string">'change'</span>, discountUpdate); <span class="comment">//注意：这不是DOM事件</span>
+good.originalPrice.addListener(<span class="string">'change'</span>, discountUpdate);
+</pre></td></tr></table></figure>
+
+<p>这样一段代码完全不涉及dom交互，所以无论价格如何输入展示，折扣如何展示都没有问题。而实现dom交互的代码也完全不必关心这个字段的逻辑如何，只需要实现前述接口，将输入输出、只读、提示信息这些行为和DOM绑定即可。</p>
+<p>最常用也是最多的绑定就是一个字段对应一个DOM控件，这种绑定只需要简单地将DOM事件转发成自定义事件，将读写转换成DOM控件读写即可；稍微复杂一些的交互涉及富文本编辑、日历控件等输入形式，由于我们的接口非常小，所以一般也无需太多的代码。</p>
+<p>问题往往来源于更复杂的一些字段，他们在持久化时往往体现成JSON/XML格式字符串，或者是额外的扩展表。这些字段往往无法轻易地用一个标准DOM控件来表现，也往往是混乱的来源。</p>
+<p>DOM操作难以维护的主要原因是插入、删除元素的同时还要维护事件，在同一个页面反复进行各种操作的时候，逻辑容易有问题，所以我的做法是</p>
+<ul>
+<li>事件用委托仅在初始化的时候绑在容器上一次</li>
+<li>不单独插入、删除dom元素，而是以模板和数据渲染出所有元素</li>
+<li>在内存里维护一个变量存储当前的数据，dom里面的数据并不具权威性</li>
+</ul>
+<p><img src="/images/201306/templated-field.jpg" alt="Templated field"></p>
+<ul>
+<li>render渲染例程：<ul>
+<li>触发点：由change事件触发</li>
+<li>行为：从内存读取数据后（用模板）渲染出所有的DOM元素的HTML代码，一次性吐在容器中</li>
+</ul>
+</li>
+<li>normalize规范化例程：<ul>
+<li>触发点：dom事件/val赋值 写入数据时</li>
+<li>行为：将输入数据进行规范化，然后写入内存并触发change事件</li>
+</ul>
+</li>
+</ul>
+<h3 id="校验，提交">校验，提交</h3>
+<p>由于复杂表单往往涉及同样复杂的验证逻辑，建议尽可能将逻辑集中在后台CGI，JS少做逻辑（否则同时维护两套不同语言的等价的逻辑成本较大）</p>
+<p>无论错误是从CGI拿到，还是JS自己验出来，显示错误提示都一样通过字段上的<code>error</code>事件来传递，校验代码负责触发事件，字段本身的实现代码监听事件来在界面上显示相应的提示。</p>
+<p>提交数据时，只需要遍历所有字段的集合，将他们的字段名和<code>val()</code>结果拼装</p>
+<h3 id="DSL">DSL</h3>
+<p>总而言之，解决混乱代码的思路之一是将“需求/规则”和“表现/操作”分离，将前者抽象成某种形态的DSL，使之尽量贴近产品的需求，然后将后者作为这种DSL的解释器来写。代码写到像自然语言就赢了。如果做不到，不妨针对一个领域写解释器来解释为什么这些自然语言能工作。这是符合计算机科学发展大规律的，<strong>道法自然</strong>。</p>
+<p>—EOF—</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/javascript/">javascript</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/design/">design</a>
+  </div>
+
+		
+			
+		
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:mcfog.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/css/">css</a><small>1</small></li>
+  
+    <li><a href="/categories/javascript/">javascript</a><small>6</small></li>
+  
+    <li><a href="/categories/javascript/programming/">programming</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/coco/">coco</a><small>1</small></li>
+  
+    <li><a href="/tags/design/">design</a><small>2</small></li>
+  
+    <li><a href="/tags/dom/">dom</a><small>1</small></li>
+  
+    <li><a href="/tags/grunt/">grunt</a><small>1</small></li>
+  
+    <li><a href="/tags/inspiration/">inspiration</a><small>1</small></li>
+  
+    <li><a href="/tags/jquery/">jquery</a><small>2</small></li>
+  
+    <li><a href="/tags/stylus/">stylus</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 McFog W
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//cdn.jsdelivr.net/imagesloaded/3.0.4/imagesloaded.pkgd.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.min.css" media="screen" type="text/css">
+<script src="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

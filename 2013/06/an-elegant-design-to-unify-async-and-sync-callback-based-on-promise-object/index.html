@@ -1,0 +1,342 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>An elegant design to unify async and sync callback based on promise object | McFog＠がんばらない</title>
+  <meta name="author" content="McFog W">
+  
+  <meta name="description" content="在JS代码的设计中，“回调”是非常重要而有效的手段，这里讨论的是框架需要获取回调结果的，更加注重IoC的回调。（另一种回调的使用往往更接近订阅者模式，强调信息的单向下发）往往框架代码需要获取某些信息，但如何获取的逻辑需要留待使用者实现，此时回调就是非常直接的选择。
+获取回调的输出信息有最直接的使用返回值（同步），但异步有时是无法避免的。本文不准备讨论设计回调时应该设计成同步返回还是异步返回，而是讨论如何简洁而优雅地兼容两者，使回调既能够直接返回结果，又可以通知框架等待异步返回结果。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="An elegant design to unify async and sync callback based on promise object"/>
+  <meta property="og:site_name" content="McFog＠がんばらない"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="McFog＠がんばらない" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//cdn.jsdelivr.net/html5shiv/3.7.0/html5shiv.js"></script><![endif]-->
+  <script src="//cdn.jsdelivr.net/jquery/1.10.2/jquery-1.10.2.min.js"></script>
+  
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41595211-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1>
+    <i class="icon-dollar"></i>
+    <a href="/">McFog＠がんばらない</a>
+    <b>McFog＠がんばらない</b>
+    <em>_</em>
+  </h1>
+  <h2><a href="/">McPress - the tech blog of mcfog</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/images/201306/promise.jpg" class="thumb" />
+        
+        <time datetime="2013-06-09T10:52:43.000Z"><a href="/2013/06/an-elegant-design-to-unify-async-and-sync-callback-based-on-promise-object/">6月 9 2013</a></time>
+      
+      
+  
+    <h1 class="title">An elegant design to unify async and sync callback based on promise object</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>在JS代码的设计中，“回调”是非常重要而有效的手段，这里讨论的是框架需要获取回调结果的，更加注重IoC的回调。（另一种回调的使用往往更接近订阅者模式，强调信息的单向下发）往往框架代码需要获取某些信息，但如何获取的逻辑需要留待使用者实现，此时回调就是非常直接的选择。</p>
+<p>获取回调的输出信息有最直接的使用返回值（同步），但异步有时是无法避免的。本文不准备讨论设计回调时应该设计成同步返回还是异步返回，而是讨论如何简洁而优雅地兼容两者，使回调既能够直接返回结果，又可以通知框架等待异步返回结果。</p>
+<a id="more"></a>
+
+<p>在JS中，可以和回调交互的地方一共有3个，分别是<code>this</code>对象、参数(<code>arguments</code>)和返回值。我们先看看利用this和arguments来实现的兼容同步异步的大致做法，再来看看利用返回值并引入deferred机制后对代码的提升。</p>
+<h3 id="替换this">替换this</h3>
+<p><a href="http://layoutmanager.org" target="_blank">backbone layoutmanager</a>中采用了替换<code>this</code>对象的方式实现兼容同步和异步的模板获取/渲染。好处是业务代码看起来相对清晰，但由于替换掉了this，比较依赖this的逻辑会碰到麻烦。另外实现相对复杂</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="code"><pre><span class="comment">//同步回调</span>
+<span class="function"><span class="keyword">function</span> <span class="title">fetchSync</span><span class="params">(path)</span> {</span>
+  <span class="keyword">return</span> _.template($(path).html());
+}
+<span class="comment">//异步回调</span>
+<span class="function"><span class="keyword">function</span> <span class="title">fetchAsync</span><span class="params">(path)</span> {</span>
+  <span class="keyword">var</span> done = <span class="keyword">this</span>.async();
+
+  $.get(path, <span class="function"><span class="keyword">function</span><span class="params">(contents)</span> {</span>
+    done(_.template(contents));
+  }, <span class="string">"text"</span>);
+}
+</pre></td></tr></table></figure>
+
+<p>大致框架实现</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="code"><pre><span class="keyword">var</span> makeAsync = <span class="function"><span class="keyword">function</span><span class="params">(done)</span> {</span>
+    <span class="keyword">var</span> handler = {};
+    handler.async = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+        handler._isAsync = <span class="literal">true</span>;
+        <span class="keyword">return</span> done;
+    }
+
+    <span class="keyword">return</span> handler;
+}
+
+exports.AwesomeFunction = <span class="function"><span class="keyword">function</span><span class="params">(path, callback)</span> {</span>
+    <span class="keyword">var</span> done = <span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
+        <span class="comment">//handle result</span>
+    };
+    <span class="keyword">var</span> handler = makeAsync(done);
+    <span class="keyword">var</span> result = callback.call(handler, path);
+    <span class="keyword">if</span>(!handler._isAsync) <span class="keyword">return</span> done(result);
+}
+</pre></td></tr></table></figure>
+
+<p>可以发现为了制造出this对象以及判断是否异步的逻辑比较生硬，另外替换掉this的做法不是所有场景都可以接受。回调和框架的耦合也比较强，离开了框架的话回调由于有<code>done=this.async()</code>基本没法用。</p>
+<h3 id="追加arguments">追加arguments</h3>
+<p>对参数动手脚来实现异步/同步兼容的话，一般选择在参数列表最前/最后追加<em>回调的回调</em>用来和框架交换数据。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="code"><pre><span class="comment">//同步回调</span>
+<span class="function"><span class="keyword">function</span> <span class="title">fetchSync</span><span class="params">(path, done)</span> {</span>
+  done(_.template($(path).html()));
+}
+<span class="comment">//异步回调</span>
+<span class="function"><span class="keyword">function</span> <span class="title">fetchAsync</span><span class="params">(path, done)</span> {</span>
+  $.get(path, <span class="function"><span class="keyword">function</span><span class="params">(contents)</span> {</span>
+    done(_.template(contents));
+  }, <span class="string">"text"</span>);
+}
+</pre></td></tr></table></figure>
+
+<p>大致框架实现</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+</pre></td><td class="code"><pre>exports.AwesomeFunction = <span class="function"><span class="keyword">function</span><span class="params">(path, callback)</span> {</span>
+    callback(path, <span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
+        <span class="comment">//handle result</span>
+    });
+}
+</pre></td></tr></table></figure>
+
+<p>比起上一种方法，这种方法的优点是实现简洁明了，如果需要可以保持this，缺点是需要改变函数签名，对签名不定长的情形比较恶心。另外，同步返回的回调不能简单地return返回值也是比较严重的缺点。</p>
+<h3 id="利用返回值和deferred机制"><strong>利用返回值和deferred机制</strong></h3>
+<p><a href="http://wiki.commonjs.org/wiki/Promises/A" target="_blank">deferred/promise机制</a>天生对回调非常友好，只要定义回调返回普通值=同步，返回promise=异步，就可以很优雅地做到兼容同步和异步。所需的仅仅是一个简单的包装器<code>isPromise(foo) ? foo : makePromise(foo)</code>的实现。这里以jQuery为例，<code>jQuery.when</code>就是一个不错的包装器</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="code"><pre><span class="comment">//同步</span>
+<span class="function"><span class="keyword">function</span> <span class="title">fetchSync</span><span class="params">(path)</span> {</span>
+  <span class="keyword">return</span> _.template($(path).html());
+}
+<span class="comment">//异步</span>
+<span class="function"><span class="keyword">function</span> <span class="title">fetchAsync</span><span class="params">(path)</span> {</span>
+  <span class="keyword">return</span> $.get(path, <span class="string">"text"</span>).then(<span class="function"><span class="keyword">function</span><span class="params">(contents)</span> {</span>
+    <span class="keyword">return</span> _.template(contents);
+  });
+}
+</pre></td></tr></table></figure>
+
+<p>大致框架实现</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="code"><pre>exports.AwesomeFunction = <span class="function"><span class="keyword">function</span><span class="params">(path, callback)</span> {</span>
+    $.when(callback(path)).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
+        <span class="comment">//handle result</span>
+    }, <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+        <span class="comment">//handle error</span>
+    });
+}
+</pre></td></tr></table></figure>
+
+<p>利用返回值的好处在于完整保留了<code>this</code>和<code>arguments</code>，同步的情形下无论回调依赖this还是参数都无需包装回调，而异步的情况下，返回promise的回调的适用范围要比前两种机制的回调广泛的多。另外promise天生比较完备的错误处理，<code>jQuery.when</code>对多个参数的支持都使得这种方法在实践中具备很强的可操作性。</p>
+<h3 id="举一反三……">举一反三……</h3>
+<p>无论是设计框架还是切分方法，对于“异步获取信息”的情景来说，返回一个发布者(promise)比接受回调要更加灵活。</p>
+<ul>
+<li>接受回调会影响方法签名，而且通常浪费了返回值，返回发布者对象对整体程序的语义有很大地提升（参数=输入，返回值=输出）</li>
+<li>接受回调限定了订阅者的数量为1（兼容0和多个都需要不少兼容逻辑），而发布者通常不关心订阅者的数量</li>
+<li>接受回调要求调用方在调用时就准备好所有的订阅者，无法追加订阅者，而发布者不仅可以很容易地追加订阅者，其本身作为一个对象还可以被传递</li>
+<li>发布者可以有更灵活的方法来处理嵌套、并发以及异常等各种情况</li>
+</ul>
+<p>—EOF—</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/javascript/">javascript</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/design/">design</a>, <a href="/tags/jquery/">jquery</a>
+  </div>
+
+		
+			
+		
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:mcfog.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/css/">css</a><small>1</small></li>
+  
+    <li><a href="/categories/javascript/">javascript</a><small>6</small></li>
+  
+    <li><a href="/categories/javascript/programming/">programming</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/coco/">coco</a><small>1</small></li>
+  
+    <li><a href="/tags/design/">design</a><small>2</small></li>
+  
+    <li><a href="/tags/dom/">dom</a><small>1</small></li>
+  
+    <li><a href="/tags/grunt/">grunt</a><small>1</small></li>
+  
+    <li><a href="/tags/inspiration/">inspiration</a><small>1</small></li>
+  
+    <li><a href="/tags/jquery/">jquery</a><small>2</small></li>
+  
+    <li><a href="/tags/stylus/">stylus</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 McFog W
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//cdn.jsdelivr.net/imagesloaded/3.0.4/imagesloaded.pkgd.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.min.css" media="screen" type="text/css">
+<script src="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

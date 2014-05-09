@@ -1,0 +1,396 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>归档：2013/6 | McFog＠がんばらない</title>
+  <meta name="author" content="McFog W">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <meta property="og:site_name" content="McFog＠がんばらない"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="McFog＠がんばらない" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//cdn.jsdelivr.net/html5shiv/3.7.0/html5shiv.js"></script><![endif]-->
+  <script src="//cdn.jsdelivr.net/jquery/1.10.2/jquery-1.10.2.min.js"></script>
+  
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41595211-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1>
+    <i class="icon-dollar"></i>
+    <a href="/">McFog＠がんばらない</a>
+    <b>McFog＠がんばらない</b>
+    <em>_</em>
+  </h1>
+  <h2><a href="/">McPress - the tech blog of mcfog</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+<h2 class="archive-title">2013/6</h2>
+
+
+  
+    <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/images/201306/browsers.jpg" class="thumb" />
+        
+        <time datetime="2013-06-23T02:59:24.000Z"><a href="/2013/06/a-browser-incompatibility-behavior-about-jquery-and-unattached-element/">6月 23 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/06/a-browser-incompatibility-behavior-about-jquery-and-unattached-element/">a browser incompatibility behavior about jquery and unattached element</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h3 id="摘要">摘要</h3>
+<ul>
+<li>jQuery.fn.hide 会读取元素的display样式</li>
+<li>读取尚未插入dom树的脱机元素的样式时，不同浏览器行为不同</li>
+</ul>
+<h3 id="场景">场景</h3>
+<p>在一段显示错误提示的代码中，发现firefox下显示异常，错误提示tips的宽度没有自适应内容而是占满了整个容器。inspect后发现，本应是由CSS控制的<code>display:inline-block</code>被元素的<code>style=&quot;display:block&quot;</code>覆盖，chrome下没有这个问题</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/06/a-browser-incompatibility-behavior-about-jquery-and-unattached-element/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  
+    <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/images/201306/cduk.jpg" class="thumb" />
+        
+        <time datetime="2013-06-15T10:03:02.000Z"><a href="/2013/06/inspiring-cduk-the-modularized-and-flexible-docco/">6月 15 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/06/inspiring-cduk-the-modularized-and-flexible-docco/">inspiring CDUK the modularized and flexible docco</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>最近在看Backbone&amp;Underscore的时候，对他们的annoted source（<a href="backbonejs.org/docs/backbone.html">backbone</a> / <a href="http://underscorejs.org/docs/underscore.html" target="_blank">underscore</a>）产生了好感，然后发现他们都是用<br><a href="http://jashkenas.github.io/docco/" target="_blank"><strong>Docco</strong></a> 来做的。</p>
+<p>后来顺藤摸瓜发现除了类似backbone/underscore的将注释按markdown写的做法，还有更加彻底的将代码写进markdown中的做法，coffeescript已经有支持（<a href="http://ashkenas.com/literate-coffeescript/" target="_blank">literate-coffeescript</a>）。</p>
+<p>挖进源码看docco，我发现他的可扩展性存在问题，用少量代码迅速完成了核心功能但并不易扩展。最近又手痒的厉害于是干脆挖坑自己写一个literal programming用的工具。</p>
+<p>这里记录下最初的目的和一些想法，目前的进度是基于markdown四空格的lexer已经可以跑了。<br>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/06/inspiring-cduk-the-modularized-and-flexible-docco/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  
+    <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/images/201306/grunt-coco.jpg" class="thumb" />
+        
+        <time datetime="2013-06-14T11:19:49.000Z"><a href="/2013/06/grunt-coco-released/">6月 14 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/06/grunt-coco-released/">grunt-coco released</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>最近在看各种自动化工具，有集成化程度高，比起编译工具更像“IDE减文本编辑”的<a href="http://mimosajs.com" target="_blank">mimosajs</a>，也有被业界广泛认可，开放易配置的<a href="http://gruntjs.com" target="_blank">gruntjs</a>。作为一个<a href="https://github.com/satyr/coco" target="_blank">coco</a>语言支持者，看自动化工具当然是先看能不能支持coco。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/06/grunt-coco-released/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  
+    <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/images/201306/stylus.jpg" class="thumb" />
+        
+        <time datetime="2013-06-13T18:31:18.000Z"><a href="/2013/06/undocumented-stylus-built-in-functions/">6月 14 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/06/undocumented-stylus-built-in-functions/">Undocumented stylus built-in functions</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Stylus的文档更新相对不怎么及时，这里记录一下如何找到内置函数的列表，目前最新的内置函数列表，以及其中一些比较有用的文档中没有提及的</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/06/undocumented-stylus-built-in-functions/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  
+    <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/images/201306/promise.jpg" class="thumb" />
+        
+        <time datetime="2013-06-09T10:52:43.000Z"><a href="/2013/06/an-elegant-design-to-unify-async-and-sync-callback-based-on-promise-object/">6月 9 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/06/an-elegant-design-to-unify-async-and-sync-callback-based-on-promise-object/">An elegant design to unify async and sync callback based on promise object</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>在JS代码的设计中，“回调”是非常重要而有效的手段，这里讨论的是框架需要获取回调结果的，更加注重IoC的回调。（另一种回调的使用往往更接近订阅者模式，强调信息的单向下发）往往框架代码需要获取某些信息，但如何获取的逻辑需要留待使用者实现，此时回调就是非常直接的选择。</p>
+<p>获取回调的输出信息有最直接的使用返回值（同步），但异步有时是无法避免的。本文不准备讨论设计回调时应该设计成同步返回还是异步返回，而是讨论如何简洁而优雅地兼容两者，使回调既能够直接返回结果，又可以通知框架等待异步返回结果。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/06/an-elegant-design-to-unify-async-and-sync-callback-based-on-promise-object/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  
+    <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/images/201306/form.jpg" class="thumb" />
+        
+        <time datetime="2013-06-03T12:02:05.000Z"><a href="/2013/06/dsl-style-javascript/">6月 3 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/06/dsl-style-javascript/">DSL style javascript design</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h2 id="组织大表单应用中javascript代码的一种方法">组织大表单应用中javascript代码的一种方法</h2>
+<h3 id="问题，动机，目的">问题，动机，目的</h3>
+<p>超过一屏，属性复杂到一定程度的录入界面/系统中，缺乏良好架构的javascript代码往往容易失控。尤其是当规模从小型表单开始逐渐变大时，javascript代码很容易演变成已DOM为核心的、缺乏结构、满是hack且难以维护的状态。</p>
+<p>我认为良好可维护的JS代码应该具有以下的特性</p>
+<ul>
+<li>单个文件应该控制在一千行以内</li>
+<li>依赖管理和合并，开发应该单看一个JS文件就知道它依赖别的哪些代码，而不是在HTML中直接列举所有依赖，或者更糟，把所有超过2个页面要用的JS全写一起。</li>
+<li>良好的代码复用，清晰的模块划分</li>
+<li>改变字段的表现形式或逻辑时，不应该需要修改/考虑/知道其他字段的逻辑和展现形式。改变DOM树结构、更换表单控件等改变展现方式的需求不应当对JS产生毁灭性打击。</li>
+</ul>
+<p>前三个问题基本可以归结为，超过一千行的或是需要复用的JS代码使用RequireJS / SeaJS 等方案进行分解和管理。由于这是复杂JS工程的共性，这里不多做展开讨论。本文主要关注最后一点，也就是如何解除字段逻辑和展示之间的耦合，如何解除字段和其他字段的耦合。</p>
+<p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2013/06/dsl-style-javascript/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  
+
+  <nav id="pagination">
+  
+  
+  <div class="clearfix"></div>
+</nav>
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:mcfog.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/css/">css</a><small>1</small></li>
+  
+    <li><a href="/categories/javascript/">javascript</a><small>6</small></li>
+  
+    <li><a href="/categories/javascript/programming/">programming</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/coco/">coco</a><small>1</small></li>
+  
+    <li><a href="/tags/design/">design</a><small>2</small></li>
+  
+    <li><a href="/tags/dom/">dom</a><small>1</small></li>
+  
+    <li><a href="/tags/grunt/">grunt</a><small>1</small></li>
+  
+    <li><a href="/tags/inspiration/">inspiration</a><small>1</small></li>
+  
+    <li><a href="/tags/jquery/">jquery</a><small>2</small></li>
+  
+    <li><a href="/tags/stylus/">stylus</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 McFog W
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//cdn.jsdelivr.net/imagesloaded/3.0.4/imagesloaded.pkgd.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.min.css" media="screen" type="text/css">
+<script src="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

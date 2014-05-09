@@ -1,0 +1,300 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Undocumented stylus built-in functions | McFog＠がんばらない</title>
+  <meta name="author" content="McFog W">
+  
+  <meta name="description" content="Stylus的文档更新相对不怎么及时，这里记录一下如何找到内置函数的列表，目前最新的内置函数列表，以及其中一些比较有用的文档中没有提及的">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Undocumented stylus built-in functions"/>
+  <meta property="og:site_name" content="McFog＠がんばらない"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="McFog＠がんばらない" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//cdn.jsdelivr.net/html5shiv/3.7.0/html5shiv.js"></script><![endif]-->
+  <script src="//cdn.jsdelivr.net/jquery/1.10.2/jquery-1.10.2.min.js"></script>
+  
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41595211-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1>
+    <i class="icon-dollar"></i>
+    <a href="/">McFog＠がんばらない</a>
+    <b>McFog＠がんばらない</b>
+    <em>_</em>
+  </h1>
+  <h2><a href="/">McPress - the tech blog of mcfog</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/images/201306/stylus.jpg" class="thumb" />
+        
+        <time datetime="2013-06-13T18:31:18.000Z"><a href="/2013/06/undocumented-stylus-built-in-functions/">6月 14 2013</a></time>
+      
+      
+  
+    <h1 class="title">Undocumented stylus built-in functions</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Stylus的文档更新相对不怎么及时，这里记录一下如何找到内置函数的列表，目前最新的内置函数列表，以及其中一些比较有用的文档中没有提及的</p>
+<a id="more"></a>
+
+<h3 id="获取最新的内置函数">获取最新的内置函数</h3>
+<p>源码文件 <a href="https://raw.github.com/LearnBoost/stylus/master/lib/functions/index.styl" target="_blank">https://raw.github.com/LearnBoost/stylus/master/lib/functions/index.styl</a></p>
+<p>用浏览器打开，执行</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
+</pre></td><td class="code"><pre>document.body.innerHTML.match(<span class="regexp">/^([-\w]+)\(.+\)/gm</span>).join(<span class="string">'\n'</span>)
+</pre></td></tr></table></figure>
+
+<p>来获取最新的内置函数列表，当然由于文件不长，直接目测也行</p>
+<h3 id="目前最新的内置函数列表及简单介绍">目前最新的内置函数列表及简单介绍</h3>
+<ul>
+<li>断言/打印<ul>
+<li>-string(arg)<ul>
+<li>debug用来打印变量用</li>
+</ul>
+</li>
+<li>require-color(color)<ul>
+<li>要求输入是一个颜色，否则在控制台报错，下同</li>
+</ul>
+</li>
+<li>require-unit(n)</li>
+<li>require-string(str)</li>
+</ul>
+</li>
+<li>数学<ul>
+<li>math(n, fn)<ul>
+<li>返回js的 <code>Math[fn](n)</code> 单位维持不变</li>
+</ul>
+</li>
+<li>adjust(color, prop, amount)</li>
+<li>abs(n)</li>
+<li>sin(n)</li>
+<li>cos(n)</li>
+<li>min(a, b)</li>
+<li>max(a, b)</li>
+<li>ceil(n, precision = 0)</li>
+<li>floor(n, precision = 0)</li>
+<li>round(n, precision = 0)</li>
+<li>sum(nums)</li>
+<li>avg(nums)</li>
+<li>remove-unit(n)<ul>
+<li>移除单位</li>
+</ul>
+</li>
+<li>percent-to-decimal(n)</li>
+<li>odd(n)<ul>
+<li>是否为单数</li>
+</ul>
+</li>
+<li>even(n)<ul>
+<li>是否为双数</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>获取颜色信息<ul>
+<li>alpha(color)</li>
+<li>hue(color)</li>
+<li>saturation(color)</li>
+<li>lightness(color)</li>
+<li>light(color)<ul>
+<li>颜色是否为亮？</li>
+</ul>
+</li>
+<li>dark(color)<ul>
+<li>颜色是否为暗？</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>颜色调整<ul>
+<li>desaturate(color, amount)<ul>
+<li>减小饱和度</li>
+</ul>
+</li>
+<li>saturate(color, amount)<ul>
+<li>增加饱和度</li>
+</ul>
+</li>
+<li>darken(color, amount)<ul>
+<li>减小亮度</li>
+</ul>
+</li>
+<li>lighten(color, amount)<ul>
+<li>增加亮度</li>
+</ul>
+</li>
+<li>fade-out(color, amount)<ul>
+<li>降低透明度</li>
+</ul>
+</li>
+<li>fade-in(color, amount)<ul>
+<li>提升透明度</li>
+</ul>
+</li>
+<li>spin(color, amount)<ul>
+<li>转色调</li>
+</ul>
+</li>
+<li>mix(color1, color2, weight = 50%)<ul>
+<li>混色</li>
+</ul>
+</li>
+<li>invert(color)<ul>
+<li>反色</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>helpers<ul>
+<li>last(expr)</li>
+<li>keys(pairs)</li>
+<li>values(pairs)</li>
+<li>join(delim, vals…)</li>
+<li>add-property(name, expr)</li>
+</ul>
+</li>
+</ul>
+<p>—EOF—</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/css/">css</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/stylus/">stylus</a>
+  </div>
+
+		
+			
+		
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:mcfog.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/css/">css</a><small>1</small></li>
+  
+    <li><a href="/categories/javascript/">javascript</a><small>6</small></li>
+  
+    <li><a href="/categories/javascript/programming/">programming</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/coco/">coco</a><small>1</small></li>
+  
+    <li><a href="/tags/design/">design</a><small>2</small></li>
+  
+    <li><a href="/tags/dom/">dom</a><small>1</small></li>
+  
+    <li><a href="/tags/grunt/">grunt</a><small>1</small></li>
+  
+    <li><a href="/tags/inspiration/">inspiration</a><small>1</small></li>
+  
+    <li><a href="/tags/jquery/">jquery</a><small>2</small></li>
+  
+    <li><a href="/tags/stylus/">stylus</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 McFog W
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//cdn.jsdelivr.net/imagesloaded/3.0.4/imagesloaded.pkgd.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.min.css" media="screen" type="text/css">
+<script src="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

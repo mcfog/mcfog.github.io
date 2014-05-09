@@ -1,0 +1,210 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Design story of LitPHP | McFog＠がんばらない</title>
+  <meta name="author" content="McFog W">
+  
+  <meta name="description" content="LitPHP(官网 | Repo) 昨天正式开源了，这是喜欢框架的我的第一个自认为能拿出手的作品。终于有了这么个作品让我相当地感想万千。先贴上12个类+1个接口的类图
+
+LitPHP的设计哲学">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Design story of LitPHP"/>
+  <meta property="og:site_name" content="McFog＠がんばらない"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="McFog＠がんばらない" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//cdn.jsdelivr.net/html5shiv/3.7.0/html5shiv.js"></script><![endif]-->
+  <script src="//cdn.jsdelivr.net/jquery/1.10.2/jquery-1.10.2.min.js"></script>
+  
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41595211-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1>
+    <i class="icon-dollar"></i>
+    <a href="/">McFog＠がんばらない</a>
+    <b>McFog＠がんばらない</b>
+    <em>_</em>
+  </h1>
+  <h2><a href="/">McPress - the tech blog of mcfog</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/2014/03/design-story-of-litphp/lit.png" class="thumb" />
+        
+        <time datetime="2014-03-02T13:16:23.000Z"><a href="/2014/03/design-story-of-litphp/">3月 2 2014</a></time>
+      
+      
+  
+    <h1 class="title">Design story of LitPHP</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>LitPHP(<a href="http://litphp.github.io/" target="_blank">官网</a> | <a href="http://github.com/litphp/lit" target="_blank">Repo</a>) 昨天正式开源了，这是喜欢框架的我的第一个自认为能拿出手的作品。终于有了这么个作品让我相当地感想万千。先贴上12个类+1个接口的类图</p>
+<p><img src="https://rawgithub.com/LitPHP/litphp.github.io/115d5ed1f2d1884b2ac1a147c1583fc50c2e4f84/doc/graphs/classes.svg" alt=""></p>
+<h3 id="LitPHP的设计哲学">LitPHP的设计哲学</h3>
+<a id="more"></a>
+
+<ul>
+<li><p>让程序员选择 @<a href="http://backbonejs.org/" target="_blank">Backbone</a></p>
+<ul>
+<li><p>在Backbone官网中，找到<a href="http://backbonejs.org/#FAQ-why-backbone" target="_blank">这样一段话</a></p>
+<blockquote>
+<p>Backbone.js aims to provide the common foundation that data-rich web applications with ambitious interfaces require — <strong>while very deliberately avoiding painting you into a corner by making any decisions that you’re better equipped to make yourself</strong>.</p>
+</blockquote>
+</li>
+<li><p>我太喜欢『paint into corner』这样的说法了，这是我用很多其他框架的直观感受，可以翻成『画地为牢』吧，我把这段话翻译一下套到LitPHP上来</p>
+<p>  LitPHP希望提供一个性质良好的PHP程序结构。为了避免画地为牢，LitPHP刻意减少功能，不作任何我们认为应当由实际开发者来做出的决策（比如视图层究竟包含哪些职责/如何嵌套，又比如ORM或模板引擎的选择）</p>
+</li>
+<li><p>为什么选择LitPHP？因为它让你选择！</p>
+</li>
+</ul>
+</li>
+<li><p>『中间件』及其支点 @<a href="http://www.senchalabs.org/connect/" target="_blank">connect</a></p>
+<ul>
+<li>connect作为一个非常成功的框架，其中间件的理念让nodejs在webserver方面的成就拔高了一截。</li>
+<li>中间件(middleware)模式和插件(plugin)模式的区别，在我看来可以理解成插件是『改变原有功能』而中间件是『拼接出需要的功能』。插件主要『覆盖』而中间件主要『连接』。</li>
+<li>中间件为了达成连接的目的，需要不动的支点，nodejs天然提供了<code>request</code>对象和<code>response</code>对象，connect的中间件便以这两个对象为支点，通过这两个对象来协作。</li>
+<li><p>  LitPHP中，Route相关代码扮演connect的角色，让中间件得以执行，而其他代码就聚焦于扮演支点的角色：<code>Lit_Result</code>大约是<code>response</code>的角色，而看似突兀又简陋的<code>Lit_Http_Conversation</code>，其实扮演了非常重要的<code>request</code>的角色。<code>Lit_App</code>作为全局工厂，让动态程度不及JS的PHP能够更好的改变/添加各个组件的功能，还提供了context作为全局黑板便于信息交换。</p>
+<p>  虽然尚未经过实践，但我可以想象负责缓存的中间件在判断缓存命中后，设置一个<code>Cache_Hit_Result</code>后中断后续路由逻辑；负责用户登录的中间件在发现用户未登录时设置跳转Result并中断，否则将用户信息写入app context……</p>
+</li>
+</ul>
+</li>
+<li><p>无招胜有招</p>
+<ul>
+<li>LitPHP基本没有<code>::</code>符号写死类名，也不存在<code>final</code>的方法，而每个方法都不超过10行代码，你可以而且很容易通过继承来控制所有行为。</li>
+<li>LitPHP没有刻板的MVC划分。只要有接受<code>Lit_App</code>的callback，就可以作为C；只要继承<code>Lit_Result</code>，或与其组合，就可以作为V；只要不是V，就可以视为M。实际应用中如何分层如何配合，完全由使用者自己决定。</li>
+</ul>
+</li>
+</ul>
+<p>最后贴上QQ群<strong>341338880</strong>，欢迎加群讨论</p>
+<p><a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=e0ce42feb7d8f8b7de8b2ab6bdac26d62e1cd34189ea767127f1e41ea70df0d8"><img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="LitPHP讨论" title="LitPHP讨论"></a></p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+		
+			
+		
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:mcfog.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/css/">css</a><small>1</small></li>
+  
+    <li><a href="/categories/javascript/">javascript</a><small>6</small></li>
+  
+    <li><a href="/categories/javascript/programming/">programming</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/coco/">coco</a><small>1</small></li>
+  
+    <li><a href="/tags/design/">design</a><small>2</small></li>
+  
+    <li><a href="/tags/dom/">dom</a><small>1</small></li>
+  
+    <li><a href="/tags/grunt/">grunt</a><small>1</small></li>
+  
+    <li><a href="/tags/inspiration/">inspiration</a><small>1</small></li>
+  
+    <li><a href="/tags/jquery/">jquery</a><small>2</small></li>
+  
+    <li><a href="/tags/stylus/">stylus</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 McFog W
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//cdn.jsdelivr.net/imagesloaded/3.0.4/imagesloaded.pkgd.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.min.css" media="screen" type="text/css">
+<script src="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>a browser incompatibility behavior about jquery and unattached element | McFog＠がんばらない</title>
+  <meta name="author" content="McFog W">
+  
+  <meta name="description" content="摘要
+
+jQuery.fn.hide 会读取元素的display样式
+读取尚未插入dom树的脱机元素的样式时，不同浏览器行为不同
+
+场景
+在一段显示错误提示的代码中，发现firefox下显示异常，错误提示tips的宽度没有自适应内容而是占满了整个容器。inspect后发现，本应是由CSS控制的display:inline-block被元素的style=&amp;quot;display:block&amp;quot;覆盖，chrome下没有这个问题">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="a browser incompatibility behavior about jquery and unattached element"/>
+  <meta property="og:site_name" content="McFog＠がんばらない"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="McFog＠がんばらない" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//cdn.jsdelivr.net/html5shiv/3.7.0/html5shiv.js"></script><![endif]-->
+  <script src="//cdn.jsdelivr.net/jquery/1.10.2/jquery-1.10.2.min.js"></script>
+  
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41595211-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1>
+    <i class="icon-dollar"></i>
+    <a href="/">McFog＠がんばらない</a>
+    <b>McFog＠がんばらない</b>
+    <em>_</em>
+  </h1>
+  <h2><a href="/">McPress - the tech blog of mcfog</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/images/201306/browsers.jpg" class="thumb" />
+        
+        <time datetime="2013-06-23T02:59:24.000Z"><a href="/2013/06/a-browser-incompatibility-behavior-about-jquery-and-unattached-element/">6月 23 2013</a></time>
+      
+      
+  
+    <h1 class="title">a browser incompatibility behavior about jquery and unattached element</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h3 id="摘要">摘要</h3>
+<ul>
+<li>jQuery.fn.hide 会读取元素的display样式</li>
+<li>读取尚未插入dom树的脱机元素的样式时，不同浏览器行为不同</li>
+</ul>
+<h3 id="场景">场景</h3>
+<p>在一段显示错误提示的代码中，发现firefox下显示异常，错误提示tips的宽度没有自适应内容而是占满了整个容器。inspect后发现，本应是由CSS控制的<code>display:inline-block</code>被元素的<code>style=&quot;display:block&quot;</code>覆盖，chrome下没有这个问题</p>
+<a id="more"></a>
+
+<h3 id="jQuery-fn-show">jQuery.fn.show</h3>
+<p>断点调查后发现在jQ的<code>show</code>方法中有这样<a href="https://github.com/jquery/jquery/blob/1.7.2/src/effects.js#L57" target="_blank">一段代码</a></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre>1
+</pre></td><td class="code"><pre>    elem.style.display = jQuery._data( elem, <span class="string">"olddisplay"</span> ) || <span class="string">""</span>;
+</pre></td></tr></table></figure>
+
+<p>也就是说jQ为了hide和show后能够保持原有的display属性，会将元素原来的display属性暂存起来，这样一个原本<code>inline-block</code>的元素经过hide和show之后不会被改成<code>block</code>，firefox下问题tips元素的<code>jQuery._data( elem, &quot;olddisplay&quot; )</code>值是<code>block</code>，所以show的行为没有问题，问题应当是hide的时候这个计算算错了</p>
+<h3 id="jQuery-fn-hide">jQuery.fn.hide</h3>
+<p>再来看hide的<a href="https://github.com/jquery/jquery/blob/1.7.2/src/effects.js#L81" target="_blank">相关代码</a>，中规中矩，用<code>jQuery.css</code>获取display属性</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+5
+</pre></td><td class="code"><pre>display = jQuery.css( elem, <span class="string">"display"</span> );
+
+<span class="keyword">if</span> ( display !== <span class="string">"none"</span> && !jQuery._data( elem, <span class="string">"olddisplay"</span> ) ) {
+	jQuery._data( elem, <span class="string">"olddisplay"</span>, display );
+}
+</pre></td></tr></table></figure>
+
+<p>继续追踪后在<code>jQuery.css</code>的实现中发现了<a href="https://github.com/jquery/jquery/blob/1.7.2/src/css.js#L179" target="_blank">浏览器不一致的来源</a></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre>1
+2
+3
+4
+</pre></td><td class="code"><pre><span class="keyword">if</span> ( (defaultView = elem.ownerDocument.defaultView) &&
+		(computedStyle = defaultView.getComputedStyle( elem, <span class="literal">null</span> )) ) {
+
+	ret = computedStyle.getPropertyValue( name );
+</pre></td></tr></table></figure>
+
+<p>这里的elem是一个未加入dom树的“脱机”元素，<code>defaultView</code>火狐和chrome计算后都等于<code>window</code>，<code>name</code>是要获取的属性名，这里是display。chrome下<code>ret</code>拿到的值是空字符串，而火狐下拿到的是<code>block</code>，从而火狐会将这个值写入<code>olddisplay</code>，最终导致show的时候元素被加上<code>display:block</code></p>
+<h3 id="观察&amp;总结">观察&amp;总结</h3>
+<p>最后我计算了<code>getComputedStyle(document.createElement(&#39;div&#39;), null)</code>，发现chrome基本上都是空，而火狐则填充了各种各样的默认属性（顺带一提IE9的行为和火狐类似）</p>
+<p><img src="/images/201306/unattached-styles.jpg" alt="unattached styles"></p>
+<p>究竟哪种行为才符合标准已经不重要，总之<strong>避免读取脱机元素的样式</strong>才能避开这里的问题，虽然脱机元素操作完再插入DOM是性能友好的做法，但浏览器兼容性多数情况下还是比性能更重要的</p>
+<h3 id="本次问题代码fiddle">本次问题代码fiddle</h3>
+<p>chrome下显示inline-block，火狐/IE9则显示block</p>
+<iframe width="100%" height="300" src="http://jsfiddle.net/PrmgJ/embedded/result,js,css/light" frameborder="0" allowfullscreen></iframe>
+
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/javascript/">javascript</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/dom/">dom</a>, <a href="/tags/jquery/">jquery</a>
+  </div>
+
+		
+			
+		
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:mcfog.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/css/">css</a><small>1</small></li>
+  
+    <li><a href="/categories/javascript/">javascript</a><small>6</small></li>
+  
+    <li><a href="/categories/javascript/programming/">programming</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/coco/">coco</a><small>1</small></li>
+  
+    <li><a href="/tags/design/">design</a><small>2</small></li>
+  
+    <li><a href="/tags/dom/">dom</a><small>1</small></li>
+  
+    <li><a href="/tags/grunt/">grunt</a><small>1</small></li>
+  
+    <li><a href="/tags/inspiration/">inspiration</a><small>1</small></li>
+  
+    <li><a href="/tags/jquery/">jquery</a><small>2</small></li>
+  
+    <li><a href="/tags/stylus/">stylus</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 McFog W
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//cdn.jsdelivr.net/imagesloaded/3.0.4/imagesloaded.pkgd.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.min.css" media="screen" type="text/css">
+<script src="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

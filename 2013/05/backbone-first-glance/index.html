@@ -1,0 +1,220 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Backbone first glance | McFog＠がんばらない</title>
+  <meta name="author" content="McFog W">
+  
+  <meta name="description" content="昨夜开始实现利用github api 把文章评论丢到Issue里面，选型时选择了Backbone作为基础，对比以往研究过的其他各类框架，Backbone是崭新而让我震惊的
+先说结论：Backbone是framework of MV* frameworks，是框架的框架；或者说，Backbone仅仅抽象了web app framework中多数都需要的功能组织成api接口，但并没有将自己限制在任何一种风格，而是要求开发者先以Backbone为基础自己定义出一种框架（完成MV*中“*”部分和V部分的定义），然后再实现自己的业务。
+不是MVC, MVP, MVVM">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Backbone first glance"/>
+  <meta property="og:site_name" content="McFog＠がんばらない"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="McFog＠がんばらない" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//cdn.jsdelivr.net/html5shiv/3.7.0/html5shiv.js"></script><![endif]-->
+  <script src="//cdn.jsdelivr.net/jquery/1.10.2/jquery-1.10.2.min.js"></script>
+  
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41595211-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1>
+    <i class="icon-dollar"></i>
+    <a href="/">McFog＠がんばらない</a>
+    <b>McFog＠がんばらない</b>
+    <em>_</em>
+  </h1>
+  <h2><a href="/">McPress - the tech blog of mcfog</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/images/201305/backbone.jpg" class="thumb" />
+        
+        <time datetime="2013-05-25T00:14:00.000Z"><a href="/2013/05/backbone-first-glance/">5月 25 2013</a></time>
+      
+      
+  
+    <h1 class="title">Backbone first glance</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>昨夜开始实现<a href="/2013/05/hello/">利用github api 把文章评论丢到Issue里面</a>，选型时选择了Backbone作为基础，对比以往研究过的其他各类框架，Backbone是崭新而让我震惊的</p>
+<p>先说结论：Backbone是<em>framework of MV* frameworks</em>，是框架的框架；或者说，Backbone仅仅抽象了web app framework中多数都需要的功能组织成api接口，但并没有将自己限制在任何一种风格，而是要求开发者先以Backbone为基础自己定义出一种框架（完成MV*中“*”部分和V部分的定义），然后再实现自己的业务。</p>
+<h3 id="不是MVC,_MVP,_MVVM">不是MVC, MVP, MVVM</h3>
+<a id="more"></a>
+
+<p>MV*家族的差异在于*，也就是Model和View的中间代码，中间代码的职责、边界、执行方式输入输出等决定了MV*框架的类别，Backbone不存在这样的中间层。</p>
+<p><a href="http://enwp.org/Backbone.js" target="_blank">Wikipedia</a>和很多其他人将Backbone定义为MVP，我觉得这可能是因为相对而言将Backbone完善为一个MVP框架是成本比较低的，但即使同样的MVP模式，Backbone也可以展现出截然不同的组织结构来！</p>
+<p>其实官网简介正暗示了这个结论：</p>
+<blockquote>
+<p>Backbone.js gives structure to web applications by providing models with key-value binding and custom events, collections with a rich API of enumerable functions, views with declarative event handling, and connects it all to your existing API over a RESTful JSON interface.</p>
+</blockquote>
+<p>Backbone并没有定死如何连接model和view，没有定死app的结构究竟如何，而只是抽象了model和view，甚至<code>Backbone.View</code>不一定做MV*中的V部分。</p>
+<h3 id="Backbone_Storm">Backbone Storm</h3>
+<p>几分钟的简单brainstorm就让我列出了非常多种以Backbone为基础的结构</p>
+<p><img src="/images/201305/bbstorm-1.jpg" alt="Storm 1"></p>
+<p>将<code>Backbone.View</code>作为MVP模式中的P，V层只留原生DOM/BOM。而<code>Backbone.Router</code>仅作为处理HistoryAPI/Hashchange的辅助。这种结构中M、V、P三者都有很好的事件支持，比较适合事件驱动的开发思路，但估计模块化、拆分View可能有难度</p>
+<p><img src="/images/201305/bbstorm-2.jpg" alt="Storm 2"></p>
+<p>同样MVP结构，也可以边缘化<code>Backbone.View</code>，将其仅作为绑定dom的辅助，而将<code>Backbone.Router</code>作为MVP模式中的P。Router为核心的好处是如果单页面状态多的时候会比较轻松，另外<code>Backbone.View</code>被边缘化后，可能会有利于动态切换、嵌套、拆分。而Router本身由于本身逻辑主要是分发，天然来说不难拆分。</p>
+<p><img src="/images/201305/bbstorm-3.jpg" alt="Storm 3"></p>
+<p>虽然<code>Backbone.Router</code>曾经被称为Controller，但在非单页的webapp中这并不合适，额外单独的Controller可能适用范围更广一点。这种结构中<code>Backbone.View</code>作为View的一部分，主要负责屏蔽DOM/BOM的细节，Controller负责交互逻辑，比起之前的MVP显得更灵活一些（<code>Backbone.View</code>瘦意味着易于移植到不同终端）</p>
+<p><img src="/images/201305/bbstorm-4.jpg" alt="Storm 4"></p>
+<p>在MVVM模式中，VM负责将领域模型Model和视图View对接，以Backbone为基础来看，VM可以直接继承<code>Backbone.Model</code>，然后在<code>sync</code>方法中对接实际的领域Model，也可以直接手写。无论如何，<code>Backbone.View</code>作为View来屏蔽dom细节应该是没有问题的。注意这种结构下Model需要经历两个类才最终影响到Dom结构，层数多往往同时意味着复杂性和灵活性。感觉可能会比较难以把握VM和M之间的边界。</p>
+<h3 id="除了*部分，我们还要担心什么？">除了*部分，我们还要担心什么？</h3>
+<ul>
+<li>操作DOM的方式：虽然<code>Backbone.View</code>相关代码中有亲jQuery的部分，但同样也有render方法来承载模板引擎的渲染工作；或者用继承的事件机制来完成一个数据绑定到dom的关系似乎也并不突兀。至少我能想象到的三种dom操作风格，Backbone都能很好的承载。</li>
+<li>嵌套<ul>
+<li>嵌套Model。通过覆盖initialize、sync等方法不难实现，更复杂的关联关系也基本和其他语言/框架类似处理即可。当然选用插件也是个不错的主义。</li>
+<li>嵌套View。由于不同的组织方式对View的职责、边界的定义并不一样，所以如果你有类似的需求，最好将嵌套View的方式最开始就考虑进你的设计中。另外，注意如果嵌套View的同时DOM元素也嵌套的话，小心处理事件冒泡。</li>
+<li>嵌套Router。如果单纯只做纯分发，一般问题不大，但如果同时要在Router里面写逻辑，那分Router嵌套Router就是必须要考虑的了</li>
+</ul>
+</li>
+</ul>
+<h3 id="总结">总结</h3>
+<p>其实MV*家族纠结的不外乎纯领域的Model和纯前端的View之间的这些代码如何组织，哪些可以侵入进入Model哪些可以侵入View；总体思路其实都是解耦。那么其实如何解耦的原则也很简单：越有可能变化的地方越要解耦、抽象，而不容易变化的地方则可以接受一定程度的耦合来为其他（效率、代码量、系统复杂度）妥协。</p>
+<p>Backbone将各类框架中有多种流派的、没有标准答案的部分忽略，只实现最基础、公认的最佳实践，将决定权交还了开发者，由开发者决定究竟使用何种风格；正如官网上宣称的<a href="http://backbonejs.org/#FAQ-tim-toady" target="_blank">There’s More Than One Way To Do It</a>，Backbone就是这样一个自由的，不完整的，框架之框架</p>
+<hr>
+<p>参考    </p>
+<ul>
+<li><a href="http://backbonejs.org/" target="_blank">http://backbonejs.org/</a></li>
+<li><a href="http://lostechies.com/derickbailey/2011/12/23/backbone-js-is-not-an-mvc-framework/" target="_blank">http://lostechies.com/derickbailey/2011/12/23/backbone-js-is-not-an-mvc-framework/</a></li>
+<li><a href="http://geekswithblogs.net/dlussier/archive/2009/11/21/136454.aspx" target="_blank">http://geekswithblogs.net/dlussier/archive/2009/11/21/136454.aspx</a></li>
+<li><a href="http://www.codeproject.com/Articles/228214/Understanding-Basics-of-UI-Design-Pattern-MVC-MVP" target="_blank">http://www.codeproject.com/Articles/228214/Understanding-Basics-of-UI-Design-Pattern-MVC-MVP</a></li>
+</ul>
+<p>—EOF—</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/javascript/">javascript</a>
+  </div>
+
+        
+		
+			
+		
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:mcfog.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/css/">css</a><small>1</small></li>
+  
+    <li><a href="/categories/javascript/">javascript</a><small>6</small></li>
+  
+    <li><a href="/categories/javascript/programming/">programming</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/coco/">coco</a><small>1</small></li>
+  
+    <li><a href="/tags/design/">design</a><small>2</small></li>
+  
+    <li><a href="/tags/dom/">dom</a><small>1</small></li>
+  
+    <li><a href="/tags/grunt/">grunt</a><small>1</small></li>
+  
+    <li><a href="/tags/inspiration/">inspiration</a><small>1</small></li>
+  
+    <li><a href="/tags/jquery/">jquery</a><small>2</small></li>
+  
+    <li><a href="/tags/stylus/">stylus</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 McFog W
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//cdn.jsdelivr.net/imagesloaded/3.0.4/imagesloaded.pkgd.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.min.css" media="screen" type="text/css">
+<script src="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

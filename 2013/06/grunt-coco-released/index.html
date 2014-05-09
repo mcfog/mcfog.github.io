@@ -1,0 +1,198 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>grunt-coco released | McFog＠がんばらない</title>
+  <meta name="author" content="McFog W">
+  
+  <meta name="description" content="最近在看各种自动化工具，有集成化程度高，比起编译工具更像“IDE减文本编辑”的mimosajs，也有被业界广泛认可，开放易配置的gruntjs。作为一个coco语言支持者，看自动化工具当然是先看能不能支持coco。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="grunt-coco released"/>
+  <meta property="og:site_name" content="McFog＠がんばらない"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="McFog＠がんばらない" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//cdn.jsdelivr.net/html5shiv/3.7.0/html5shiv.js"></script><![endif]-->
+  <script src="//cdn.jsdelivr.net/jquery/1.10.2/jquery-1.10.2.min.js"></script>
+  
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41595211-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1>
+    <i class="icon-dollar"></i>
+    <a href="/">McFog＠がんばらない</a>
+    <b>McFog＠がんばらない</b>
+    <em>_</em>
+  </h1>
+  <h2><a href="/">McPress - the tech blog of mcfog</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/images/201306/grunt-coco.jpg" class="thumb" />
+        
+        <time datetime="2013-06-14T11:19:49.000Z"><a href="/2013/06/grunt-coco-released/">6月 14 2013</a></time>
+      
+      
+  
+    <h1 class="title">grunt-coco released</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>最近在看各种自动化工具，有集成化程度高，比起编译工具更像“IDE减文本编辑”的<a href="http://mimosajs.com" target="_blank">mimosajs</a>，也有被业界广泛认可，开放易配置的<a href="http://gruntjs.com" target="_blank">gruntjs</a>。作为一个<a href="https://github.com/satyr/coco" target="_blank">coco</a>语言支持者，看自动化工具当然是先看能不能支持coco。</p>
+<a id="more"></a>
+
+<p>grunt的开放模块机制非常稳定靠谱(所以才会被社区高度认可的吧)，根据官网文档亦步亦趋很快就实现出了支持编译coco文件的 <code>grunt-coco</code>。说来这是我第一个上npm的repo呢。</p>
+<h3 id="使用方法">使用方法</h3>
+<p>安装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre>1
+</pre></td><td class="code"><pre>npm i grunt<span class="attribute">-coco</span> <span class="subst">--</span>save<span class="attribute">-dev</span>
+</pre></td></tr></table></figure>
+
+<p>在Gruntfile中引用</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre>1
+</pre></td><td class="code"><pre>grunt.loadNpmTasks(<span class="string">'grunt-coco'</span>);
+</pre></td></tr></table></figure>
+
+<p>配置： 目前配置仅支持<code>separator</code>、<code>bare</code>和<code>join</code>，含义和<a href="https://github.com/gruntjs/grunt-contrib-coffee#options" target="_blank">grunt-contrib-coffee</a>里的相同。<code>globals</code>配置项等coco下个版本发布把bug修掉以后就可以有效。</p>
+<p>最后附repo传送门 <a href="https://github.com/mcfog/grunt-coco" target="_blank">https://github.com/mcfog/grunt-coco</a></p>
+<h5 id="题外话">题外话</h5>
+<p>mimosa是一个自动工具和todo框架的合成体，其开放的module机制相对grunt不算清晰，所幸作者正在积极开发中，丢去的<a href="https://github.com/dbashford/mimosa/pull/214" target="_blank">Pull Request</a>很快就被merge了，下个版本的mimosa就将支持coco。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/javascript/">javascript</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/grunt/">grunt</a>, <a href="/tags/coco/">coco</a>
+  </div>
+
+		
+			
+		
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:mcfog.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/css/">css</a><small>1</small></li>
+  
+    <li><a href="/categories/javascript/">javascript</a><small>6</small></li>
+  
+    <li><a href="/categories/javascript/programming/">programming</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/coco/">coco</a><small>1</small></li>
+  
+    <li><a href="/tags/design/">design</a><small>2</small></li>
+  
+    <li><a href="/tags/dom/">dom</a><small>1</small></li>
+  
+    <li><a href="/tags/grunt/">grunt</a><small>1</small></li>
+  
+    <li><a href="/tags/inspiration/">inspiration</a><small>1</small></li>
+  
+    <li><a href="/tags/jquery/">jquery</a><small>2</small></li>
+  
+    <li><a href="/tags/stylus/">stylus</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 McFog W
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//cdn.jsdelivr.net/imagesloaded/3.0.4/imagesloaded.pkgd.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.min.css" media="screen" type="text/css">
+<script src="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

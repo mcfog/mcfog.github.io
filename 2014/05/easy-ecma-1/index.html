@@ -1,0 +1,265 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Easy ECMA 1 | McFog＠がんばらない</title>
+  <meta name="author" content="McFog W">
+  
+  <meta name="description" content="简单易懂的ECMA规范导读1
+序
+最近混SF，恰巧又逢工作方面有了NodeJS的机会，迫切地有教别人怎么写JS的需求，我发现JS这个东西其实真没那么容易理解。
+为了加深和纠正自己对JS的理解，也为了以后能直接甩别人一脸文章，所以开始挖这样一个大坑：简单易懂的ECMA规范导读。希望能以专题的形式有线索地基于ECMA标准介绍Javascript的方方面面。本文不是ECMA标准的中文翻译，也不是Javascript的入门教程，本文虽然以JS的常见问题切入，但并不适合想要快速了解这些问题的人（Google才是快速了解问题的正解）。本文的聚焦于标准如何决定了JS的各种行为，JS引擎的水面下在发生些什么。
+本文描述的是ECMA262的5.1版本 也是现在最为流行和主流的标准，现代浏览器和NodeJS默认均遵循此标准。尽量以英文原版为基础，为了流畅，可能会使用某些名词的中文翻译，但会将匹配的英文名词以此种样式中出现一次以避免误解。
+Topic1. that’s this
+我们的第一个话题是：this指向哪里?">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Easy ECMA 1"/>
+  <meta property="og:site_name" content="McFog＠がんばらない"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="McFog＠がんばらない" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//cdn.jsdelivr.net/html5shiv/3.7.0/html5shiv.js"></script><![endif]-->
+  <script src="//cdn.jsdelivr.net/jquery/1.10.2/jquery-1.10.2.min.js"></script>
+  
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41595211-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1>
+    <i class="icon-dollar"></i>
+    <a href="/">McFog＠がんばらない</a>
+    <b>McFog＠がんばらない</b>
+    <em>_</em>
+  </h1>
+  <h2><a href="/">McPress - the tech blog of mcfog</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/2014/05/easy-ecma-1/ecma_org.png" class="thumb" />
+        
+        <time datetime="2014-05-07T16:00:00.000Z"><a href="/2014/05/easy-ecma-1/">5月 8 2014</a></time>
+      
+      
+  
+    <h1 class="title">Easy ECMA 1</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h1 id="简单易懂的ECMA规范导读1">简单易懂的ECMA规范导读1</h1>
+<h3 id="序">序</h3>
+<p>最近混<a href="http://segmentfault.com/" target="_blank">SF</a>，恰巧又逢工作方面有了NodeJS的机会，迫切地有教别人怎么写JS的需求，<br>我发现JS这个东西其实真没那么容易理解。</p>
+<p>为了加深和纠正自己对JS的理解，也为了以后能直接甩别人一脸文章，所以开始挖这样一个大坑：<strong>简单易懂的ECMA规范导读</strong>。<br>希望能以专题的形式有线索地基于ECMA标准介绍Javascript的方方面面。本文不是ECMA标准的中文翻译，也不是Javascript的入门教程，<br>本文虽然以JS的常见问题切入，但并不适合想要快速了解这些问题的人（Google才是快速了解问题的正解）。<br>本文的聚焦于标准如何决定了JS的各种行为，JS引擎的水面下在发生些什么。</p>
+<p>本文描述的是<a href="http://www.ecma-international.org/ecma-262/5.1/" target="_blank">ECMA262的5.1版本</a> 也是现在最为流行和主流的标准，<br>现代浏览器和NodeJS默认均遵循此标准。尽量以英文原版为基础，为了流畅，可能会使用某些名词的中文翻译，<br>但会将匹配的英文名词以<code>此种样式</code>中出现一次以避免误解。</p>
+<h3 id="Topic1-_that’s_this">Topic1. that’s this</h3>
+<p>我们的第一个话题是：this指向哪里?</p>
+<a id="more"></a>
+
+<h4 id="什么是this">什么是this</h4>
+<p><a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.1" target="_blank">11.1.1 The this Keyword</a></p>
+<blockquote>
+<p>The this keyword evaluates to the value of the ThisBinding of the current execution context.</p>
+</blockquote>
+<p>计算this关键字时，取当前执行上下文的ThisBinding的值</p>
+<p><a href="http://www.ecma-international.org/ecma-262/5.1/#sec-10.3" target="_blank">10.3 Execution Contexts</a></p>
+<p>执行上下文<code>Execution Context</code> 从逻辑上形成栈结构，栈顶(活跃)的执行上下文包含了追踪当前正在执行的代码的全部状态。</p>
+<p>执行上下文包含了LexicalEnvironment、VariableEnvironment和ThisBinding三部分，在这个话题中我们主要关心ThisBinding，<br>也就是代码中出现this所代指的值的绑定</p>
+<h4 id="全局代码中的this">全局代码中的this</h4>
+<p>从最简单的开始</p>
+<p><a href="http://www.ecma-international.org/ecma-262/5.1/#sec-10.4.1" target="_blank">10.4.1 Entering Global Code</a><br>在进入全局代码的流程中，规范明确指出：全局代码对应的执行上下文中，</p>
+<blockquote>
+<p>Set the ThisBinding to the global object.</p>
+</blockquote>
+<p>所以全局代码中，this指向全局对象</p>
+<h4 id="函数调用表达式时提供的this值">函数调用表达式时提供的this值</h4>
+<p><strong>注意：this值<code>this value</code>是不同于this关键词的概念，是调用[[Call]]内部方法的参数之一，并不等同于用户代码中的this关键字</strong></p>
+<p>函数调用表达式<code>CallExpression</code>的过程中，按照<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.3" target="_blank">标准的描述</a>，<br>计算this值的伪代码如下</p>
+<pre><code><span class="keyword">if</span> Type(<span class="keyword">ref</span>) <span class="keyword">is</span> &lt;Reference&gt;
+    <span class="keyword">if</span> IsPropertyReference(<span class="keyword">ref</span>)
+        thisValue := getBase(<span class="keyword">ref</span>)
+    <span class="keyword">else</span> # <span class="keyword">assert</span> Type(getBase(<span class="keyword">ref</span>)) <span class="keyword">is</span> &lt;Environment Record&gt;
+        thisValue := getBase(<span class="keyword">ref</span>).ImplicitThisValue()
+<span class="keyword">else</span>
+    thisValue := undefined
+</code></pre><ul>
+<li>ref是函数调用参数左侧(括号左侧)的表达式计算的结果</li>
+<li><code>&lt;Reference&gt;</code>引用类型常见的有<ul>
+<li>标示符引用<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.2" target="_blank">Identifier Reference</a><br>即变量引用，引用base是环境记录<code>Environment Record</code></li>
+<li>字面量引用<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.3" target="_blank">Literal Reference</a><br>引用base也是环境记录</li>
+<li>属性访问<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.1" target="_blank">Property Accessors</a><br>包括点运算和<code>[]</code>运算，引用base是左值</li>
+</ul>
+</li>
+<li>非引用类型常见的有<ul>
+<li>全部ECMA内置函数和所有用户定义函数的返回结果（例外是host objects，也就是假设DOM之类的宿主对象如果需要，<br>可以定义一些函数返回引用）</li>
+</ul>
+</li>
+<li>环境记录是前述的执行上下文中的LexicalEnvironment和VariableEnvironment的构成要素<ul>
+<li>不考虑with语句的话，环境记录只有<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-10.2.1" target="_blank">Declarative Environment Records</a>一种，它的<code>ImplicitThisValue</code>始终返回undefined</li>
+</ul>
+</li>
+</ul>
+<p>综上所述，排除with语句的情况下，想让thisValue不是undefined，就只有属性访问一种办法而已。</p>
+<p>计算得到thisValue后，调用被调函数func的<code>[[call]]</code>内部方法，提供thisValue作为this的值</p>
+<h4 id="new表达式时提供的this值">new表达式时提供的this值</h4>
+<p>new表达式<code>NewExpression</code>的<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.2" target="_blank">执行过程</a><br>基本上委托给了<code>[[Construct]]</code>内部方法，我们看这个方法的<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-13.2.2" target="_blank">定义</a>，<br>关注其中第8步</p>
+<blockquote>
+<p>Let result be the result of calling the [[Call]] internal property of F, providing<br>obj as the this value and providing the argument list passed into [[Construct]] as args.</p>
+</blockquote>
+<p>其中F是构造函数，而obj是本次新建的对象，非常清楚。</p>
+<h4 id="this值如何转变为ThisBinding">this值如何转变为ThisBinding</h4>
+<p>前两节我们描述了两种触发函数体内代码的办法各自如何构造this值，但正如前述，this关键字的值是执行上下文中的ThisBinding决定的，<br>this值转变为ThisBinding的过程发生在调用<code>[[Call]]</code>内部方法时，我们看<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-13.2.1" target="_blank">标准</a></p>
+<blockquote>
+<p>Let funcCtx be the result of establishing a new execution context for function<br>code using the value of F’s [[FormalParameters]] internal property, the passed<br>arguments List args, and the this value as described in 10.4.3.</p>
+</blockquote>
+<p>阿哈，第一步就是建立新的执行上下文，其中thisBinding的构建在<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-10.4.3">10.4.3 Entering Function Code
+</a>中描述,</p>
+<pre><code><span class="keyword">if</span> <span class="keyword">function</span>-code <span class="keyword">is</span> &lt;<span class="keyword">strict</span> code&gt;
+    ThisBinding = thisArg
+<span class="keyword">else</span> <span class="keyword">if</span> thisArg <span class="keyword">is</span> null <span class="keyword">or</span> thisArg <span class="keyword">is</span> undefined
+    ThisBinding = <span class="keyword">global</span> <span class="built_in">object</span>
+<span class="keyword">else</span> <span class="keyword">if</span> Type(thisArg) <span class="keyword">is</span> <span class="keyword">not</span> &lt;<span class="built_in">Object</span>&gt;
+    ThisBinding = ToObject(thisArg)
+<span class="keyword">else</span>
+    ThisBinding = thisArg
+</code></pre><p>这就是魔术的秘密</p>
+<ul>
+<li>null 和 undefined 的this在此时会绑定为全局对象</li>
+<li>其他三种非对象 String / Boolean / Number 在此时被转化为对象（auto boxing）</li>
+<li>但是，<strong>strict mode下不进行任何转换</strong></li>
+</ul>
+<p>That’s <code>this</code> in Javascript.</p>
+<hr>
+<p>本节思考题：</p>
+<ul>
+<li>找找看关于apply和call的标准，为何this会变？</li>
+<li>找找看关于bind的标准，哪里体现了bind后的函数内的this无视环境和调用方式，总是固定值？</li>
+<li>with语句并不是一个良好的实践，所以我避开了它，不过这可以作为阅读标准的练习：with语句如何影响this关键词？请试着写一句代码展示此种影响</li>
+<li>eval的内部的this如何确定？</li>
+</ul>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+		
+			
+		
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:mcfog.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/css/">css</a><small>1</small></li>
+  
+    <li><a href="/categories/javascript/">javascript</a><small>6</small></li>
+  
+    <li><a href="/categories/javascript/programming/">programming</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/coco/">coco</a><small>1</small></li>
+  
+    <li><a href="/tags/design/">design</a><small>2</small></li>
+  
+    <li><a href="/tags/dom/">dom</a><small>1</small></li>
+  
+    <li><a href="/tags/grunt/">grunt</a><small>1</small></li>
+  
+    <li><a href="/tags/inspiration/">inspiration</a><small>1</small></li>
+  
+    <li><a href="/tags/jquery/">jquery</a><small>2</small></li>
+  
+    <li><a href="/tags/stylus/">stylus</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2014 McFog W
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//cdn.jsdelivr.net/imagesloaded/3.0.4/imagesloaded.pkgd.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.min.css" media="screen" type="text/css">
+<script src="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
