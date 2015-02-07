@@ -25,6 +25,7 @@
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-41595211-1']);
+  
   _gaq.push(['_trackPageview']);
 
   (function() {
@@ -33,6 +34,7 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
+
 
 </head>
 
@@ -70,6 +72,60 @@
     <header>
       
         
+            <img src="/2015/02/my-api-programming-style/jace.png" class="thumb" />
+        
+        <time datetime="2015-02-05T16:00:00.000Z"><a href="/2015/02/my-api-programming-style/">2月 6 2015</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/02/my-api-programming-style/">一种API代码结构的设计思路</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h3 id="Prologue">Prologue</h3>
+<p>在写API的过程中有这样三种产物</p>
+<ul>
+<li><p>文档</p>
+<p>几乎没人爱写文档，写了也懒得维护。可是同时API的文档对于其他程序员来说又是赖以生存的必需品。因此大家对文档都是爱恨交加，恨自己要维护文档，爱别人写好的漂亮文档；恨别人的烂文档错文档，爱自己随便乱写乃至不写文档。</p>
+</li>
+<li><p>操场</p>
+<p>比文档更高一个层次的奢侈品，不用写代码简单点点或者repl形式马上就能探索接口的行为。不像仅对别人，操场的存在对自己开发接口也是很有帮助的。</p>
+<p>没操场的时候，大家往往人肉建一个文件当操场用，在里面各种玩API，但使着编译型语言的兄弟们没那么好运，他们更需要有操场。</p>
+<p>当然如果实践TDD或BDD的话，用例大概能代替操场一部分的作用，但这只对写接口的人管用。对调用接口的人来说，还是操场好用。</p>
+</li>
+<li><p>字段校验逻辑</p>
+<p>自己写接口的时候必须要做的事情。没做那是100%bug。</p>
+</li>
+</ul>
+<p>想想这三个产物的共同特点是什么？插入一段广告，哦不，我先把他们捏成一张表</p>
+
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/02/my-api-programming-style/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  
+    <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
             <img src="/2014/05/easy-ecma-1/ecma_org.png" class="thumb" />
         
         <time datetime="2014-05-07T16:00:00.000Z"><a href="/2014/05/easy-ecma-1/">5月 8 2014</a></time>
@@ -84,9 +140,9 @@
       
         <h1 id="简单易懂的ECMA规范导读1">简单易懂的ECMA规范导读1</h1>
 <h3 id="序">序</h3>
-<p>最近混<a href="http://segmentfault.com/" target="_blank">SF</a>，恰巧又逢工作方面有了NodeJS的机会，迫切地有教别人怎么写JS的需求，<br>我发现JS这个东西其实真没那么容易理解。</p>
+<p>最近混<a href="http://segmentfault.com/" target="_blank" rel="external">SF</a>，恰巧又逢工作方面有了NodeJS的机会，迫切地有教别人怎么写JS的需求，<br>我发现JS这个东西其实真没那么容易理解。</p>
 <p>为了加深和纠正自己对JS的理解，也为了以后能直接甩别人一脸文章，所以开始挖这样一个大坑：<strong>简单易懂的ECMA规范导读</strong>。<br>希望能以专题的形式有线索地基于ECMA标准介绍Javascript的方方面面。本文不是ECMA标准的中文翻译，也不是Javascript的入门教程，<br>本文虽然以JS的常见问题切入，但并不适合想要快速了解这些问题的人（Google才是快速了解问题的正解）。<br>本文的聚焦于标准如何决定了JS的各种行为，JS引擎的水面下在发生些什么。</p>
-<p>本文描述的是<a href="http://www.ecma-international.org/ecma-262/5.1/" target="_blank">ECMA262的5.1版本</a> 也是现在最为流行和主流的标准，<br>现代浏览器和NodeJS默认均遵循此标准。尽量以英文原版为基础，为了流畅，可能会使用某些名词的中文翻译，<br>但会将匹配的英文名词以<code>此种样式</code>中出现一次以避免误解。</p>
+<p>本文描述的是<a href="http://www.ecma-international.org/ecma-262/5.1/" target="_blank" rel="external">ECMA262的5.1版本</a> 也是现在最为流行和主流的标准，<br>现代浏览器和NodeJS默认均遵循此标准。尽量以英文原版为基础，为了流畅，可能会使用某些名词的中文翻译，<br>但会将匹配的英文名词以<code>此种样式</code>中出现一次以避免误解。</p>
 <h3 id="Topic1-_that’s_this">Topic1. that’s this</h3>
 <p>我们的第一个话题是：this指向哪里?</p>
 
@@ -127,7 +183,7 @@
     </header>
     <div class="entry">
       
-        <p>LitPHP(<a href="http://litphp.github.io/" target="_blank">官网</a> | <a href="http://github.com/litphp/lit" target="_blank">Repo</a>) 昨天正式开源了，这是喜欢框架的我的第一个自认为能拿出手的作品。终于有了这么个作品让我相当地感想万千。先贴上12个类+1个接口的类图</p>
+        <p>LitPHP(<a href="http://litphp.github.io/" target="_blank" rel="external">官网</a> | <a href="http://github.com/litphp/lit" target="_blank" rel="external">Repo</a>) 昨天正式开源了，这是喜欢框架的我的第一个自认为能拿出手的作品。终于有了这么个作品让我相当地感想万千。先贴上12个类+1个接口的类图</p>
 <p><img src="https://rawgithub.com/LitPHP/litphp.github.io/115d5ed1f2d1884b2ac1a147c1583fc50c2e4f84/doc/graphs/classes.svg" alt=""></p>
 <h3 id="LitPHP的设计哲学">LitPHP的设计哲学</h3>
 
@@ -168,12 +224,12 @@
     </header>
     <div class="entry">
       
-        <p><a href="/2013/05/backbone-first-glance/">接触Backbone</a>已经半年有余，也有机会在各种项目中实践。自己的<a href="https://github.com/mcfog/backbone.joint/" target="_blank">mcfog/Backbone.Joint</a> 也从一个玩票儿小lib慢慢演化成一个经受过生产环境考验的backbone扩展。一直没有机会写点字介绍一下，终于在14年新春之际，码了这么一篇介绍出来。</p>
+        <p><a href="/2013/05/backbone-first-glance/">接触Backbone</a>已经半年有余，也有机会在各种项目中实践。自己的<a href="https://github.com/mcfog/backbone.joint/" target="_blank" rel="external">mcfog/Backbone.Joint</a> 也从一个玩票儿小lib慢慢演化成一个经受过生产环境考验的backbone扩展。一直没有机会写点字介绍一下，终于在14年新春之际，码了这么一篇介绍出来。</p>
 <p>Backbone.Joint 从13/06/14开始挖坑，7月7日登上github至今，可以说已经进入一个比较稳定的0.1版本。在Readme.md中我写的desc是这样描述这个扩展的</p>
 <blockquote>
 <p>another extension of backbone.js aims to support common situation with small &amp; flexible codebase</p>
 </blockquote>
-<p>Backbone.Joint主要针对<code>Backbone.View</code>，对<code>Backbone.Model</code>和<code>Backbone.Collection</code>的补充暂时在另一个repo <a href="https://github.com/mcfog/backbone.storageEngine" target="_blank">Backbone.storageEngine</a> 中。由于最开始的练手性质，开发语言一直是<a href="https://github.com/satyr/coco#readme" target="_blank">coco</a>，这是一种coffeescript的方言。</p>
+<p>Backbone.Joint主要针对<code>Backbone.View</code>，对<code>Backbone.Model</code>和<code>Backbone.Collection</code>的补充暂时在另一个repo <a href="https://github.com/mcfog/backbone.storageEngine" target="_blank" rel="external">Backbone.storageEngine</a> 中。由于最开始的练手性质，开发语言一直是<a href="https://github.com/satyr/coco#readme" target="_blank" rel="external">coco</a>，这是一种coffeescript的方言。</p>
 
       
     </div>
@@ -257,8 +313,8 @@
     </header>
     <div class="entry">
       
-        <p>最近在看Backbone&amp;Underscore的时候，对他们的annoted source（<a href="backbonejs.org/docs/backbone.html">backbone</a> / <a href="http://underscorejs.org/docs/underscore.html" target="_blank">underscore</a>）产生了好感，然后发现他们都是用<br><a href="http://jashkenas.github.io/docco/" target="_blank"><strong>Docco</strong></a> 来做的。</p>
-<p>后来顺藤摸瓜发现除了类似backbone/underscore的将注释按markdown写的做法，还有更加彻底的将代码写进markdown中的做法，coffeescript已经有支持（<a href="http://ashkenas.com/literate-coffeescript/" target="_blank">literate-coffeescript</a>）。</p>
+        <p>最近在看Backbone&amp;Underscore的时候，对他们的annoted source（<a href="backbonejs.org/docs/backbone.html">backbone</a> / <a href="http://underscorejs.org/docs/underscore.html" target="_blank" rel="external">underscore</a>）产生了好感，然后发现他们都是用<br><a href="http://jashkenas.github.io/docco/" target="_blank" rel="external"><strong>Docco</strong></a> 来做的。</p>
+<p>后来顺藤摸瓜发现除了类似backbone/underscore的将注释按markdown写的做法，还有更加彻底的将代码写进markdown中的做法，coffeescript已经有支持（<a href="http://ashkenas.com/literate-coffeescript/" target="_blank" rel="external">literate-coffeescript</a>）。</p>
 <p>挖进源码看docco，我发现他的可扩展性存在问题，用少量代码迅速完成了核心功能但并不易扩展。最近又手痒的厉害于是干脆挖坑自己写一个literal programming用的工具。</p>
 <p>这里记录下最初的目的和一些想法，目前的进度是基于markdown四空格的lexer已经可以跑了。<br>
       
@@ -298,7 +354,7 @@
     </header>
     <div class="entry">
       
-        <p>最近在看各种自动化工具，有集成化程度高，比起编译工具更像“IDE减文本编辑”的<a href="http://mimosajs.com" target="_blank">mimosajs</a>，也有被业界广泛认可，开放易配置的<a href="http://gruntjs.com" target="_blank">gruntjs</a>。作为一个<a href="https://github.com/satyr/coco" target="_blank">coco</a>语言支持者，看自动化工具当然是先看能不能支持coco。</p>
+        <p>最近在看各种自动化工具，有集成化程度高，比起编译工具更像“IDE减文本编辑”的<a href="http://mimosajs.com" target="_blank" rel="external">mimosajs</a>，也有被业界广泛认可，开放易配置的<a href="http://gruntjs.com" target="_blank" rel="external">gruntjs</a>。作为一个<a href="https://github.com/satyr/coco" target="_blank" rel="external">coco</a>语言支持者，看自动化工具当然是先看能不能支持coco。</p>
 
       
     </div>
@@ -447,47 +503,6 @@
 
 
   
-    <article class="post">
-  
-  <div class="post-content">
-    <header>
-      
-        
-            <img src="/images/201305/backbone.jpg" class="thumb" />
-        
-        <time datetime="2013-05-25T00:14:00.000Z"><a href="/2013/05/backbone-first-glance/">5月 25 2013</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2013/05/backbone-first-glance/">Backbone first glance</a></h1>
-  
-
-    </header>
-    <div class="entry">
-      
-        <p>昨夜开始实现<a href="/2013/05/hello/">利用github api 把文章评论丢到Issue里面</a>，选型时选择了Backbone作为基础，对比以往研究过的其他各类框架，Backbone是崭新而让我震惊的</p>
-<p>先说结论：Backbone是<em>framework of MV* frameworks</em>，是框架的框架；或者说，Backbone仅仅抽象了web app framework中多数都需要的功能组织成api接口，但并没有将自己限制在任何一种风格，而是要求开发者先以Backbone为基础自己定义出一种框架（完成MV*中“*”部分和V部分的定义），然后再实现自己的业务。</p>
-<h3 id="不是MVC,_MVP,_MVVM">不是MVC, MVP, MVVM</h3>
-
-      
-    </div>
-    <footer>
-      
-        
-          <div class="alignleft">
-            <a href="/2013/05/backbone-first-glance/#more" class="more-link">Read More</a>
-          </div>
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-  
 
   <nav id="pagination">
   
@@ -547,7 +562,7 @@
   </div>
   <footer id="footer" class="inner"><div class="alignleft">
   
-  &copy; 2014 McFog W
+  &copy; 2015 McFog W
   
 </div>
 <div class="clearfix"></div></footer>

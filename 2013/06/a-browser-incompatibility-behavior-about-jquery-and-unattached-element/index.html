@@ -33,6 +33,7 @@ jQuery.fn.hide 会读取元素的display样式
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-41595211-1']);
+  
   _gaq.push(['_trackPageview']);
 
   (function() {
@@ -41,6 +42,7 @@ jQuery.fn.hide 会读取元素的display样式
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
+
 
 </head>
 
@@ -95,36 +97,16 @@ jQuery.fn.hide 会读取元素的display样式
 <a id="more"></a>
 
 <h3 id="jQuery-fn-show">jQuery.fn.show</h3>
-<p>断点调查后发现在jQ的<code>show</code>方法中有这样<a href="https://github.com/jquery/jquery/blob/1.7.2/src/effects.js#L57" target="_blank">一段代码</a></p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre>1
-</pre></td><td class="code"><pre>    elem.style.display = jQuery._data( elem, <span class="string">"olddisplay"</span> ) || <span class="string">""</span>;
-</pre></td></tr></table></figure>
+<p>断点调查后发现在jQ的<code>show</code>方法中有这样<a href="https://github.com/jquery/jquery/blob/1.7.2/src/effects.js#L57" target="_blank" rel="external">一段代码</a></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">elem.style.display = jQuery._data( elem, <span class="string">"olddisplay"</span> ) || <span class="string">""</span>;</div></pre></td></tr></table></figure>
 
 <p>也就是说jQ为了hide和show后能够保持原有的display属性，会将元素原来的display属性暂存起来，这样一个原本<code>inline-block</code>的元素经过hide和show之后不会被改成<code>block</code>，firefox下问题tips元素的<code>jQuery._data( elem, &quot;olddisplay&quot; )</code>值是<code>block</code>，所以show的行为没有问题，问题应当是hide的时候这个计算算错了</p>
 <h3 id="jQuery-fn-hide">jQuery.fn.hide</h3>
-<p>再来看hide的<a href="https://github.com/jquery/jquery/blob/1.7.2/src/effects.js#L81" target="_blank">相关代码</a>，中规中矩，用<code>jQuery.css</code>获取display属性</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre>1
-2
-3
-4
-5
-</pre></td><td class="code"><pre>display = jQuery.css( elem, <span class="string">"display"</span> );
+<p>再来看hide的<a href="https://github.com/jquery/jquery/blob/1.7.2/src/effects.js#L81" target="_blank" rel="external">相关代码</a>，中规中矩，用<code>jQuery.css</code>获取display属性</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">display = jQuery.css( elem, <span class="string">"display"</span> );</div><div class="line"></div><div class="line"><span class="keyword">if</span> ( display !== <span class="string">"none"</span> && !jQuery._data( elem, <span class="string">"olddisplay"</span> ) ) {</div><div class="line">	jQuery._data( elem, <span class="string">"olddisplay"</span>, display );</div><div class="line">}</div></pre></td></tr></table></figure>
 
-<span class="keyword">if</span> ( display !== <span class="string">"none"</span> && !jQuery._data( elem, <span class="string">"olddisplay"</span> ) ) {
-	jQuery._data( elem, <span class="string">"olddisplay"</span>, display );
-}
-</pre></td></tr></table></figure>
-
-<p>继续追踪后在<code>jQuery.css</code>的实现中发现了<a href="https://github.com/jquery/jquery/blob/1.7.2/src/css.js#L179" target="_blank">浏览器不一致的来源</a></p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre>1
-2
-3
-4
-</pre></td><td class="code"><pre><span class="keyword">if</span> ( (defaultView = elem.ownerDocument.defaultView) &&
-		(computedStyle = defaultView.getComputedStyle( elem, <span class="literal">null</span> )) ) {
-
-	ret = computedStyle.getPropertyValue( name );
-</pre></td></tr></table></figure>
+<p>继续追踪后在<code>jQuery.css</code>的实现中发现了<a href="https://github.com/jquery/jquery/blob/1.7.2/src/css.js#L179" target="_blank" rel="external">浏览器不一致的来源</a></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> ( (defaultView = elem.ownerDocument.defaultView) &&</div><div class="line">		(computedStyle = defaultView.getComputedStyle( elem, <span class="literal">null</span> )) ) {</div><div class="line"></div><div class="line">	ret = computedStyle.getPropertyValue( name );</div></pre></td></tr></table></figure>
 
 <p>这里的elem是一个未加入dom树的“脱机”元素，<code>defaultView</code>火狐和chrome计算后都等于<code>window</code>，<code>name</code>是要获取的属性名，这里是display。chrome下<code>ret</code>拿到的值是空字符串，而火狐下拿到的是<code>block</code>，从而火狐会将这个值写入<code>olddisplay</code>，最终导致show的时候元素被加上<code>display:block</code></p>
 <h3 id="观察&amp;总结">观察&amp;总结</h3>
@@ -134,7 +116,6 @@ jQuery.fn.hide 会读取元素的display样式
 <h3 id="本次问题代码fiddle">本次问题代码fiddle</h3>
 <p>chrome下显示inline-block，火狐/IE9则显示block</p>
 <iframe width="100%" height="300" src="http://jsfiddle.net/PrmgJ/embedded/result,js,css/light" frameborder="0" allowfullscreen></iframe>
-
 
       
     </div>
@@ -213,7 +194,7 @@ jQuery.fn.hide 会读取元素的display样式
   </div>
   <footer id="footer" class="inner"><div class="alignleft">
   
-  &copy; 2014 McFog W
+  &copy; 2015 McFog W
   
 </div>
 <div class="clearfix"></div></footer>

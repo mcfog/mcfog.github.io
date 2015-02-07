@@ -28,6 +28,7 @@
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-41595211-1']);
+  
   _gaq.push(['_trackPageview']);
 
   (function() {
@@ -36,6 +37,7 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
+
 
 </head>
 
@@ -86,151 +88,27 @@
 
 <p>在JS中，可以和回调交互的地方一共有3个，分别是<code>this</code>对象、参数(<code>arguments</code>)和返回值。我们先看看利用this和arguments来实现的兼容同步异步的大致做法，再来看看利用返回值并引入deferred机制后对代码的提升。</p>
 <h3 id="替换this">替换this</h3>
-<p><a href="http://layoutmanager.org" target="_blank">backbone layoutmanager</a>中采用了替换<code>this</code>对象的方式实现兼容同步和异步的模板获取/渲染。好处是业务代码看起来相对清晰，但由于替换掉了this，比较依赖this的逻辑会碰到麻烦。另外实现相对复杂</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-</pre></td><td class="code"><pre><span class="comment">//同步回调</span>
-<span class="function"><span class="keyword">function</span> <span class="title">fetchSync</span><span class="params">(path)</span> {</span>
-  <span class="keyword">return</span> _.template($(path).html());
-}
-<span class="comment">//异步回调</span>
-<span class="function"><span class="keyword">function</span> <span class="title">fetchAsync</span><span class="params">(path)</span> {</span>
-  <span class="keyword">var</span> done = <span class="keyword">this</span>.async();
-
-  $.get(path, <span class="function"><span class="keyword">function</span><span class="params">(contents)</span> {</span>
-    done(_.template(contents));
-  }, <span class="string">"text"</span>);
-}
-</pre></td></tr></table></figure>
+<p><a href="http://layoutmanager.org" target="_blank" rel="external">backbone layoutmanager</a>中采用了替换<code>this</code>对象的方式实现兼容同步和异步的模板获取/渲染。好处是业务代码看起来相对清晰，但由于替换掉了this，比较依赖this的逻辑会碰到麻烦。另外实现相对复杂</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//同步回调</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fetchSync</span><span class="params">(path)</span> </span>{</div><div class="line">  <span class="keyword">return</span> _.template($(path).html());</div><div class="line">}</div><div class="line"><span class="comment">//异步回调</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fetchAsync</span><span class="params">(path)</span> </span>{</div><div class="line">  <span class="keyword">var</span> done = <span class="keyword">this</span>.async();</div><div class="line"></div><div class="line">  $.get(path, <span class="function"><span class="keyword">function</span><span class="params">(contents)</span> </span>{</div><div class="line">    done(_.template(contents));</div><div class="line">  }, <span class="string">"text"</span>);</div><div class="line">}</div></pre></td></tr></table></figure>
 
 <p>大致框架实现</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-</pre></td><td class="code"><pre><span class="keyword">var</span> makeAsync = <span class="function"><span class="keyword">function</span><span class="params">(done)</span> {</span>
-    <span class="keyword">var</span> handler = {};
-    handler.async = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-        handler._isAsync = <span class="literal">true</span>;
-        <span class="keyword">return</span> done;
-    }
-
-    <span class="keyword">return</span> handler;
-}
-
-exports.AwesomeFunction = <span class="function"><span class="keyword">function</span><span class="params">(path, callback)</span> {</span>
-    <span class="keyword">var</span> done = <span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
-        <span class="comment">//handle result</span>
-    };
-    <span class="keyword">var</span> handler = makeAsync(done);
-    <span class="keyword">var</span> result = callback.call(handler, path);
-    <span class="keyword">if</span>(!handler._isAsync) <span class="keyword">return</span> done(result);
-}
-</pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> makeAsync = <span class="function"><span class="keyword">function</span><span class="params">(done)</span> </span>{</div><div class="line">    <span class="keyword">var</span> handler = {};</div><div class="line">    handler.async = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{</div><div class="line">        handler._isAsync = <span class="literal">true</span>;</div><div class="line">        <span class="keyword">return</span> done;</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="keyword">return</span> handler;</div><div class="line">}</div><div class="line"></div><div class="line">exports.AwesomeFunction = <span class="function"><span class="keyword">function</span><span class="params">(path, callback)</span> </span>{</div><div class="line">    <span class="keyword">var</span> done = <span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{</div><div class="line">        <span class="comment">//handle result</span></div><div class="line">    };</div><div class="line">    <span class="keyword">var</span> handler = makeAsync(done);</div><div class="line">    <span class="keyword">var</span> result = callback.call(handler, path);</div><div class="line">    <span class="keyword">if</span>(!handler._isAsync) <span class="keyword">return</span> done(result);</div><div class="line">}</div></pre></td></tr></table></figure>
 
 <p>可以发现为了制造出this对象以及判断是否异步的逻辑比较生硬，另外替换掉this的做法不是所有场景都可以接受。回调和框架的耦合也比较强，离开了框架的话回调由于有<code>done=this.async()</code>基本没法用。</p>
 <h3 id="追加arguments">追加arguments</h3>
 <p>对参数动手脚来实现异步/同步兼容的话，一般选择在参数列表最前/最后追加<em>回调的回调</em>用来和框架交换数据。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-</pre></td><td class="code"><pre><span class="comment">//同步回调</span>
-<span class="function"><span class="keyword">function</span> <span class="title">fetchSync</span><span class="params">(path, done)</span> {</span>
-  done(_.template($(path).html()));
-}
-<span class="comment">//异步回调</span>
-<span class="function"><span class="keyword">function</span> <span class="title">fetchAsync</span><span class="params">(path, done)</span> {</span>
-  $.get(path, <span class="function"><span class="keyword">function</span><span class="params">(contents)</span> {</span>
-    done(_.template(contents));
-  }, <span class="string">"text"</span>);
-}
-</pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//同步回调</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fetchSync</span><span class="params">(path, done)</span> </span>{</div><div class="line">  done(_.template($(path).html()));</div><div class="line">}</div><div class="line"><span class="comment">//异步回调</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fetchAsync</span><span class="params">(path, done)</span> </span>{</div><div class="line">  $.get(path, <span class="function"><span class="keyword">function</span><span class="params">(contents)</span> </span>{</div><div class="line">    done(_.template(contents));</div><div class="line">  }, <span class="string">"text"</span>);</div><div class="line">}</div></pre></td></tr></table></figure>
 
 <p>大致框架实现</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
-2
-3
-4
-5
-</pre></td><td class="code"><pre>exports.AwesomeFunction = <span class="function"><span class="keyword">function</span><span class="params">(path, callback)</span> {</span>
-    callback(path, <span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
-        <span class="comment">//handle result</span>
-    });
-}
-</pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">exports.AwesomeFunction = <span class="function"><span class="keyword">function</span><span class="params">(path, callback)</span> </span>{</div><div class="line">    callback(path, <span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{</div><div class="line">        <span class="comment">//handle result</span></div><div class="line">    });</div><div class="line">}</div></pre></td></tr></table></figure>
 
 <p>比起上一种方法，这种方法的优点是实现简洁明了，如果需要可以保持this，缺点是需要改变函数签名，对签名不定长的情形比较恶心。另外，同步返回的回调不能简单地return返回值也是比较严重的缺点。</p>
 <h3 id="利用返回值和deferred机制"><strong>利用返回值和deferred机制</strong></h3>
-<p><a href="http://wiki.commonjs.org/wiki/Promises/A" target="_blank">deferred/promise机制</a>天生对回调非常友好，只要定义回调返回普通值=同步，返回promise=异步，就可以很优雅地做到兼容同步和异步。所需的仅仅是一个简单的包装器<code>isPromise(foo) ? foo : makePromise(foo)</code>的实现。这里以jQuery为例，<code>jQuery.when</code>就是一个不错的包装器</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-</pre></td><td class="code"><pre><span class="comment">//同步</span>
-<span class="function"><span class="keyword">function</span> <span class="title">fetchSync</span><span class="params">(path)</span> {</span>
-  <span class="keyword">return</span> _.template($(path).html());
-}
-<span class="comment">//异步</span>
-<span class="function"><span class="keyword">function</span> <span class="title">fetchAsync</span><span class="params">(path)</span> {</span>
-  <span class="keyword">return</span> $.get(path, <span class="string">"text"</span>).then(<span class="function"><span class="keyword">function</span><span class="params">(contents)</span> {</span>
-    <span class="keyword">return</span> _.template(contents);
-  });
-}
-</pre></td></tr></table></figure>
+<p><a href="http://wiki.commonjs.org/wiki/Promises/A" target="_blank" rel="external">deferred/promise机制</a>天生对回调非常友好，只要定义回调返回普通值=同步，返回promise=异步，就可以很优雅地做到兼容同步和异步。所需的仅仅是一个简单的包装器<code>isPromise(foo) ? foo : makePromise(foo)</code>的实现。这里以jQuery为例，<code>jQuery.when</code>就是一个不错的包装器</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//同步</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fetchSync</span><span class="params">(path)</span> </span>{</div><div class="line">  <span class="keyword">return</span> _.template($(path).html());</div><div class="line">}</div><div class="line"><span class="comment">//异步</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fetchAsync</span><span class="params">(path)</span> </span>{</div><div class="line">  <span class="keyword">return</span> $.get(path, <span class="string">"text"</span>).then(<span class="function"><span class="keyword">function</span><span class="params">(contents)</span> </span>{</div><div class="line">    <span class="keyword">return</span> _.template(contents);</div><div class="line">  });</div><div class="line">}</div></pre></td></tr></table></figure>
 
 <p>大致框架实现</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
-2
-3
-4
-5
-6
-7
-</pre></td><td class="code"><pre>exports.AwesomeFunction = <span class="function"><span class="keyword">function</span><span class="params">(path, callback)</span> {</span>
-    $.when(callback(path)).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> {</span>
-        <span class="comment">//handle result</span>
-    }, <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-        <span class="comment">//handle error</span>
-    });
-}
-</pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">exports.AwesomeFunction = <span class="function"><span class="keyword">function</span><span class="params">(path, callback)</span> </span>{</div><div class="line">    $.when(callback(path)).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{</div><div class="line">        <span class="comment">//handle result</span></div><div class="line">    }, <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{</div><div class="line">        <span class="comment">//handle error</span></div><div class="line">    });</div><div class="line">}</div></pre></td></tr></table></figure>
 
 <p>利用返回值的好处在于完整保留了<code>this</code>和<code>arguments</code>，同步的情形下无论回调依赖this还是参数都无需包装回调，而异步的情况下，返回promise的回调的适用范围要比前两种机制的回调广泛的多。另外promise天生比较完备的错误处理，<code>jQuery.when</code>对多个参数的支持都使得这种方法在实践中具备很强的可操作性。</p>
 <h3 id="举一反三……">举一反三……</h3>
@@ -320,7 +198,7 @@ exports.AwesomeFunction = <span class="function"><span class="keyword">function<
   </div>
   <footer id="footer" class="inner"><div class="alignleft">
   
-  &copy; 2014 McFog W
+  &copy; 2015 McFog W
   
 </div>
 <div class="clearfix"></div></footer>

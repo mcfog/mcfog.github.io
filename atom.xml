@@ -1,0 +1,935 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title><![CDATA[McFog＠がんばらない]]></title>
+  <subtitle><![CDATA[McPress - the tech blog of mcfog]]></subtitle>
+  <link href="/atom.xml" rel="self"/>
+  <link href="http://mcfog.github.io/"/>
+  <updated>2015-02-07T18:13:58.587Z</updated>
+  <id>http://mcfog.github.io/</id>
+  
+  <author>
+    <name><![CDATA[McFog W]]></name>
+    
+  </author>
+  
+  <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[一种API代码结构的设计思路]]></title>
+    <link href="http://mcfog.github.io/2015/02/my-api-programming-style/"/>
+    <id>http://mcfog.github.io/2015/02/my-api-programming-style/</id>
+    <published>2015-02-05T16:00:00.000Z</published>
+    <updated>2015-02-07T18:12:30.000Z</updated>
+    <content type="html"><![CDATA[<h3 id="Prologue">Prologue</h3>
+<p>在写API的过程中有这样三种产物</p>
+<ul>
+<li><p>文档</p>
+<p>几乎没人爱写文档，写了也懒得维护。可是同时API的文档对于其他程序员来说又是赖以生存的必需品。因此大家对文档都是爱恨交加，恨自己要维护文档，爱别人写好的漂亮文档；恨别人的烂文档错文档，爱自己随便乱写乃至不写文档。</p>
+</li>
+<li><p>操场</p>
+<p>比文档更高一个层次的奢侈品，不用写代码简单点点或者repl形式马上就能探索接口的行为。不像仅对别人，操场的存在对自己开发接口也是很有帮助的。</p>
+<p>没操场的时候，大家往往人肉建一个文件当操场用，在里面各种玩API，但使着编译型语言的兄弟们没那么好运，他们更需要有操场。</p>
+<p>当然如果实践TDD或BDD的话，用例大概能代替操场一部分的作用，但这只对写接口的人管用。对调用接口的人来说，还是操场好用。</p>
+</li>
+<li><p>字段校验逻辑</p>
+<p>自己写接口的时候必须要做的事情。没做那是100%bug。</p>
+</li>
+</ul>
+<p>想想这三个产物的共同特点是什么？插入一段广告，哦不，我先把他们捏成一张表</p>
+<a id="more"></a>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th>别人的接口</th>
+<th>自己的接口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文档</td>
+<td>没有会死</td>
+<td>没用，不想写</td>
+</tr>
+<tr>
+<td>操场</td>
+<td>超级提升幸福感</td>
+<td>想用，懒得写</td>
+</tr>
+<tr>
+<td>字段校验</td>
+<td>不太关心</td>
+<td>必须写</td>
+</tr>
+</tbody>
+</table>
+<p>他们的共同特点是<strong>均源自接口输入的schema</strong></p>
+<p>大家为啥不喜欢写文档？为啥懒得实现操场？我觉得很可能源自<em>程序员的直觉</em>。程序员天生讨厌重复，他们知道重复意味着修改的时候要同步维护，意味着大量重复的劳动和不同步带来的各种巨坑，<strong>Duplicate Is Evil</strong>。<strong>DUPLICATE IS EVIL</strong></p>
+<p>换个角度说，怎么诱使程序员乖乖地写文档呢？首先利诱“写文档的话送你个操场玩玩”，然后威逼“反正你也得校验字段，咱们校验字段的方式就是写文档”，最后再给个枣子“这文档不用维护，以后改程序的同时文档自动一起改”</p>
+<p>前言到此为止，结论只有一个：</p>
+<blockquote>
+<p>我们要让文档、操场、字段校验三位一体！让不写文档比写文档难！让所有接口都有100%准确的文档和操场！消灭天下没文档的接口！消灭一切和实际接口不符的文档！</p>
+</blockquote>
+<p><img src="/2015/02/my-api-programming-style/32.jpg" alt=""></p>
+<p>具体实现的思路其实刚才已经偷偷提到了，那就是聚焦接口的<strong>输入schema</strong>，以schema作为数据源，文档、操场、字段校验是schema的3种不同的应用。所以我们要构建的就是 a)meta-schema，即如何定义schema b)如何通过schema生成3种不同的产物。</p>
+<h3 id="Meta-Schema">Meta-Schema</h3>
+<p>程序员做事大体上有两种选择：找现成的轮子削成方的来用或自己造个方的轮子。我们想要的轮子“方”在哪里呢？嗯，schema大家都拿来做校验，但我们希望不仅能校验，还能生成文档和操场，也就是说希望它能够内嵌一些描述文字，最好校验规则也能轻松转换成文字展示。</p>
+<p>自己造轮子的话，下面是一个基本的结构可以参考</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Schema</span> </span>{</div><div class="line">    <span class="keyword">string</span> uri;<span class="comment">//接口位置/调用时的名称/url等</span></div><div class="line">    <span class="keyword">string</span> name;<span class="comment">//接口中文名</span></div><div class="line">    <span class="keyword">string</span> desc;<span class="comment">//说明</span></div><div class="line">    array fields;<span class="comment">//接口字段</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Field</span> </span>{</div><div class="line">    <span class="keyword">string</span> key;<span class="comment">//字段key</span></div><div class="line">    <span class="keyword">string</span> desc;<span class="comment">//说明</span></div><div class="line">    <span class="keyword">bool</span> required;<span class="comment">//是否必填</span></div><div class="line">    array constraints;<span class="comment">//字段约束</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Constraint</span> </span>{</div><div class="line">    <span class="keyword">bool</span> check(value);<span class="comment">//校验</span></div><div class="line">    <span class="keyword">string</span> describe();<span class="comment">//描述</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="comment">//Constraint常见的子类有：类型校验，长度／范围校验，正则校验等</span></div></pre></td></tr></table></figure>
+
+<p>找轮子的话，我用过<a href="http://json-schema.org/" target="_blank" rel="external">json-schema</a>做这一块，能用，很多语言都有校验的实现，还有类似<a href="https://github.com/jdorn/json-editor" target="_blank" rel="external">json-editor</a>这样的web editor实现，操场比较好搞。大体上能内嵌说明文字，各种语言都有良好实现，数据结构清晰容易导入导出的schema都可以用。</p>
+<h3 id="DSL_for_Meta-Schema">DSL for Meta-Schema</h3>
+<p>只有schema还不够爽，你会需要负责教会所有同事一门新语言，这可能将我们的努力毁于一旦，自己用起来也不爽。我们要的是DSL，要IDE的代码提示，要code-as-configuration。</p>
+<p>怎么实现DSL超出本文范围，有机会我会再写这方面的东西，js的话大概<a href="https://github.com/mcfog/legate/tree/a87ecc367b297643e299f1ce4d6685fbbd0444df/lib" target="_blank" rel="external">300行代码</a>就能实现类似这样的dsl了</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">legate().define</div><div class="line">    .name(<span class="string">'测试接口'</span>)</div><div class="line">    .desc(<span class="string">'演示API用的测试接口'</span>)</div><div class="line">    .cmd(<span class="string">'test'</span>)</div><div class="line">    .param</div><div class="line">        .int(<span class="string">'num'</span>, <span class="string">'一个数字'</span>, [<span class="number">3</span>, <span class="number">100</span>])</div><div class="line">        .string(<span class="string">'str'</span>, <span class="string">'字符串'</span>, [<span class="number">2</span>, <span class="number">5</span>])</div><div class="line">        .regex(<span class="string">'reg'</span>, <span class="string">'有追求的字符串'</span>, <span class="regexp">/a.+b/</span>)</div><div class="line">    .endParam</div><div class="line">    .logic(<span class="function"><span class="keyword">function</span><span class="params">(param)</span> </span>{</div><div class="line">        <span class="keyword">return</span> {</div><div class="line">            result: <span class="string">'from remote'</span>,</div><div class="line">            param: param</div><div class="line">        };</div><div class="line">    })</div><div class="line">.endDefine</div><div class="line">.mount(legateServer);</div></pre></td></tr></table></figure>
+
+<p>有了DSL，基本上已经可以宣告<strong>不写文档比写文档难</strong>了，下面要给按我们的meta-schema做事的乖孩子说好的三大产物。</p>
+<h3 id="显灵">显灵</h3>
+<p>其实原本写到这里就可以收笔了，因为定义好了数据结构，写写视图对程序员来说实在没啥挑战，不是么？</p>
+<p>文档就是</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">loop schemas schema</div><div class="line">  <span class="operator"><span class="keyword">show</span> <span class="keyword">schema</span></span></div><div class="line">  loop <span class="keyword">schema</span>.<span class="keyword">fields</span> <span class="keyword">field</span></div><div class="line">    <span class="keyword">show</span> <span class="keyword">field</span></div></pre></td></tr></table></figure>
+
+<p>操场就是文档套上</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="title">form</span> <span class="attribute">target</span>=<span class="value">"result"</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="title">form</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="title">iframe</span> <span class="attribute">id</span>=<span class="value">"result"</span>&gt;</span></div></pre></td></tr></table></figure>
+
+<p>校验就是</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">loop schema.fields <span class="keyword">field</span></div><div class="line">  <span class="keyword">if</span> no <span class="number">$da</span>ta[<span class="keyword">field</span>]</div><div class="line">    <span class="keyword">if</span> <span class="keyword">field</span>.required</div><div class="line">      BIG-BANG!</div><div class="line">    <span class="keyword">else</span></div><div class="line">      <span class="keyword">continue</span></div><div class="line"></div><div class="line">  loop <span class="keyword">field</span>.constraints constraint</div><div class="line">    constraint.check <span class="number">$da</span>ta[<span class="keyword">field</span>]</div></pre></td></tr></table></figure>
+
+<p>啊，不小心还顺便实现了分发或者说路由呢</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">loop</span> schemas schema</div><div class="line">  <span class="keyword">if</span> <span class="variable">$request</span> <span class="keyword">match</span> schema<span class="built_in">.</span>uri</div><div class="line">    <span class="keyword">return</span> run schema, <span class="variable">$request</span></div><div class="line"></div><div class="line"><span class="literal">NOT</span><span class="attribute">-FOUND</span><span class="subst">!</span></div></pre></td></tr></table></figure>
+
+<p>是不是根本停不下来？</p>
+<p>另一个好消息是，API编写这个巨大的领域有大量现成项目，这个思路下随便喜欢什么项目都很容易拿过来套上，比如之前提过的<a href="http://json-schema.org/" target="_blank" rel="external">json-schema</a>和<a href="https://github.com/jdorn/json-editor" target="_blank" rel="external">json-editor</a>，比如最近听说的<a href="http://petstore.swagger.wordnik.com/#!/pet/addPet" target="_blank" rel="external">swagger.io</a>等等</p>
+<p><img src="/2015/02/my-api-programming-style/63.jpg" alt=""></p>
+<p>附《The Pragmatic Programmer》中的相关tips</p>
+<blockquote>
+<p>[11] Don’t Repeat Yourself<br>[12] Make It Easy to Reuse<br>[17] Program Close to the Problem domain<br>[68] Build Documentation In, Don’t Bolt It On  </p>
+</blockquote>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h3 id="Prologue">Prologue</h3>
+<p>在写API的过程中有这样三种产物</p>
+<ul>
+<li><p>文档</p>
+<p>几乎没人爱写文档，写了也懒得维护。可是同时API的文档对于其他程序员来说又是赖以生存的必需品。因此大家对文档都是爱恨交加，恨自己要维护文档，爱别人写好的漂亮文档；恨别人的烂文档错文档，爱自己随便乱写乃至不写文档。</p>
+</li>
+<li><p>操场</p>
+<p>比文档更高一个层次的奢侈品，不用写代码简单点点或者repl形式马上就能探索接口的行为。不像仅对别人，操场的存在对自己开发接口也是很有帮助的。</p>
+<p>没操场的时候，大家往往人肉建一个文件当操场用，在里面各种玩API，但使着编译型语言的兄弟们没那么好运，他们更需要有操场。</p>
+<p>当然如果实践TDD或BDD的话，用例大概能代替操场一部分的作用，但这只对写接口的人管用。对调用接口的人来说，还是操场好用。</p>
+</li>
+<li><p>字段校验逻辑</p>
+<p>自己写接口的时候必须要做的事情。没做那是100%bug。</p>
+</li>
+</ul>
+<p>想想这三个产物的共同特点是什么？插入一段广告，哦不，我先把他们捏成一张表</p>
+]]>
+    
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Easy ECMA 1]]></title>
+    <link href="http://mcfog.github.io/2014/05/easy-ecma-1/"/>
+    <id>http://mcfog.github.io/2014/05/easy-ecma-1/</id>
+    <published>2014-05-07T16:00:00.000Z</published>
+    <updated>2014-05-09T02:21:47.000Z</updated>
+    <content type="html"><![CDATA[<h1 id="简单易懂的ECMA规范导读1">简单易懂的ECMA规范导读1</h1>
+<h3 id="序">序</h3>
+<p>最近混<a href="http://segmentfault.com/" target="_blank" rel="external">SF</a>，恰巧又逢工作方面有了NodeJS的机会，迫切地有教别人怎么写JS的需求，<br>我发现JS这个东西其实真没那么容易理解。</p>
+<p>为了加深和纠正自己对JS的理解，也为了以后能直接甩别人一脸文章，所以开始挖这样一个大坑：<strong>简单易懂的ECMA规范导读</strong>。<br>希望能以专题的形式有线索地基于ECMA标准介绍Javascript的方方面面。本文不是ECMA标准的中文翻译，也不是Javascript的入门教程，<br>本文虽然以JS的常见问题切入，但并不适合想要快速了解这些问题的人（Google才是快速了解问题的正解）。<br>本文的聚焦于标准如何决定了JS的各种行为，JS引擎的水面下在发生些什么。</p>
+<p>本文描述的是<a href="http://www.ecma-international.org/ecma-262/5.1/" target="_blank" rel="external">ECMA262的5.1版本</a> 也是现在最为流行和主流的标准，<br>现代浏览器和NodeJS默认均遵循此标准。尽量以英文原版为基础，为了流畅，可能会使用某些名词的中文翻译，<br>但会将匹配的英文名词以<code>此种样式</code>中出现一次以避免误解。</p>
+<h3 id="Topic1-_that’s_this">Topic1. that’s this</h3>
+<p>我们的第一个话题是：this指向哪里?</p>
+<a id="more"></a>
+
+<h4 id="什么是this">什么是this</h4>
+<p><a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.1" target="_blank" rel="external">11.1.1 The this Keyword</a></p>
+<blockquote>
+<p>The this keyword evaluates to the value of the ThisBinding of the current execution context.</p>
+</blockquote>
+<p>计算this关键字时，取当前执行上下文的ThisBinding的值</p>
+<p><a href="http://www.ecma-international.org/ecma-262/5.1/#sec-10.3" target="_blank" rel="external">10.3 Execution Contexts</a></p>
+<p>执行上下文<code>Execution Context</code> 从逻辑上形成栈结构，栈顶(活跃)的执行上下文包含了追踪当前正在执行的代码的全部状态。</p>
+<p>执行上下文包含了LexicalEnvironment、VariableEnvironment和ThisBinding三部分，在这个话题中我们主要关心ThisBinding，<br>也就是代码中出现this所代指的值的绑定</p>
+<h4 id="全局代码中的this">全局代码中的this</h4>
+<p>从最简单的开始</p>
+<p><a href="http://www.ecma-international.org/ecma-262/5.1/#sec-10.4.1" target="_blank" rel="external">10.4.1 Entering Global Code</a><br>在进入全局代码的流程中，规范明确指出：全局代码对应的执行上下文中，</p>
+<blockquote>
+<p>Set the ThisBinding to the global object.</p>
+</blockquote>
+<p>所以全局代码中，this指向全局对象</p>
+<h4 id="函数调用表达式时提供的this值">函数调用表达式时提供的this值</h4>
+<p><strong>注意：this值<code>this value</code>是不同于this关键词的概念，是调用[[Call]]内部方法的参数之一，并不等同于用户代码中的this关键字</strong></p>
+<p>函数调用表达式<code>CallExpression</code>的过程中，按照<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.3" target="_blank" rel="external">标准的描述</a>，<br>计算this值的伪代码如下</p>
+<pre><code><span class="keyword">if</span> <span class="type">Type</span>(<span class="keyword">ref</span>) <span class="keyword">is</span> &lt;<span class="type">Reference</span>&gt;
+    <span class="keyword">if</span> <span class="type">IsPropertyReference</span>(<span class="keyword">ref</span>)
+        thisValue := getBase(<span class="keyword">ref</span>)
+    <span class="keyword">else</span> <span class="comment"># assert Type(getBase(ref)) is &lt;Environment Record&gt;</span>
+        thisValue := getBase(<span class="keyword">ref</span>).<span class="type">ImplicitThisValue</span>()
+<span class="keyword">else</span>
+    thisValue := undefined
+</code></pre><ul>
+<li>ref是函数调用参数左侧(括号左侧)的表达式计算的结果</li>
+<li><code>&lt;Reference&gt;</code>引用类型常见的有<ul>
+<li>标示符引用<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.2" target="_blank" rel="external">Identifier Reference</a><br>即变量引用，引用base是环境记录<code>Environment Record</code></li>
+<li>字面量引用<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.3" target="_blank" rel="external">Literal Reference</a><br>引用base也是环境记录</li>
+<li>属性访问<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.1" target="_blank" rel="external">Property Accessors</a><br>包括点运算和<code>[]</code>运算，引用base是左值</li>
+</ul>
+</li>
+<li>非引用类型常见的有<ul>
+<li>全部ECMA内置函数和所有用户定义函数的返回结果（例外是host objects，也就是假设DOM之类的宿主对象如果需要，<br>可以定义一些函数返回引用）</li>
+</ul>
+</li>
+<li>环境记录是前述的执行上下文中的LexicalEnvironment和VariableEnvironment的构成要素<ul>
+<li>不考虑with语句的话，环境记录只有<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-10.2.1" target="_blank" rel="external">Declarative Environment Records</a>一种，它的<code>ImplicitThisValue</code>始终返回undefined</li>
+</ul>
+</li>
+</ul>
+<p>综上所述，排除with语句的情况下，想让thisValue不是undefined，就只有属性访问一种办法而已。</p>
+<p>计算得到thisValue后，调用被调函数func的<code>[[call]]</code>内部方法，提供thisValue作为this的值</p>
+<h4 id="new表达式时提供的this值">new表达式时提供的this值</h4>
+<p>new表达式<code>NewExpression</code>的<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.2" target="_blank" rel="external">执行过程</a><br>基本上委托给了<code>[[Construct]]</code>内部方法，我们看这个方法的<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-13.2.2" target="_blank" rel="external">定义</a>，<br>关注其中第8步</p>
+<blockquote>
+<p>Let result be the result of calling the [[Call]] internal property of F, providing<br>obj as the this value and providing the argument list passed into [[Construct]] as args.</p>
+</blockquote>
+<p>其中F是构造函数，而obj是本次新建的对象，非常清楚。</p>
+<h4 id="this值如何转变为ThisBinding">this值如何转变为ThisBinding</h4>
+<p>前两节我们描述了两种触发函数体内代码的办法各自如何构造this值，但正如前述，this关键字的值是执行上下文中的ThisBinding决定的，<br>this值转变为ThisBinding的过程发生在调用<code>[[Call]]</code>内部方法时，我们看<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-13.2.1" target="_blank" rel="external">标准</a></p>
+<blockquote>
+<p>Let funcCtx be the result of establishing a new execution context for function<br>code using the value of F’s [[FormalParameters]] internal property, the passed<br>arguments List args, and the this value as described in 10.4.3.</p>
+</blockquote>
+<p>阿哈，第一步就是建立新的执行上下文，其中thisBinding的构建在<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-10.4.3" target="_blank" rel="external">10.4.3 Entering Function Code
+</a>中描述,</p>
+<pre><code><span class="keyword">if</span> <span class="keyword">function</span>-code <span class="keyword">is</span> &lt;<span class="keyword">strict</span> code&gt;
+    ThisBinding = thisArg
+<span class="keyword">else</span> <span class="keyword">if</span> thisArg <span class="keyword">is</span> null <span class="keyword">or</span> thisArg <span class="keyword">is</span> undefined
+    ThisBinding = <span class="keyword">global</span> <span class="built_in">object</span>
+<span class="keyword">else</span> <span class="keyword">if</span> Type(thisArg) <span class="keyword">is</span> <span class="keyword">not</span> &lt;<span class="built_in">Object</span>&gt;
+    ThisBinding = ToObject(thisArg)
+<span class="keyword">else</span>
+    ThisBinding = thisArg
+</code></pre><p>这就是魔术的秘密</p>
+<ul>
+<li>null 和 undefined 的this在此时会绑定为全局对象</li>
+<li>其他三种非对象 String / Boolean / Number 在此时被转化为对象（auto boxing）</li>
+<li>但是，<strong>strict mode下不进行任何转换</strong></li>
+</ul>
+<p>That’s <code>this</code> in Javascript.</p>
+<hr>
+<p>本节思考题：</p>
+<ul>
+<li>找找看关于apply和call的标准，为何this会变？</li>
+<li>找找看关于bind的标准，哪里体现了bind后的函数内的this无视环境和调用方式，总是固定值？</li>
+<li>with语句并不是一个良好的实践，所以我避开了它，不过这可以作为阅读标准的练习：with语句如何影响this关键词？请试着写一句代码展示此种影响</li>
+<li>eval的内部的this如何确定？</li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h1 id="简单易懂的ECMA规范导读1">简单易懂的ECMA规范导读1</h1>
+<h3 id="序">序</h3>
+<p>最近混<a href="http://segmentfault.com/" target="_blank" rel="external">SF</a>，恰巧又逢工作方面有了NodeJS的机会，迫切地有教别人怎么写JS的需求，<br>我发现JS这个东西其实真没那么容易理解。</p>
+<p>为了加深和纠正自己对JS的理解，也为了以后能直接甩别人一脸文章，所以开始挖这样一个大坑：<strong>简单易懂的ECMA规范导读</strong>。<br>希望能以专题的形式有线索地基于ECMA标准介绍Javascript的方方面面。本文不是ECMA标准的中文翻译，也不是Javascript的入门教程，<br>本文虽然以JS的常见问题切入，但并不适合想要快速了解这些问题的人（Google才是快速了解问题的正解）。<br>本文的聚焦于标准如何决定了JS的各种行为，JS引擎的水面下在发生些什么。</p>
+<p>本文描述的是<a href="http://www.ecma-international.org/ecma-262/5.1/" target="_blank" rel="external">ECMA262的5.1版本</a> 也是现在最为流行和主流的标准，<br>现代浏览器和NodeJS默认均遵循此标准。尽量以英文原版为基础，为了流畅，可能会使用某些名词的中文翻译，<br>但会将匹配的英文名词以<code>此种样式</code>中出现一次以避免误解。</p>
+<h3 id="Topic1-_that’s_this">Topic1. that’s this</h3>
+<p>我们的第一个话题是：this指向哪里?</p>
+]]>
+    
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Design story of LitPHP]]></title>
+    <link href="http://mcfog.github.io/2014/03/design-story-of-litphp/"/>
+    <id>http://mcfog.github.io/2014/03/design-story-of-litphp/</id>
+    <published>2014-03-02T13:16:23.000Z</published>
+    <updated>2014-05-08T10:31:20.000Z</updated>
+    <content type="html"><![CDATA[<p>LitPHP(<a href="http://litphp.github.io/" target="_blank" rel="external">官网</a> | <a href="http://github.com/litphp/lit" target="_blank" rel="external">Repo</a>) 昨天正式开源了，这是喜欢框架的我的第一个自认为能拿出手的作品。终于有了这么个作品让我相当地感想万千。先贴上12个类+1个接口的类图</p>
+<p><img src="https://rawgithub.com/LitPHP/litphp.github.io/115d5ed1f2d1884b2ac1a147c1583fc50c2e4f84/doc/graphs/classes.svg" alt=""></p>
+<h3 id="LitPHP的设计哲学">LitPHP的设计哲学</h3>
+<a id="more"></a>
+
+<ul>
+<li><p>让程序员选择 @<a href="http://backbonejs.org/" target="_blank" rel="external">Backbone</a></p>
+<ul>
+<li><p>在Backbone官网中，找到<a href="http://backbonejs.org/#FAQ-why-backbone" target="_blank" rel="external">这样一段话</a></p>
+<blockquote>
+<p>Backbone.js aims to provide the common foundation that data-rich web applications with ambitious interfaces require — <strong>while very deliberately avoiding painting you into a corner by making any decisions that you’re better equipped to make yourself</strong>.</p>
+</blockquote>
+</li>
+<li><p>我太喜欢『paint into corner』这样的说法了，这是我用很多其他框架的直观感受，可以翻成『画地为牢』吧，我把这段话翻译一下套到LitPHP上来</p>
+<p>  LitPHP希望提供一个性质良好的PHP程序结构。为了避免画地为牢，LitPHP刻意减少功能，不作任何我们认为应当由实际开发者来做出的决策（比如视图层究竟包含哪些职责/如何嵌套，又比如ORM或模板引擎的选择）</p>
+</li>
+<li><p>为什么选择LitPHP？因为它让你选择！</p>
+</li>
+</ul>
+</li>
+<li><p>『中间件』及其支点 @<a href="http://www.senchalabs.org/connect/" target="_blank" rel="external">connect</a></p>
+<ul>
+<li>connect作为一个非常成功的框架，其中间件的理念让nodejs在webserver方面的成就拔高了一截。</li>
+<li>中间件(middleware)模式和插件(plugin)模式的区别，在我看来可以理解成插件是『改变原有功能』而中间件是『拼接出需要的功能』。插件主要『覆盖』而中间件主要『连接』。</li>
+<li>中间件为了达成连接的目的，需要不动的支点，nodejs天然提供了<code>request</code>对象和<code>response</code>对象，connect的中间件便以这两个对象为支点，通过这两个对象来协作。</li>
+<li><p>  LitPHP中，Route相关代码扮演connect的角色，让中间件得以执行，而其他代码就聚焦于扮演支点的角色：<code>Lit_Result</code>大约是<code>response</code>的角色，而看似突兀又简陋的<code>Lit_Http_Conversation</code>，其实扮演了非常重要的<code>request</code>的角色。<code>Lit_App</code>作为全局工厂，让动态程度不及JS的PHP能够更好的改变/添加各个组件的功能，还提供了context作为全局黑板便于信息交换。</p>
+<p>  虽然尚未经过实践，但我可以想象负责缓存的中间件在判断缓存命中后，设置一个<code>Cache_Hit_Result</code>后中断后续路由逻辑；负责用户登录的中间件在发现用户未登录时设置跳转Result并中断，否则将用户信息写入app context……</p>
+</li>
+</ul>
+</li>
+<li><p>无招胜有招</p>
+<ul>
+<li>LitPHP基本没有<code>::</code>符号写死类名，也不存在<code>final</code>的方法，而每个方法都不超过10行代码，你可以而且很容易通过继承来控制所有行为。</li>
+<li>LitPHP没有刻板的MVC划分。只要有接受<code>Lit_App</code>的callback，就可以作为C；只要继承<code>Lit_Result</code>，或与其组合，就可以作为V；只要不是V，就可以视为M。实际应用中如何分层如何配合，完全由使用者自己决定。</li>
+</ul>
+</li>
+</ul>
+<p>最后贴上QQ群<strong>341338880</strong>，欢迎加群讨论</p>
+<p><a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=e0ce42feb7d8f8b7de8b2ab6bdac26d62e1cd34189ea767127f1e41ea70df0d8"><img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="LitPHP讨论" title="LitPHP讨论"></a></p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>LitPHP(<a href="http://litphp.github.io/" target="_blank" rel="external">官网</a> | <a href="http://github.com/litphp/lit" target="_blank" rel="external">Repo</a>) 昨天正式开源了，这是喜欢框架的我的第一个自认为能拿出手的作品。终于有了这么个作品让我相当地感想万千。先贴上12个类+1个接口的类图</p>
+<p><img src="https://rawgithub.com/LitPHP/litphp.github.io/115d5ed1f2d1884b2ac1a147c1583fc50c2e4f84/doc/graphs/classes.svg" alt=""></p>
+<h3 id="LitPHP的设计哲学">LitPHP的设计哲学</h3>
+]]>
+    
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Introducing Backbone.Joint]]></title>
+    <link href="http://mcfog.github.io/2014/02/introducing-backbonejoint/"/>
+    <id>http://mcfog.github.io/2014/02/introducing-backbonejoint/</id>
+    <published>2014-02-18T06:54:02.000Z</published>
+    <updated>2014-05-08T10:31:20.000Z</updated>
+    <content type="html"><![CDATA[<p><a href="/2013/05/backbone-first-glance/">接触Backbone</a>已经半年有余，也有机会在各种项目中实践。自己的<a href="https://github.com/mcfog/backbone.joint/" target="_blank" rel="external">mcfog/Backbone.Joint</a> 也从一个玩票儿小lib慢慢演化成一个经受过生产环境考验的backbone扩展。一直没有机会写点字介绍一下，终于在14年新春之际，码了这么一篇介绍出来。</p>
+<p>Backbone.Joint 从13/06/14开始挖坑，7月7日登上github至今，可以说已经进入一个比较稳定的0.1版本。在Readme.md中我写的desc是这样描述这个扩展的</p>
+<blockquote>
+<p>another extension of backbone.js aims to support common situation with small &amp; flexible codebase</p>
+</blockquote>
+<p>Backbone.Joint主要针对<code>Backbone.View</code>，对<code>Backbone.Model</code>和<code>Backbone.Collection</code>的补充暂时在另一个repo <a href="https://github.com/mcfog/backbone.storageEngine" target="_blank" rel="external">Backbone.storageEngine</a> 中。由于最开始的练手性质，开发语言一直是<a href="https://github.com/satyr/coco#readme" target="_blank" rel="external">coco</a>，这是一种coffeescript的方言。</p>
+<a id="more"></a>
+
+<p>下面按照源码的顺序一点点介绍，想看重点可以直接往下拉到View部分</p>
+<h2 id="基础设施__index-co">基础设施 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/_index.co" target="_blank" rel="external">_index.co</a></h2>
+<h4 id="Joint-$和Joint-_">Joint.$和Joint._</h4>
+<p>jQuery和underscore的引用，除了内部使用之外，也方便amd风格的情况下可以减少一些dep</p>
+<h4 id="Joint-assert和Joint-advice">Joint.assert和Joint.advice</h4>
+<p>用于内部进行一些断言式判断，在可能的情况下打出console方便调试</p>
+<h4 id="Joint-before和Joint-after">Joint.before和Joint.after</h4>
+<p>用于在函数前后追加逻辑，追加逻辑中可以通过<code>arguments.callee.state[0]</code>对象实现一些干涉逻辑。</p>
+<h4 id="Joint-Emitter">Joint.Emitter</h4>
+<p>这是Joint中所有模块的基础，由<code>Backbone.Event</code>的全部事件能力和<code>extend</code>方法组成</p>
+<h2 id="Deferred抽象_defer-co">Deferred抽象 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/defer.co" target="_blank" rel="external">defer.co</a></h2>
+<p>以jQuery为对象，抽象了Deferred/Promise机制的基本接口，主要做了如下处理</p>
+<ul>
+<li>针对jQ1.5~1.7的非标准的then方法补丁，转发到<code>pipe</code>方法</li>
+<li><code>Joint.Deferred.defer</code>方法返回读写分离，分成resolver和promise两部分，而非原本jQ的读写混合在同一个对象中</li>
+<li>一个用于将标准Backbone事件转换成promise的<code>Joint.Deferred.listen</code>方法，不过注意只是once，而且必须保证在时间触发前调用</li>
+<li>其他的when/resolve/reject方法原样转发</li>
+</ul>
+<h2 id="DOM抽象_dom-co">DOM抽象 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/dom.co" target="_blank" rel="external">dom.co</a></h2>
+<p>分离了一些需要用到的DOM操作，如果需要脱离jQ时可以统一移植这里的方法即可。注意在dom对象中存放view对象依赖$.fn.data，Zepto.js需要编译时增加依赖data模块</p>
+<h2 id="View_view-co_和ViewModel_view_model-co"><strong>View</strong> <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/view.co" target="_blank" rel="external">view.co</a> 和ViewModel <a href="https://github.com/mcfog/backbone.joint/blob/master/src/view_model.co" target="_blank" rel="external">view_model.co</a></h2>
+<h4 id="Fetch-Serialize-Render">Fetch-Serialize-Render</h4>
+<p>Joint对View的增强首先聚焦于<code>render</code>方法，我希望(尽可能)所有的DOM写操作均通过render一个方法来进行。统一DOM写最常见也最容易维护的便是“模板渲染”模式了。Joint将其分解为Fetch-Serialize-Render三步，期望应用继承<code>Joint.View</code>后在自己的基类中分别解释这三步来组建起视图渲染体系。</p>
+<ul>
+<li><p>fetchTemplate()</p>
+<p>  拉取模板，一般来说每个视图都需要自己的模板，所以一般需要一个属性来指明使用哪个模板，建议直接使用<code>template</code>。模板可以是任何形式，如果是异步拉取，只要返回”thenable”对象，Joint通过<code>Joint.Deferred.when</code>，也就是<code>jQuery.when</code>来等待。</p>
+<p>  默认值是<code>$J.Dom.html($(&quot;#&quot; + this.template&quot;))</code>，也就是在<code>template</code>属性中放DOM对象的id，取其源码。和<code>&lt;script id=&quot;TPLNAME&quot; type=&quot;x-template&quot;&gt;</code>DOM标签配合。在大型应用中默认值不可取，务必实现自己的拉取模板（以及缓存）逻辑</p>
+</li>
+<li><p>serializeData()</p>
+<p>  组装(序列化)数据，将当前视图的状态抽成一个数据对象用于填充模板。虽然想不出实用的案例，但也还是支持了”thenable”</p>
+<p>  默认值是<code>$.extend({}, this.data, this._sync)</code>，<code>data</code>是默认初始化的数据对象，<code>_sync</code>和稍后的数据有关，后详。一般来说这个默认值不太需要覆盖。</p>
+</li>
+<li><p>renderHtml(template, data)</p>
+<p>  最终渲染方法，会得到前面两部输出的模板和数据作为参数，这里将他们结合渲染为HTML代码，返回字符串即可。Joint会负责将其填充到dom中</p>
+<p>  默认值是<code>_.template(tpl, data)</code>，使用underscore的模板输出，不过并没有缓存模板结果。如果需要别的模板引擎或者想缓存underscore模板结果，可以改造这个方法。同样支持异步返回”thenable”（比如DustJS的渲染就是异步的接口）</p>
+</li>
+</ul>
+<h4 id="SubView体系">SubView体系</h4>
+<p>子视图是经常需要又在Backbone中缺失的概念。Joint给出了自己的SubView实现</p>
+<ul>
+<li>parent掌握child的引用，将其绑定在自身的一个选择器上，渲染时先渲染自己，然后在selector找到的元素中渲染child</li>
+<li>child没有parent的引用，也不了解parent的任何信息，应该可以独立于parent工作。但child上的自定义事件会冒泡的parent上。</li>
+<li>使用<code>setView</code>方法来添加子视图，如果需要一个DOM容器中存在多个子视图，则可以用<code>appendView</code></li>
+<li>child可以不是<code>Joint.View</code>的实例，但parent必须拥有<code>Joint.View</code>的特征，才能实现上述功能</li>
+</ul>
+<p>当子视图是<code>Joint.View</code>时，便同样拥有一切特性，也支持多层子视图嵌套</p>
+<h4 id="数据同步机制和ViewModel">数据同步机制和ViewModel</h4>
+<p>如果视图的数据源复杂，或者多个视图共享一个数据源的时候，一个好的数据同步机制就变得很有必要<code>Joint.View</code>提供了<code>sync</code>和<code>unsync</code>两个方法来同步数据。</p>
+<p><code>sync(syncName, synchronizer, events)</code> 方法的核心可以简写成</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">this</span>._sync[syncName] = synchronizer;</div><div class="line"><span class="keyword">this</span>.listenTo(synchronizer, events, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{</div><div class="line">  <span class="keyword">this</span>$.render();</div><div class="line">});</div></pre></td></tr></table></figure>
+
+
+<p><code>synchronizer</code>是需要同步的数据对象(必须具备Backbone.Event)，<code>events</code>是绑定的事件，而<code>syncName</code>就是在<code>_sync</code>属性中的key，在默认的<code>serializeData</code>中，<code>_sync</code>会被带到数据中，从而传递给模板。</p>
+<p>在Backbone中，<code>Backbone.Model</code>和<code>Backbone.Collection</code>都可以很容易地用作这里的<code>synchronizer</code>来使用，只要<code>events</code>传各种内置事件(<a href="http://backbonejs.org/#Events-catalog" target="_blank" rel="external">参考文档</a>)，即可完成Model/Collection更新时自动重绘View。</p>
+<p>一个更好的数据对象是<code>Joint.ViewModel</code>，它基本就是一个<code>Joint.Emitter</code>，主要的区别是有一个<code>sync</code>方法，会触发<code>$J:sync</code>内置事件，而这个事件同样也会触发视图渲染，但这个事件的参数可以影响渲染过程，使后述的局部渲染成为可能。</p>
+<h4 id="局部渲染">局部渲染</h4>
+<p>实际开发中，我发现经常有一些更新页面局部的需求，页面局部可能非常小，或者在DOM中不连续，或者涉及View的多个数据源，又或者含有表单等不适合反复重绘的元素，导致拆分subView难以满足需求。这时就要“局部渲染”出场了，局部渲染是在整个View的内部，通过HTML属性标识出需要更新的页面局部，从而在数据源更新时，精准地替换页面局部。</p>
+<h5 id="绑定方法">绑定方法</h5>
+<ul>
+<li>View::sync时，第二个参数(synchronizer)传一个ViewModel对象</li>
+<li><p>ViewModel中，当数据有更新时，调用ViewModel::sync(fieldNames) 即可，字段名支持空格分隔或数组表示多个字段同时更新。</p>
+<p>  此时相关的View中的DOM元素不会像普通的渲染过程，整个被替换成新的元素，而是仅仅被标识有更新的字段的DOM元素被替换。</p>
+</li>
+</ul>
+<h5 id="标识">标识</h5>
+<ul>
+<li><p><code>j-field</code> 属性</p>
+<p>  表示哪些字段更新时需要更新此DOM元素，空格分隔字段，支持有限的通配符：</p>
+<ul>
+<li><code>syncName.fieldName</code> syncName即调用View::sync时指定的名字，fieldName即ViewModel::sync时传的名字。</li>
+<li><code>syncName.*</code> syncName所指的ViewModel中任意字段被更新时均更新此元素</li>
+</ul>
+</li>
+<li><p><code>j-id</code> 属性</p>
+<p>  Joint根据这个属性来确认渲染前后DOM元素的对应关系，即渲染后，字段有改变的DOM元素代码覆盖到DOM树上<code>j-id</code>相同的节点。</p>
+<p>  默认值是和<code>j-field</code>相同。如果页面上存在<code>j-field</code>相同的元素时，则必须指定不同的<code>j-id</code>来避免混淆</p>
+</li>
+</ul>
+<hr>
+<p>写完感觉好乱，以后慢慢按照Tutorial 和 Document整理吧</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p><a href="/2013/05/backbone-first-glance/">接触Backbone</a>已经半年有余，也有机会在各种项目中实践。自己的<a href="https://github.com/mcfog/backbone.joint/" target="_blank" rel="external">mcfog/Backbone.Joint</a> 也从一个玩票儿小lib慢慢演化成一个经受过生产环境考验的backbone扩展。一直没有机会写点字介绍一下，终于在14年新春之际，码了这么一篇介绍出来。</p>
+<p>Backbone.Joint 从13/06/14开始挖坑，7月7日登上github至今，可以说已经进入一个比较稳定的0.1版本。在Readme.md中我写的desc是这样描述这个扩展的</p>
+<blockquote>
+<p>another extension of backbone.js aims to support common situation with small &amp; flexible codebase</p>
+</blockquote>
+<p>Backbone.Joint主要针对<code>Backbone.View</code>，对<code>Backbone.Model</code>和<code>Backbone.Collection</code>的补充暂时在另一个repo <a href="https://github.com/mcfog/backbone.storageEngine" target="_blank" rel="external">Backbone.storageEngine</a> 中。由于最开始的练手性质，开发语言一直是<a href="https://github.com/satyr/coco#readme" target="_blank" rel="external">coco</a>，这是一种coffeescript的方言。</p>
+]]>
+    
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[a browser incompatibility behavior about jquery and unattached element]]></title>
+    <link href="http://mcfog.github.io/2013/06/a-browser-incompatibility-behavior-about-jquery-and-unattached-element/"/>
+    <id>http://mcfog.github.io/2013/06/a-browser-incompatibility-behavior-about-jquery-and-unattached-element/</id>
+    <published>2013-06-23T02:59:24.000Z</published>
+    <updated>2014-05-08T10:31:20.000Z</updated>
+    <content type="html"><![CDATA[<h3 id="摘要">摘要</h3>
+<ul>
+<li>jQuery.fn.hide 会读取元素的display样式</li>
+<li>读取尚未插入dom树的脱机元素的样式时，不同浏览器行为不同</li>
+</ul>
+<h3 id="场景">场景</h3>
+<p>在一段显示错误提示的代码中，发现firefox下显示异常，错误提示tips的宽度没有自适应内容而是占满了整个容器。inspect后发现，本应是由CSS控制的<code>display:inline-block</code>被元素的<code>style=&quot;display:block&quot;</code>覆盖，chrome下没有这个问题</p>
+<a id="more"></a>
+
+<h3 id="jQuery-fn-show">jQuery.fn.show</h3>
+<p>断点调查后发现在jQ的<code>show</code>方法中有这样<a href="https://github.com/jquery/jquery/blob/1.7.2/src/effects.js#L57" target="_blank" rel="external">一段代码</a></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">elem.style.display = jQuery._data( elem, <span class="string">"olddisplay"</span> ) || <span class="string">""</span>;</div></pre></td></tr></table></figure>
+
+<p>也就是说jQ为了hide和show后能够保持原有的display属性，会将元素原来的display属性暂存起来，这样一个原本<code>inline-block</code>的元素经过hide和show之后不会被改成<code>block</code>，firefox下问题tips元素的<code>jQuery._data( elem, &quot;olddisplay&quot; )</code>值是<code>block</code>，所以show的行为没有问题，问题应当是hide的时候这个计算算错了</p>
+<h3 id="jQuery-fn-hide">jQuery.fn.hide</h3>
+<p>再来看hide的<a href="https://github.com/jquery/jquery/blob/1.7.2/src/effects.js#L81" target="_blank" rel="external">相关代码</a>，中规中矩，用<code>jQuery.css</code>获取display属性</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">display = jQuery.css( elem, <span class="string">"display"</span> );</div><div class="line"></div><div class="line"><span class="keyword">if</span> ( display !== <span class="string">"none"</span> && !jQuery._data( elem, <span class="string">"olddisplay"</span> ) ) {</div><div class="line">	jQuery._data( elem, <span class="string">"olddisplay"</span>, display );</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>继续追踪后在<code>jQuery.css</code>的实现中发现了<a href="https://github.com/jquery/jquery/blob/1.7.2/src/css.js#L179" target="_blank" rel="external">浏览器不一致的来源</a></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> ( (defaultView = elem.ownerDocument.defaultView) &&</div><div class="line">		(computedStyle = defaultView.getComputedStyle( elem, <span class="literal">null</span> )) ) {</div><div class="line"></div><div class="line">	ret = computedStyle.getPropertyValue( name );</div></pre></td></tr></table></figure>
+
+<p>这里的elem是一个未加入dom树的“脱机”元素，<code>defaultView</code>火狐和chrome计算后都等于<code>window</code>，<code>name</code>是要获取的属性名，这里是display。chrome下<code>ret</code>拿到的值是空字符串，而火狐下拿到的是<code>block</code>，从而火狐会将这个值写入<code>olddisplay</code>，最终导致show的时候元素被加上<code>display:block</code></p>
+<h3 id="观察&amp;总结">观察&amp;总结</h3>
+<p>最后我计算了<code>getComputedStyle(document.createElement(&#39;div&#39;), null)</code>，发现chrome基本上都是空，而火狐则填充了各种各样的默认属性（顺带一提IE9的行为和火狐类似）</p>
+<p><img src="/images/201306/unattached-styles.jpg" alt="unattached styles"></p>
+<p>究竟哪种行为才符合标准已经不重要，总之<strong>避免读取脱机元素的样式</strong>才能避开这里的问题，虽然脱机元素操作完再插入DOM是性能友好的做法，但浏览器兼容性多数情况下还是比性能更重要的</p>
+<h3 id="本次问题代码fiddle">本次问题代码fiddle</h3>
+<p>chrome下显示inline-block，火狐/IE9则显示block</p>
+<iframe width="100%" height="300" src="http://jsfiddle.net/PrmgJ/embedded/result,js,css/light" frameborder="0" allowfullscreen></iframe>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h3 id="摘要">摘要</h3>
+<ul>
+<li>jQuery.fn.hide 会读取元素的display样式</li>
+<li>读取尚未插入dom树的脱机元素的样式时，不同浏览器行为不同</li>
+</ul>
+<h3 id="场景">场景</h3>
+<p>在一段显示错误提示的代码中，发现firefox下显示异常，错误提示tips的宽度没有自适应内容而是占满了整个容器。inspect后发现，本应是由CSS控制的<code>display:inline-block</code>被元素的<code>style=&quot;display:block&quot;</code>覆盖，chrome下没有这个问题</p>
+]]>
+    
+    </summary>
+    
+      <category term="dom" scheme="http://mcfog.github.io/tags/dom/"/>
+    
+      <category term="jquery" scheme="http://mcfog.github.io/tags/jquery/"/>
+    
+      <category term="javascript" scheme="http://mcfog.github.io/categories/javascript/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[inspiring CDUK the modularized and flexible docco]]></title>
+    <link href="http://mcfog.github.io/2013/06/inspiring-cduk-the-modularized-and-flexible-docco/"/>
+    <id>http://mcfog.github.io/2013/06/inspiring-cduk-the-modularized-and-flexible-docco/</id>
+    <published>2013-06-15T10:03:02.000Z</published>
+    <updated>2014-05-08T10:31:20.000Z</updated>
+    <content type="html"><![CDATA[<p>最近在看Backbone&amp;Underscore的时候，对他们的annoted source（<a href="backbonejs.org/docs/backbone.html">backbone</a> / <a href="http://underscorejs.org/docs/underscore.html" target="_blank" rel="external">underscore</a>）产生了好感，然后发现他们都是用<br><a href="http://jashkenas.github.io/docco/" target="_blank" rel="external"><strong>Docco</strong></a> 来做的。</p>
+<p>后来顺藤摸瓜发现除了类似backbone/underscore的将注释按markdown写的做法，还有更加彻底的将代码写进markdown中的做法，coffeescript已经有支持（<a href="http://ashkenas.com/literate-coffeescript/" target="_blank" rel="external">literate-coffeescript</a>）。</p>
+<p>挖进源码看docco，我发现他的可扩展性存在问题，用少量代码迅速完成了核心功能但并不易扩展。最近又手痒的厉害于是干脆挖坑自己写一个literal programming用的工具。</p>
+<p>这里记录下最初的目的和一些想法，目前的进度是基于markdown四空格的lexer已经可以跑了。<br><a id="more"></a></p>
+<h3 id="基本结构">基本结构</h3>
+<p><img src="/images/201306/cduk.png" alt="cduk Structure"></p>
+<h4 id="scanner">scanner</h4>
+<ul>
+<li>职责：读取文件，分析文件格式，确定应当如何处理文件</li>
+<li>输入：文件路近 filePath</li>
+<li>输出：<ul>
+<li>生成目标target</li>
+<li>文件内容content</li>
+<li>lexer对象</li>
+</ul>
+</li>
+<li>逻辑：职责链模式允许挂载多个scanner，直到有一个scanner发出响应，可方便扩展</li>
+</ul>
+<h4 id="lexer">lexer</h4>
+<ul>
+<li>职责：将文件内容解析为token串</li>
+<li>输入：文件内容content</li>
+<li>输出：tokens</li>
+<li>逻辑：<ul>
+<li>将带注释的行认定为文档内容，反之为代码</li>
+<li>将带四空格的行认定为代码，反之为文档内容</li>
+</ul>
+</li>
+</ul>
+<h4 id="filter">filter</h4>
+<ul>
+<li>职责：分析过滤token串，实现诸如directives的高级功能</li>
+<li>0.1不做</li>
+</ul>
+<h4 id="generator">generator</h4>
+<ul>
+<li>职责：生成最终结果</li>
+<li>输入：tokens target</li>
+<li>输出：最终输出</li>
+<li>逻辑：允许叠加多个generator来同时输出各种产物</li>
+</ul>
+<h3 id="风格">风格</h3>
+<h4 id="最小核心_+_常用扩展_-_可替代功能_~_就像connect_/_grunt那样">最小核心 + 常用扩展 - 可替代功能 ~ 就像connect / grunt那样</h4>
+<p>核心代码做尽可能少的工作（比如connect核心就只有注册middleware和串联middleware）将细节留给扩展。</p>
+<p>但为了学习曲线和使用方便，包括一些简单常用的扩展（初步规划是参照docco，docco有的功能考虑内置）</p>
+<p>可以被其他“胶水工具”替代的功能不做，比如遍历目录、watch文件变化等</p>
+<h4 id="按合约编程_~_promise_/_assertion">按合约编程 ~ promise / assertion</h4>
+<p>我们制定了接口后，按合约编程，所以用promise来描述异步的约定，用assert来确认同步的情况。</p>
+<h4 id="代码代替配置">代码代替配置</h4>
+<p>人们要了解配置如何工作，必须追踪千山万水跨过配置解释器的天堑才有可能找到最终使配置生效的代码。但如果起配置作用的就是代码的话，一个断点和若干次追踪就能找到。对代码不满意的话，（至少在JS中）可以很容易地动态改变一下对象的行为来达成自己的目的，但对配置项不满意就没那么幸运了</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>最近在看Backbone&amp;Underscore的时候，对他们的annoted source（<a href="backbonejs.org/docs/backbone.html">backbone</a> / <a href="http://underscorejs.org/docs/underscore.html" target="_blank" rel="external">underscore</a>）产生了好感，然后发现他们都是用<br><a href="http://jashkenas.github.io/docco/" target="_blank" rel="external"><strong>Docco</strong></a> 来做的。</p>
+<p>后来顺藤摸瓜发现除了类似backbone/underscore的将注释按markdown写的做法，还有更加彻底的将代码写进markdown中的做法，coffeescript已经有支持（<a href="http://ashkenas.com/literate-coffeescript/" target="_blank" rel="external">literate-coffeescript</a>）。</p>
+<p>挖进源码看docco，我发现他的可扩展性存在问题，用少量代码迅速完成了核心功能但并不易扩展。最近又手痒的厉害于是干脆挖坑自己写一个literal programming用的工具。</p>
+<p>这里记录下最初的目的和一些想法，目前的进度是基于markdown四空格的lexer已经可以跑了。<br>]]>
+    
+    </summary>
+    
+      <category term="inspiration" scheme="http://mcfog.github.io/tags/inspiration/"/>
+    
+      <category term="javascript" scheme="http://mcfog.github.io/categories/javascript/"/>
+    
+      <category term="programming" scheme="http://mcfog.github.io/categories/javascript/programming/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[grunt-coco released]]></title>
+    <link href="http://mcfog.github.io/2013/06/grunt-coco-released/"/>
+    <id>http://mcfog.github.io/2013/06/grunt-coco-released/</id>
+    <published>2013-06-14T11:19:49.000Z</published>
+    <updated>2014-05-08T10:31:20.000Z</updated>
+    <content type="html"><![CDATA[<p>最近在看各种自动化工具，有集成化程度高，比起编译工具更像“IDE减文本编辑”的<a href="http://mimosajs.com" target="_blank" rel="external">mimosajs</a>，也有被业界广泛认可，开放易配置的<a href="http://gruntjs.com" target="_blank" rel="external">gruntjs</a>。作为一个<a href="https://github.com/satyr/coco" target="_blank" rel="external">coco</a>语言支持者，看自动化工具当然是先看能不能支持coco。</p>
+<a id="more"></a>
+
+<p>grunt的开放模块机制非常稳定靠谱(所以才会被社区高度认可的吧)，根据官网文档亦步亦趋很快就实现出了支持编译coco文件的 <code>grunt-coco</code>。说来这是我第一个上npm的repo呢。</p>
+<h3 id="使用方法">使用方法</h3>
+<p>安装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment">npm</span> <span class="comment">i</span> <span class="comment">grunt</span><span class="literal">-</span><span class="comment">coco</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">save</span><span class="literal">-</span><span class="comment">dev</span></div></pre></td></tr></table></figure>
+
+<p>在Gruntfile中引用</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">grunt.loadNpmTasks(<span class="string">'grunt-coco'</span>);</div></pre></td></tr></table></figure>
+
+<p>配置： 目前配置仅支持<code>separator</code>、<code>bare</code>和<code>join</code>，含义和<a href="https://github.com/gruntjs/grunt-contrib-coffee#options" target="_blank" rel="external">grunt-contrib-coffee</a>里的相同。<code>globals</code>配置项等coco下个版本发布把bug修掉以后就可以有效。</p>
+<p>最后附repo传送门 <a href="https://github.com/mcfog/grunt-coco" target="_blank" rel="external">https://github.com/mcfog/grunt-coco</a></p>
+<h5 id="题外话">题外话</h5>
+<p>mimosa是一个自动工具和todo框架的合成体，其开放的module机制相对grunt不算清晰，所幸作者正在积极开发中，丢去的<a href="https://github.com/dbashford/mimosa/pull/214" target="_blank" rel="external">Pull Request</a>很快就被merge了，下个版本的mimosa就将支持coco。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>最近在看各种自动化工具，有集成化程度高，比起编译工具更像“IDE减文本编辑”的<a href="http://mimosajs.com" target="_blank" rel="external">mimosajs</a>，也有被业界广泛认可，开放易配置的<a href="http://gruntjs.com" target="_blank" rel="external">gruntjs</a>。作为一个<a href="https://github.com/satyr/coco" target="_blank" rel="external">coco</a>语言支持者，看自动化工具当然是先看能不能支持coco。</p>
+]]>
+    
+    </summary>
+    
+      <category term="grunt" scheme="http://mcfog.github.io/tags/grunt/"/>
+    
+      <category term="coco" scheme="http://mcfog.github.io/tags/coco/"/>
+    
+      <category term="javascript" scheme="http://mcfog.github.io/categories/javascript/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Undocumented stylus built-in functions]]></title>
+    <link href="http://mcfog.github.io/2013/06/undocumented-stylus-built-in-functions/"/>
+    <id>http://mcfog.github.io/2013/06/undocumented-stylus-built-in-functions/</id>
+    <published>2013-06-13T18:31:18.000Z</published>
+    <updated>2014-05-08T10:31:20.000Z</updated>
+    <content type="html"><![CDATA[<p>Stylus的文档更新相对不怎么及时，这里记录一下如何找到内置函数的列表，目前最新的内置函数列表，以及其中一些比较有用的文档中没有提及的</p>
+<a id="more"></a>
+
+<h3 id="获取最新的内置函数">获取最新的内置函数</h3>
+<p>源码文件 <a href="https://raw.github.com/LearnBoost/stylus/master/lib/functions/index.styl" target="_blank" rel="external">https://raw.github.com/LearnBoost/stylus/master/lib/functions/index.styl</a></p>
+<p>用浏览器打开，执行</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">document</span>.body.innerHTML.match(<span class="regexp">/^([-\w]+)\(.+\)/gm</span>).join(<span class="string">'\n'</span>)</div></pre></td></tr></table></figure>
+
+<p>来获取最新的内置函数列表，当然由于文件不长，直接目测也行</p>
+<h3 id="目前最新的内置函数列表及简单介绍">目前最新的内置函数列表及简单介绍</h3>
+<ul>
+<li>断言/打印<ul>
+<li>-string(arg)<ul>
+<li>debug用来打印变量用</li>
+</ul>
+</li>
+<li>require-color(color)<ul>
+<li>要求输入是一个颜色，否则在控制台报错，下同</li>
+</ul>
+</li>
+<li>require-unit(n)</li>
+<li>require-string(str)</li>
+</ul>
+</li>
+<li>数学<ul>
+<li>math(n, fn)<ul>
+<li>返回js的 <code>Math[fn](n)</code> 单位维持不变</li>
+</ul>
+</li>
+<li>adjust(color, prop, amount)</li>
+<li>abs(n)</li>
+<li>sin(n)</li>
+<li>cos(n)</li>
+<li>min(a, b)</li>
+<li>max(a, b)</li>
+<li>ceil(n, precision = 0)</li>
+<li>floor(n, precision = 0)</li>
+<li>round(n, precision = 0)</li>
+<li>sum(nums)</li>
+<li>avg(nums)</li>
+<li>remove-unit(n)<ul>
+<li>移除单位</li>
+</ul>
+</li>
+<li>percent-to-decimal(n)</li>
+<li>odd(n)<ul>
+<li>是否为单数</li>
+</ul>
+</li>
+<li>even(n)<ul>
+<li>是否为双数</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>获取颜色信息<ul>
+<li>alpha(color)</li>
+<li>hue(color)</li>
+<li>saturation(color)</li>
+<li>lightness(color)</li>
+<li>light(color)<ul>
+<li>颜色是否为亮？</li>
+</ul>
+</li>
+<li>dark(color)<ul>
+<li>颜色是否为暗？</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>颜色调整<ul>
+<li>desaturate(color, amount)<ul>
+<li>减小饱和度</li>
+</ul>
+</li>
+<li>saturate(color, amount)<ul>
+<li>增加饱和度</li>
+</ul>
+</li>
+<li>darken(color, amount)<ul>
+<li>减小亮度</li>
+</ul>
+</li>
+<li>lighten(color, amount)<ul>
+<li>增加亮度</li>
+</ul>
+</li>
+<li>fade-out(color, amount)<ul>
+<li>降低透明度</li>
+</ul>
+</li>
+<li>fade-in(color, amount)<ul>
+<li>提升透明度</li>
+</ul>
+</li>
+<li>spin(color, amount)<ul>
+<li>转色调</li>
+</ul>
+</li>
+<li>mix(color1, color2, weight = 50%)<ul>
+<li>混色</li>
+</ul>
+</li>
+<li>invert(color)<ul>
+<li>反色</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>helpers<ul>
+<li>last(expr)</li>
+<li>keys(pairs)</li>
+<li>values(pairs)</li>
+<li>join(delim, vals…)</li>
+<li>add-property(name, expr)</li>
+</ul>
+</li>
+</ul>
+<p>—EOF—</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>Stylus的文档更新相对不怎么及时，这里记录一下如何找到内置函数的列表，目前最新的内置函数列表，以及其中一些比较有用的文档中没有提及的</p>
+]]>
+    
+    </summary>
+    
+      <category term="stylus" scheme="http://mcfog.github.io/tags/stylus/"/>
+    
+      <category term="css" scheme="http://mcfog.github.io/categories/css/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[An elegant design to unify async and sync callback based on promise object]]></title>
+    <link href="http://mcfog.github.io/2013/06/an-elegant-design-to-unify-async-and-sync-callback-based-on-promise-object/"/>
+    <id>http://mcfog.github.io/2013/06/an-elegant-design-to-unify-async-and-sync-callback-based-on-promise-object/</id>
+    <published>2013-06-09T10:52:43.000Z</published>
+    <updated>2014-05-08T10:31:20.000Z</updated>
+    <content type="html"><![CDATA[<p>在JS代码的设计中，“回调”是非常重要而有效的手段，这里讨论的是框架需要获取回调结果的，更加注重IoC的回调。（另一种回调的使用往往更接近订阅者模式，强调信息的单向下发）往往框架代码需要获取某些信息，但如何获取的逻辑需要留待使用者实现，此时回调就是非常直接的选择。</p>
+<p>获取回调的输出信息有最直接的使用返回值（同步），但异步有时是无法避免的。本文不准备讨论设计回调时应该设计成同步返回还是异步返回，而是讨论如何简洁而优雅地兼容两者，使回调既能够直接返回结果，又可以通知框架等待异步返回结果。</p>
+<a id="more"></a>
+
+<p>在JS中，可以和回调交互的地方一共有3个，分别是<code>this</code>对象、参数(<code>arguments</code>)和返回值。我们先看看利用this和arguments来实现的兼容同步异步的大致做法，再来看看利用返回值并引入deferred机制后对代码的提升。</p>
+<h3 id="替换this">替换this</h3>
+<p><a href="http://layoutmanager.org" target="_blank" rel="external">backbone layoutmanager</a>中采用了替换<code>this</code>对象的方式实现兼容同步和异步的模板获取/渲染。好处是业务代码看起来相对清晰，但由于替换掉了this，比较依赖this的逻辑会碰到麻烦。另外实现相对复杂</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//同步回调</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fetchSync</span><span class="params">(path)</span> </span>{</div><div class="line">  <span class="keyword">return</span> _.template($(path).html());</div><div class="line">}</div><div class="line"><span class="comment">//异步回调</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fetchAsync</span><span class="params">(path)</span> </span>{</div><div class="line">  <span class="keyword">var</span> done = <span class="keyword">this</span>.async();</div><div class="line"></div><div class="line">  $.get(path, <span class="function"><span class="keyword">function</span><span class="params">(contents)</span> </span>{</div><div class="line">    done(_.template(contents));</div><div class="line">  }, <span class="string">"text"</span>);</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>大致框架实现</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> makeAsync = <span class="function"><span class="keyword">function</span><span class="params">(done)</span> </span>{</div><div class="line">    <span class="keyword">var</span> handler = {};</div><div class="line">    handler.async = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{</div><div class="line">        handler._isAsync = <span class="literal">true</span>;</div><div class="line">        <span class="keyword">return</span> done;</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="keyword">return</span> handler;</div><div class="line">}</div><div class="line"></div><div class="line">exports.AwesomeFunction = <span class="function"><span class="keyword">function</span><span class="params">(path, callback)</span> </span>{</div><div class="line">    <span class="keyword">var</span> done = <span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{</div><div class="line">        <span class="comment">//handle result</span></div><div class="line">    };</div><div class="line">    <span class="keyword">var</span> handler = makeAsync(done);</div><div class="line">    <span class="keyword">var</span> result = callback.call(handler, path);</div><div class="line">    <span class="keyword">if</span>(!handler._isAsync) <span class="keyword">return</span> done(result);</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>可以发现为了制造出this对象以及判断是否异步的逻辑比较生硬，另外替换掉this的做法不是所有场景都可以接受。回调和框架的耦合也比较强，离开了框架的话回调由于有<code>done=this.async()</code>基本没法用。</p>
+<h3 id="追加arguments">追加arguments</h3>
+<p>对参数动手脚来实现异步/同步兼容的话，一般选择在参数列表最前/最后追加<em>回调的回调</em>用来和框架交换数据。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//同步回调</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fetchSync</span><span class="params">(path, done)</span> </span>{</div><div class="line">  done(_.template($(path).html()));</div><div class="line">}</div><div class="line"><span class="comment">//异步回调</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fetchAsync</span><span class="params">(path, done)</span> </span>{</div><div class="line">  $.get(path, <span class="function"><span class="keyword">function</span><span class="params">(contents)</span> </span>{</div><div class="line">    done(_.template(contents));</div><div class="line">  }, <span class="string">"text"</span>);</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>大致框架实现</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">exports.AwesomeFunction = <span class="function"><span class="keyword">function</span><span class="params">(path, callback)</span> </span>{</div><div class="line">    callback(path, <span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{</div><div class="line">        <span class="comment">//handle result</span></div><div class="line">    });</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>比起上一种方法，这种方法的优点是实现简洁明了，如果需要可以保持this，缺点是需要改变函数签名，对签名不定长的情形比较恶心。另外，同步返回的回调不能简单地return返回值也是比较严重的缺点。</p>
+<h3 id="利用返回值和deferred机制"><strong>利用返回值和deferred机制</strong></h3>
+<p><a href="http://wiki.commonjs.org/wiki/Promises/A" target="_blank" rel="external">deferred/promise机制</a>天生对回调非常友好，只要定义回调返回普通值=同步，返回promise=异步，就可以很优雅地做到兼容同步和异步。所需的仅仅是一个简单的包装器<code>isPromise(foo) ? foo : makePromise(foo)</code>的实现。这里以jQuery为例，<code>jQuery.when</code>就是一个不错的包装器</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//同步</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fetchSync</span><span class="params">(path)</span> </span>{</div><div class="line">  <span class="keyword">return</span> _.template($(path).html());</div><div class="line">}</div><div class="line"><span class="comment">//异步</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fetchAsync</span><span class="params">(path)</span> </span>{</div><div class="line">  <span class="keyword">return</span> $.get(path, <span class="string">"text"</span>).then(<span class="function"><span class="keyword">function</span><span class="params">(contents)</span> </span>{</div><div class="line">    <span class="keyword">return</span> _.template(contents);</div><div class="line">  });</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>大致框架实现</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">exports.AwesomeFunction = <span class="function"><span class="keyword">function</span><span class="params">(path, callback)</span> </span>{</div><div class="line">    $.when(callback(path)).then(<span class="function"><span class="keyword">function</span><span class="params">(result)</span> </span>{</div><div class="line">        <span class="comment">//handle result</span></div><div class="line">    }, <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{</div><div class="line">        <span class="comment">//handle error</span></div><div class="line">    });</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>利用返回值的好处在于完整保留了<code>this</code>和<code>arguments</code>，同步的情形下无论回调依赖this还是参数都无需包装回调，而异步的情况下，返回promise的回调的适用范围要比前两种机制的回调广泛的多。另外promise天生比较完备的错误处理，<code>jQuery.when</code>对多个参数的支持都使得这种方法在实践中具备很强的可操作性。</p>
+<h3 id="举一反三……">举一反三……</h3>
+<p>无论是设计框架还是切分方法，对于“异步获取信息”的情景来说，返回一个发布者(promise)比接受回调要更加灵活。</p>
+<ul>
+<li>接受回调会影响方法签名，而且通常浪费了返回值，返回发布者对象对整体程序的语义有很大地提升（参数=输入，返回值=输出）</li>
+<li>接受回调限定了订阅者的数量为1（兼容0和多个都需要不少兼容逻辑），而发布者通常不关心订阅者的数量</li>
+<li>接受回调要求调用方在调用时就准备好所有的订阅者，无法追加订阅者，而发布者不仅可以很容易地追加订阅者，其本身作为一个对象还可以被传递</li>
+<li>发布者可以有更灵活的方法来处理嵌套、并发以及异常等各种情况</li>
+</ul>
+<p>—EOF—</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>在JS代码的设计中，“回调”是非常重要而有效的手段，这里讨论的是框架需要获取回调结果的，更加注重IoC的回调。（另一种回调的使用往往更接近订阅者模式，强调信息的单向下发）往往框架代码需要获取某些信息，但如何获取的逻辑需要留待使用者实现，此时回调就是非常直接的选择。</p>
+<p>获取回调的输出信息有最直接的使用返回值（同步），但异步有时是无法避免的。本文不准备讨论设计回调时应该设计成同步返回还是异步返回，而是讨论如何简洁而优雅地兼容两者，使回调既能够直接返回结果，又可以通知框架等待异步返回结果。</p>
+]]>
+    
+    </summary>
+    
+      <category term="design" scheme="http://mcfog.github.io/tags/design/"/>
+    
+      <category term="jquery" scheme="http://mcfog.github.io/tags/jquery/"/>
+    
+      <category term="javascript" scheme="http://mcfog.github.io/categories/javascript/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[DSL style javascript design]]></title>
+    <link href="http://mcfog.github.io/2013/06/dsl-style-javascript/"/>
+    <id>http://mcfog.github.io/2013/06/dsl-style-javascript/</id>
+    <published>2013-06-03T12:02:05.000Z</published>
+    <updated>2014-05-08T10:31:20.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="组织大表单应用中javascript代码的一种方法">组织大表单应用中javascript代码的一种方法</h2>
+<h3 id="问题，动机，目的">问题，动机，目的</h3>
+<p>超过一屏，属性复杂到一定程度的录入界面/系统中，缺乏良好架构的javascript代码往往容易失控。尤其是当规模从小型表单开始逐渐变大时，javascript代码很容易演变成已DOM为核心的、缺乏结构、满是hack且难以维护的状态。</p>
+<p>我认为良好可维护的JS代码应该具有以下的特性</p>
+<ul>
+<li>单个文件应该控制在一千行以内</li>
+<li>依赖管理和合并，开发应该单看一个JS文件就知道它依赖别的哪些代码，而不是在HTML中直接列举所有依赖，或者更糟，把所有超过2个页面要用的JS全写一起。</li>
+<li>良好的代码复用，清晰的模块划分</li>
+<li>改变字段的表现形式或逻辑时，不应该需要修改/考虑/知道其他字段的逻辑和展现形式。改变DOM树结构、更换表单控件等改变展现方式的需求不应当对JS产生毁灭性打击。</li>
+</ul>
+<p>前三个问题基本可以归结为，超过一千行的或是需要复用的JS代码使用RequireJS / SeaJS 等方案进行分解和管理。由于这是复杂JS工程的共性，这里不多做展开讨论。本文主要关注最后一点，也就是如何解除字段逻辑和展示之间的耦合，如何解除字段和其他字段的耦合。</p>
+<p><a id="more"></a></p>
+<h3 id="解耦，协议，模板化">解耦，协议，模板化</h3>
+<p>解除耦合的做法不外乎将抽象出最小化的接口（协议）。字段可以有千奇百怪的各种逻辑，但抽象后发现其实针对单个字段来说，需要的最小接口非常小——简直太适合解耦、正交化了</p>
+<ul>
+<li><code>val</code> 方法，传值则写入，不传则读取（jQuery风格）</li>
+<li><code>setReadonly</code> 方法 设置只读</li>
+<li><code>setWritable</code> 方法 设为可写（当然设计成<code>setReadonly(false)</code>也不坏）</li>
+<li><code>change</code> 事件 值被改变时触发</li>
+<li><code>error</code> 事件 需要提示用户这个字段有问题时触发</li>
+</ul>
+<p>订好接口以后，每个字段只需要自己都实现接口，除了每个字段自己的实现代码之外，外部一律通过接口来和字段交互。这样代码就整体可控可维护，扩展性和可读性都能令人满意。</p>
+<p>有了这样的接口，我们的逻辑实现就可以非常语义化，比如折扣锁定为=现价/原价</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">good.discount.setReadonly();</div><div class="line"><span class="keyword">var</span> discountUpdate = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{</div><div class="line">    good.discount.val(good.price.val() / good.originalPrice.val());</div><div class="line">};</div><div class="line">good.price.addListener(<span class="string">'change'</span>, discountUpdate); <span class="comment">//注意：这不是DOM事件</span></div><div class="line">good.originalPrice.addListener(<span class="string">'change'</span>, discountUpdate);</div></pre></td></tr></table></figure>
+
+<p>这样一段代码完全不涉及dom交互，所以无论价格如何输入展示，折扣如何展示都没有问题。而实现dom交互的代码也完全不必关心这个字段的逻辑如何，只需要实现前述接口，将输入输出、只读、提示信息这些行为和DOM绑定即可。</p>
+<p>最常用也是最多的绑定就是一个字段对应一个DOM控件，这种绑定只需要简单地将DOM事件转发成自定义事件，将读写转换成DOM控件读写即可；稍微复杂一些的交互涉及富文本编辑、日历控件等输入形式，由于我们的接口非常小，所以一般也无需太多的代码。</p>
+<p>问题往往来源于更复杂的一些字段，他们在持久化时往往体现成JSON/XML格式字符串，或者是额外的扩展表。这些字段往往无法轻易地用一个标准DOM控件来表现，也往往是混乱的来源。</p>
+<p>DOM操作难以维护的主要原因是插入、删除元素的同时还要维护事件，在同一个页面反复进行各种操作的时候，逻辑容易有问题，所以我的做法是</p>
+<ul>
+<li>事件用委托仅在初始化的时候绑在容器上一次</li>
+<li>不单独插入、删除dom元素，而是以模板和数据渲染出所有元素</li>
+<li>在内存里维护一个变量存储当前的数据，dom里面的数据并不具权威性</li>
+</ul>
+<p><img src="/images/201306/templated-field.jpg" alt="Templated field"></p>
+<ul>
+<li>render渲染例程：<ul>
+<li>触发点：由change事件触发</li>
+<li>行为：从内存读取数据后（用模板）渲染出所有的DOM元素的HTML代码，一次性吐在容器中</li>
+</ul>
+</li>
+<li>normalize规范化例程：<ul>
+<li>触发点：dom事件/val赋值 写入数据时</li>
+<li>行为：将输入数据进行规范化，然后写入内存并触发change事件</li>
+</ul>
+</li>
+</ul>
+<h3 id="校验，提交">校验，提交</h3>
+<p>由于复杂表单往往涉及同样复杂的验证逻辑，建议尽可能将逻辑集中在后台CGI，JS少做逻辑（否则同时维护两套不同语言的等价的逻辑成本较大）</p>
+<p>无论错误是从CGI拿到，还是JS自己验出来，显示错误提示都一样通过字段上的<code>error</code>事件来传递，校验代码负责触发事件，字段本身的实现代码监听事件来在界面上显示相应的提示。</p>
+<p>提交数据时，只需要遍历所有字段的集合，将他们的字段名和<code>val()</code>结果拼装</p>
+<h3 id="DSL">DSL</h3>
+<p>总而言之，解决混乱代码的思路之一是将“需求/规则”和“表现/操作”分离，将前者抽象成某种形态的DSL，使之尽量贴近产品的需求，然后将后者作为这种DSL的解释器来写。代码写到像自然语言就赢了。如果做不到，不妨针对一个领域写解释器来解释为什么这些自然语言能工作。这是符合计算机科学发展大规律的，<strong>道法自然</strong>。</p>
+<p>—EOF—</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="组织大表单应用中javascript代码的一种方法">组织大表单应用中javascript代码的一种方法</h2>
+<h3 id="问题，动机，目的">问题，动机，目的</h3>
+<p>超过一屏，属性复杂到一定程度的录入界面/系统中，缺乏良好架构的javascript代码往往容易失控。尤其是当规模从小型表单开始逐渐变大时，javascript代码很容易演变成已DOM为核心的、缺乏结构、满是hack且难以维护的状态。</p>
+<p>我认为良好可维护的JS代码应该具有以下的特性</p>
+<ul>
+<li>单个文件应该控制在一千行以内</li>
+<li>依赖管理和合并，开发应该单看一个JS文件就知道它依赖别的哪些代码，而不是在HTML中直接列举所有依赖，或者更糟，把所有超过2个页面要用的JS全写一起。</li>
+<li>良好的代码复用，清晰的模块划分</li>
+<li>改变字段的表现形式或逻辑时，不应该需要修改/考虑/知道其他字段的逻辑和展现形式。改变DOM树结构、更换表单控件等改变展现方式的需求不应当对JS产生毁灭性打击。</li>
+</ul>
+<p>前三个问题基本可以归结为，超过一千行的或是需要复用的JS代码使用RequireJS / SeaJS 等方案进行分解和管理。由于这是复杂JS工程的共性，这里不多做展开讨论。本文主要关注最后一点，也就是如何解除字段逻辑和展示之间的耦合，如何解除字段和其他字段的耦合。</p>
+<p>]]>
+    
+    </summary>
+    
+      <category term="design" scheme="http://mcfog.github.io/tags/design/"/>
+    
+      <category term="javascript" scheme="http://mcfog.github.io/categories/javascript/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Backbone first glance]]></title>
+    <link href="http://mcfog.github.io/2013/05/backbone-first-glance/"/>
+    <id>http://mcfog.github.io/2013/05/backbone-first-glance/</id>
+    <published>2013-05-25T00:14:00.000Z</published>
+    <updated>2014-05-08T10:31:20.000Z</updated>
+    <content type="html"><![CDATA[<p>昨夜开始实现<a href="/2013/05/hello/">利用github api 把文章评论丢到Issue里面</a>，选型时选择了Backbone作为基础，对比以往研究过的其他各类框架，Backbone是崭新而让我震惊的</p>
+<p>先说结论：Backbone是<em>framework of MV* frameworks</em>，是框架的框架；或者说，Backbone仅仅抽象了web app framework中多数都需要的功能组织成api接口，但并没有将自己限制在任何一种风格，而是要求开发者先以Backbone为基础自己定义出一种框架（完成MV*中“*”部分和V部分的定义），然后再实现自己的业务。</p>
+<h3 id="不是MVC,_MVP,_MVVM">不是MVC, MVP, MVVM</h3>
+<a id="more"></a>
+
+<p>MV*家族的差异在于*，也就是Model和View的中间代码，中间代码的职责、边界、执行方式输入输出等决定了MV*框架的类别，Backbone不存在这样的中间层。</p>
+<p><a href="http://enwp.org/Backbone.js" target="_blank" rel="external">Wikipedia</a>和很多其他人将Backbone定义为MVP，我觉得这可能是因为相对而言将Backbone完善为一个MVP框架是成本比较低的，但即使同样的MVP模式，Backbone也可以展现出截然不同的组织结构来！</p>
+<p>其实官网简介正暗示了这个结论：</p>
+<blockquote>
+<p>Backbone.js gives structure to web applications by providing models with key-value binding and custom events, collections with a rich API of enumerable functions, views with declarative event handling, and connects it all to your existing API over a RESTful JSON interface.</p>
+</blockquote>
+<p>Backbone并没有定死如何连接model和view，没有定死app的结构究竟如何，而只是抽象了model和view，甚至<code>Backbone.View</code>不一定做MV*中的V部分。</p>
+<h3 id="Backbone_Storm">Backbone Storm</h3>
+<p>几分钟的简单brainstorm就让我列出了非常多种以Backbone为基础的结构</p>
+<p><img src="/images/201305/bbstorm-1.jpg" alt="Storm 1"></p>
+<p>将<code>Backbone.View</code>作为MVP模式中的P，V层只留原生DOM/BOM。而<code>Backbone.Router</code>仅作为处理HistoryAPI/Hashchange的辅助。这种结构中M、V、P三者都有很好的事件支持，比较适合事件驱动的开发思路，但估计模块化、拆分View可能有难度</p>
+<p><img src="/images/201305/bbstorm-2.jpg" alt="Storm 2"></p>
+<p>同样MVP结构，也可以边缘化<code>Backbone.View</code>，将其仅作为绑定dom的辅助，而将<code>Backbone.Router</code>作为MVP模式中的P。Router为核心的好处是如果单页面状态多的时候会比较轻松，另外<code>Backbone.View</code>被边缘化后，可能会有利于动态切换、嵌套、拆分。而Router本身由于本身逻辑主要是分发，天然来说不难拆分。</p>
+<p><img src="/images/201305/bbstorm-3.jpg" alt="Storm 3"></p>
+<p>虽然<code>Backbone.Router</code>曾经被称为Controller，但在非单页的webapp中这并不合适，额外单独的Controller可能适用范围更广一点。这种结构中<code>Backbone.View</code>作为View的一部分，主要负责屏蔽DOM/BOM的细节，Controller负责交互逻辑，比起之前的MVP显得更灵活一些（<code>Backbone.View</code>瘦意味着易于移植到不同终端）</p>
+<p><img src="/images/201305/bbstorm-4.jpg" alt="Storm 4"></p>
+<p>在MVVM模式中，VM负责将领域模型Model和视图View对接，以Backbone为基础来看，VM可以直接继承<code>Backbone.Model</code>，然后在<code>sync</code>方法中对接实际的领域Model，也可以直接手写。无论如何，<code>Backbone.View</code>作为View来屏蔽dom细节应该是没有问题的。注意这种结构下Model需要经历两个类才最终影响到Dom结构，层数多往往同时意味着复杂性和灵活性。感觉可能会比较难以把握VM和M之间的边界。</p>
+<h3 id="除了*部分，我们还要担心什么？">除了*部分，我们还要担心什么？</h3>
+<ul>
+<li>操作DOM的方式：虽然<code>Backbone.View</code>相关代码中有亲jQuery的部分，但同样也有render方法来承载模板引擎的渲染工作；或者用继承的事件机制来完成一个数据绑定到dom的关系似乎也并不突兀。至少我能想象到的三种dom操作风格，Backbone都能很好的承载。</li>
+<li>嵌套<ul>
+<li>嵌套Model。通过覆盖initialize、sync等方法不难实现，更复杂的关联关系也基本和其他语言/框架类似处理即可。当然选用插件也是个不错的主义。</li>
+<li>嵌套View。由于不同的组织方式对View的职责、边界的定义并不一样，所以如果你有类似的需求，最好将嵌套View的方式最开始就考虑进你的设计中。另外，注意如果嵌套View的同时DOM元素也嵌套的话，小心处理事件冒泡。</li>
+<li>嵌套Router。如果单纯只做纯分发，一般问题不大，但如果同时要在Router里面写逻辑，那分Router嵌套Router就是必须要考虑的了</li>
+</ul>
+</li>
+</ul>
+<h3 id="总结">总结</h3>
+<p>其实MV*家族纠结的不外乎纯领域的Model和纯前端的View之间的这些代码如何组织，哪些可以侵入进入Model哪些可以侵入View；总体思路其实都是解耦。那么其实如何解耦的原则也很简单：越有可能变化的地方越要解耦、抽象，而不容易变化的地方则可以接受一定程度的耦合来为其他（效率、代码量、系统复杂度）妥协。</p>
+<p>Backbone将各类框架中有多种流派的、没有标准答案的部分忽略，只实现最基础、公认的最佳实践，将决定权交还了开发者，由开发者决定究竟使用何种风格；正如官网上宣称的<a href="http://backbonejs.org/#FAQ-tim-toady" target="_blank" rel="external">There’s More Than One Way To Do It</a>，Backbone就是这样一个自由的，不完整的，框架之框架</p>
+<hr>
+<p>参考    </p>
+<ul>
+<li><a href="http://backbonejs.org/" target="_blank" rel="external">http://backbonejs.org/</a></li>
+<li><a href="http://lostechies.com/derickbailey/2011/12/23/backbone-js-is-not-an-mvc-framework/" target="_blank" rel="external">http://lostechies.com/derickbailey/2011/12/23/backbone-js-is-not-an-mvc-framework/</a></li>
+<li><a href="http://geekswithblogs.net/dlussier/archive/2009/11/21/136454.aspx" target="_blank" rel="external">http://geekswithblogs.net/dlussier/archive/2009/11/21/136454.aspx</a></li>
+<li><a href="http://www.codeproject.com/Articles/228214/Understanding-Basics-of-UI-Design-Pattern-MVC-MVP" target="_blank" rel="external">http://www.codeproject.com/Articles/228214/Understanding-Basics-of-UI-Design-Pattern-MVC-MVP</a></li>
+</ul>
+<p>—EOF—</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>昨夜开始实现<a href="/2013/05/hello/">利用github api 把文章评论丢到Issue里面</a>，选型时选择了Backbone作为基础，对比以往研究过的其他各类框架，Backbone是崭新而让我震惊的</p>
+<p>先说结论：Backbone是<em>framework of MV* frameworks</em>，是框架的框架；或者说，Backbone仅仅抽象了web app framework中多数都需要的功能组织成api接口，但并没有将自己限制在任何一种风格，而是要求开发者先以Backbone为基础自己定义出一种框架（完成MV*中“*”部分和V部分的定义），然后再实现自己的业务。</p>
+<h3 id="不是MVC,_MVP,_MVVM">不是MVC, MVP, MVVM</h3>
+]]>
+    
+    </summary>
+    
+      <category term="javascript" scheme="http://mcfog.github.io/categories/javascript/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Hello, Hello, Alone]]></title>
+    <link href="http://mcfog.github.io/2013/05/hello/"/>
+    <id>http://mcfog.github.io/2013/05/hello/</id>
+    <published>2013-05-22T13:04:00.000Z</published>
+    <updated>2014-05-08T10:31:20.000Z</updated>
+    <content type="html"><![CDATA[<p>这是第一个帖子</p>
+<p>前几天突然想写点字，于是准备开搞github pages，于是开搞 octopress，于是又重新装了个Linux，于是现在比起写字，我更想看看有没有除了Disqus之外的评论方案，比如利用github api 把文章评论丢到Issue里面去之类的</p>
+<p><a href="http://acg.tv/av571221" target="_blank" rel="external">Hello Alone (俺ガイル ED)</a></p>
+<p>—EOF—</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>这是第一个帖子</p>
+<p>前几天突然想写点字，于是准备开搞github pages，于是开搞 octopress，于是又重新装了个Linux，于是现在比起写字，我更想看看有没有除了Disqus之外的评论方案，比如利用github api 把文章评论丢到Issue里面去之]]>
+    </summary>
+    
+  </entry>
+  
+</feed>

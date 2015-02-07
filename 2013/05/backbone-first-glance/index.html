@@ -29,6 +29,7 @@
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-41595211-1']);
+  
   _gaq.push(['_trackPageview']);
 
   (function() {
@@ -37,6 +38,7 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
+
 
 </head>
 
@@ -87,7 +89,7 @@
 <a id="more"></a>
 
 <p>MV*家族的差异在于*，也就是Model和View的中间代码，中间代码的职责、边界、执行方式输入输出等决定了MV*框架的类别，Backbone不存在这样的中间层。</p>
-<p><a href="http://enwp.org/Backbone.js" target="_blank">Wikipedia</a>和很多其他人将Backbone定义为MVP，我觉得这可能是因为相对而言将Backbone完善为一个MVP框架是成本比较低的，但即使同样的MVP模式，Backbone也可以展现出截然不同的组织结构来！</p>
+<p><a href="http://enwp.org/Backbone.js" target="_blank" rel="external">Wikipedia</a>和很多其他人将Backbone定义为MVP，我觉得这可能是因为相对而言将Backbone完善为一个MVP框架是成本比较低的，但即使同样的MVP模式，Backbone也可以展现出截然不同的组织结构来！</p>
 <p>其实官网简介正暗示了这个结论：</p>
 <blockquote>
 <p>Backbone.js gives structure to web applications by providing models with key-value binding and custom events, collections with a rich API of enumerable functions, views with declarative event handling, and connects it all to your existing API over a RESTful JSON interface.</p>
@@ -115,14 +117,14 @@
 </ul>
 <h3 id="总结">总结</h3>
 <p>其实MV*家族纠结的不外乎纯领域的Model和纯前端的View之间的这些代码如何组织，哪些可以侵入进入Model哪些可以侵入View；总体思路其实都是解耦。那么其实如何解耦的原则也很简单：越有可能变化的地方越要解耦、抽象，而不容易变化的地方则可以接受一定程度的耦合来为其他（效率、代码量、系统复杂度）妥协。</p>
-<p>Backbone将各类框架中有多种流派的、没有标准答案的部分忽略，只实现最基础、公认的最佳实践，将决定权交还了开发者，由开发者决定究竟使用何种风格；正如官网上宣称的<a href="http://backbonejs.org/#FAQ-tim-toady" target="_blank">There’s More Than One Way To Do It</a>，Backbone就是这样一个自由的，不完整的，框架之框架</p>
+<p>Backbone将各类框架中有多种流派的、没有标准答案的部分忽略，只实现最基础、公认的最佳实践，将决定权交还了开发者，由开发者决定究竟使用何种风格；正如官网上宣称的<a href="http://backbonejs.org/#FAQ-tim-toady" target="_blank" rel="external">There’s More Than One Way To Do It</a>，Backbone就是这样一个自由的，不完整的，框架之框架</p>
 <hr>
 <p>参考    </p>
 <ul>
-<li><a href="http://backbonejs.org/" target="_blank">http://backbonejs.org/</a></li>
-<li><a href="http://lostechies.com/derickbailey/2011/12/23/backbone-js-is-not-an-mvc-framework/" target="_blank">http://lostechies.com/derickbailey/2011/12/23/backbone-js-is-not-an-mvc-framework/</a></li>
-<li><a href="http://geekswithblogs.net/dlussier/archive/2009/11/21/136454.aspx" target="_blank">http://geekswithblogs.net/dlussier/archive/2009/11/21/136454.aspx</a></li>
-<li><a href="http://www.codeproject.com/Articles/228214/Understanding-Basics-of-UI-Design-Pattern-MVC-MVP" target="_blank">http://www.codeproject.com/Articles/228214/Understanding-Basics-of-UI-Design-Pattern-MVC-MVP</a></li>
+<li><a href="http://backbonejs.org/" target="_blank" rel="external">http://backbonejs.org/</a></li>
+<li><a href="http://lostechies.com/derickbailey/2011/12/23/backbone-js-is-not-an-mvc-framework/" target="_blank" rel="external">http://lostechies.com/derickbailey/2011/12/23/backbone-js-is-not-an-mvc-framework/</a></li>
+<li><a href="http://geekswithblogs.net/dlussier/archive/2009/11/21/136454.aspx" target="_blank" rel="external">http://geekswithblogs.net/dlussier/archive/2009/11/21/136454.aspx</a></li>
+<li><a href="http://www.codeproject.com/Articles/228214/Understanding-Basics-of-UI-Design-Pattern-MVC-MVP" target="_blank" rel="external">http://www.codeproject.com/Articles/228214/Understanding-Basics-of-UI-Design-Pattern-MVC-MVP</a></li>
 </ul>
 <p>—EOF—</p>
 
@@ -198,7 +200,7 @@
   </div>
   <footer id="footer" class="inner"><div class="alignleft">
   
-  &copy; 2014 McFog W
+  &copy; 2015 McFog W
   
 </div>
 <div class="clearfix"></div></footer>

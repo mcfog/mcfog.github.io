@@ -27,6 +27,7 @@
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-41595211-1']);
+  
   _gaq.push(['_trackPageview']);
 
   (function() {
@@ -35,6 +36,7 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
+
 
 </head>
 
@@ -79,25 +81,21 @@
     </header>
     <div class="entry">
       
-        <p>最近在看各种自动化工具，有集成化程度高，比起编译工具更像“IDE减文本编辑”的<a href="http://mimosajs.com" target="_blank">mimosajs</a>，也有被业界广泛认可，开放易配置的<a href="http://gruntjs.com" target="_blank">gruntjs</a>。作为一个<a href="https://github.com/satyr/coco" target="_blank">coco</a>语言支持者，看自动化工具当然是先看能不能支持coco。</p>
+        <p>最近在看各种自动化工具，有集成化程度高，比起编译工具更像“IDE减文本编辑”的<a href="http://mimosajs.com" target="_blank" rel="external">mimosajs</a>，也有被业界广泛认可，开放易配置的<a href="http://gruntjs.com" target="_blank" rel="external">gruntjs</a>。作为一个<a href="https://github.com/satyr/coco" target="_blank" rel="external">coco</a>语言支持者，看自动化工具当然是先看能不能支持coco。</p>
 <a id="more"></a>
 
 <p>grunt的开放模块机制非常稳定靠谱(所以才会被社区高度认可的吧)，根据官网文档亦步亦趋很快就实现出了支持编译coco文件的 <code>grunt-coco</code>。说来这是我第一个上npm的repo呢。</p>
 <h3 id="使用方法">使用方法</h3>
 <p>安装</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre>1
-</pre></td><td class="code"><pre>npm i grunt<span class="attribute">-coco</span> <span class="subst">--</span>save<span class="attribute">-dev</span>
-</pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment">npm</span> <span class="comment">i</span> <span class="comment">grunt</span><span class="literal">-</span><span class="comment">coco</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">save</span><span class="literal">-</span><span class="comment">dev</span></div></pre></td></tr></table></figure>
 
 <p>在Gruntfile中引用</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre>1
-</pre></td><td class="code"><pre>grunt.loadNpmTasks(<span class="string">'grunt-coco'</span>);
-</pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">grunt.loadNpmTasks(<span class="string">'grunt-coco'</span>);</div></pre></td></tr></table></figure>
 
-<p>配置： 目前配置仅支持<code>separator</code>、<code>bare</code>和<code>join</code>，含义和<a href="https://github.com/gruntjs/grunt-contrib-coffee#options" target="_blank">grunt-contrib-coffee</a>里的相同。<code>globals</code>配置项等coco下个版本发布把bug修掉以后就可以有效。</p>
-<p>最后附repo传送门 <a href="https://github.com/mcfog/grunt-coco" target="_blank">https://github.com/mcfog/grunt-coco</a></p>
+<p>配置： 目前配置仅支持<code>separator</code>、<code>bare</code>和<code>join</code>，含义和<a href="https://github.com/gruntjs/grunt-contrib-coffee#options" target="_blank" rel="external">grunt-contrib-coffee</a>里的相同。<code>globals</code>配置项等coco下个版本发布把bug修掉以后就可以有效。</p>
+<p>最后附repo传送门 <a href="https://github.com/mcfog/grunt-coco" target="_blank" rel="external">https://github.com/mcfog/grunt-coco</a></p>
 <h5 id="题外话">题外话</h5>
-<p>mimosa是一个自动工具和todo框架的合成体，其开放的module机制相对grunt不算清晰，所幸作者正在积极开发中，丢去的<a href="https://github.com/dbashford/mimosa/pull/214" target="_blank">Pull Request</a>很快就被merge了，下个版本的mimosa就将支持coco。</p>
+<p>mimosa是一个自动工具和todo框架的合成体，其开放的module机制相对grunt不算清晰，所幸作者正在积极开发中，丢去的<a href="https://github.com/dbashford/mimosa/pull/214" target="_blank" rel="external">Pull Request</a>很快就被merge了，下个版本的mimosa就将支持coco。</p>
 
       
     </div>
@@ -176,7 +174,7 @@
   </div>
   <footer id="footer" class="inner"><div class="alignleft">
   
-  &copy; 2014 McFog W
+  &copy; 2015 McFog W
   
 </div>
 <div class="clearfix"></div></footer>

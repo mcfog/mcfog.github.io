@@ -32,6 +32,7 @@ Backbone.Joint主要针对Backbone.View，对Backbone.Model和Backbone.Collectio
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-41595211-1']);
+  
   _gaq.push(['_trackPageview']);
 
   (function() {
@@ -40,6 +41,7 @@ Backbone.Joint主要针对Backbone.View，对Backbone.Model和Backbone.Collectio
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
+
 
 </head>
 
@@ -84,16 +86,16 @@ Backbone.Joint主要针对Backbone.View，对Backbone.Model和Backbone.Collectio
     </header>
     <div class="entry">
       
-        <p><a href="/2013/05/backbone-first-glance/">接触Backbone</a>已经半年有余，也有机会在各种项目中实践。自己的<a href="https://github.com/mcfog/backbone.joint/" target="_blank">mcfog/Backbone.Joint</a> 也从一个玩票儿小lib慢慢演化成一个经受过生产环境考验的backbone扩展。一直没有机会写点字介绍一下，终于在14年新春之际，码了这么一篇介绍出来。</p>
+        <p><a href="/2013/05/backbone-first-glance/">接触Backbone</a>已经半年有余，也有机会在各种项目中实践。自己的<a href="https://github.com/mcfog/backbone.joint/" target="_blank" rel="external">mcfog/Backbone.Joint</a> 也从一个玩票儿小lib慢慢演化成一个经受过生产环境考验的backbone扩展。一直没有机会写点字介绍一下，终于在14年新春之际，码了这么一篇介绍出来。</p>
 <p>Backbone.Joint 从13/06/14开始挖坑，7月7日登上github至今，可以说已经进入一个比较稳定的0.1版本。在Readme.md中我写的desc是这样描述这个扩展的</p>
 <blockquote>
 <p>another extension of backbone.js aims to support common situation with small &amp; flexible codebase</p>
 </blockquote>
-<p>Backbone.Joint主要针对<code>Backbone.View</code>，对<code>Backbone.Model</code>和<code>Backbone.Collection</code>的补充暂时在另一个repo <a href="https://github.com/mcfog/backbone.storageEngine" target="_blank">Backbone.storageEngine</a> 中。由于最开始的练手性质，开发语言一直是<a href="https://github.com/satyr/coco#readme" target="_blank">coco</a>，这是一种coffeescript的方言。</p>
+<p>Backbone.Joint主要针对<code>Backbone.View</code>，对<code>Backbone.Model</code>和<code>Backbone.Collection</code>的补充暂时在另一个repo <a href="https://github.com/mcfog/backbone.storageEngine" target="_blank" rel="external">Backbone.storageEngine</a> 中。由于最开始的练手性质，开发语言一直是<a href="https://github.com/satyr/coco#readme" target="_blank" rel="external">coco</a>，这是一种coffeescript的方言。</p>
 <a id="more"></a>
 
 <p>下面按照源码的顺序一点点介绍，想看重点可以直接往下拉到View部分</p>
-<h2 id="基础设施__index-co">基础设施 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/_index.co" target="_blank">_index.co</a></h2>
+<h2 id="基础设施__index-co">基础设施 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/_index.co" target="_blank" rel="external">_index.co</a></h2>
 <h4 id="Joint-$和Joint-_">Joint.$和Joint._</h4>
 <p>jQuery和underscore的引用，除了内部使用之外，也方便amd风格的情况下可以减少一些dep</p>
 <h4 id="Joint-assert和Joint-advice">Joint.assert和Joint.advice</h4>
@@ -102,7 +104,7 @@ Backbone.Joint主要针对Backbone.View，对Backbone.Model和Backbone.Collectio
 <p>用于在函数前后追加逻辑，追加逻辑中可以通过<code>arguments.callee.state[0]</code>对象实现一些干涉逻辑。</p>
 <h4 id="Joint-Emitter">Joint.Emitter</h4>
 <p>这是Joint中所有模块的基础，由<code>Backbone.Event</code>的全部事件能力和<code>extend</code>方法组成</p>
-<h2 id="Deferred抽象_defer-co">Deferred抽象 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/defer.co" target="_blank">defer.co</a></h2>
+<h2 id="Deferred抽象_defer-co">Deferred抽象 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/defer.co" target="_blank" rel="external">defer.co</a></h2>
 <p>以jQuery为对象，抽象了Deferred/Promise机制的基本接口，主要做了如下处理</p>
 <ul>
 <li>针对jQ1.5~1.7的非标准的then方法补丁，转发到<code>pipe</code>方法</li>
@@ -110,9 +112,9 @@ Backbone.Joint主要针对Backbone.View，对Backbone.Model和Backbone.Collectio
 <li>一个用于将标准Backbone事件转换成promise的<code>Joint.Deferred.listen</code>方法，不过注意只是once，而且必须保证在时间触发前调用</li>
 <li>其他的when/resolve/reject方法原样转发</li>
 </ul>
-<h2 id="DOM抽象_dom-co">DOM抽象 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/dom.co" target="_blank">dom.co</a></h2>
+<h2 id="DOM抽象_dom-co">DOM抽象 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/dom.co" target="_blank" rel="external">dom.co</a></h2>
 <p>分离了一些需要用到的DOM操作，如果需要脱离jQ时可以统一移植这里的方法即可。注意在dom对象中存放view对象依赖$.fn.data，Zepto.js需要编译时增加依赖data模块</p>
-<h2 id="View_view-co_和ViewModel_view_model-co"><strong>View</strong> <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/view.co" target="_blank">view.co</a> 和ViewModel <a href="https://github.com/mcfog/backbone.joint/blob/master/src/view_model.co" target="_blank">view_model.co</a></h2>
+<h2 id="View_view-co_和ViewModel_view_model-co"><strong>View</strong> <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/view.co" target="_blank" rel="external">view.co</a> 和ViewModel <a href="https://github.com/mcfog/backbone.joint/blob/master/src/view_model.co" target="_blank" rel="external">view_model.co</a></h2>
 <h4 id="Fetch-Serialize-Render">Fetch-Serialize-Render</h4>
 <p>Joint对View的增强首先聚焦于<code>render</code>方法，我希望(尽可能)所有的DOM写操作均通过render一个方法来进行。统一DOM写最常见也最容易维护的便是“模板渲染”模式了。Joint将其分解为Fetch-Serialize-Render三步，期望应用继承<code>Joint.View</code>后在自己的基类中分别解释这三步来组建起视图渲染体系。</p>
 <ul>
@@ -141,19 +143,11 @@ Backbone.Joint主要针对Backbone.View，对Backbone.Model和Backbone.Collectio
 <h4 id="数据同步机制和ViewModel">数据同步机制和ViewModel</h4>
 <p>如果视图的数据源复杂，或者多个视图共享一个数据源的时候，一个好的数据同步机制就变得很有必要<code>Joint.View</code>提供了<code>sync</code>和<code>unsync</code>两个方法来同步数据。</p>
 <p><code>sync(syncName, synchronizer, events)</code> 方法的核心可以简写成</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre>1
-2
-3
-4
-</pre></td><td class="code"><pre>    <span class="keyword">this</span>._sync[syncName] = synchronizer;
-    <span class="keyword">this</span>.listenTo(synchronizer, events, <span class="function"><span class="keyword">function</span><span class="params">()</span>{</span>
-      <span class="keyword">this</span>$.render();
-    });
-</pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">this</span>._sync[syncName] = synchronizer;</div><div class="line"><span class="keyword">this</span>.listenTo(synchronizer, events, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{</div><div class="line">  <span class="keyword">this</span>$.render();</div><div class="line">});</div></pre></td></tr></table></figure>
 
 
 <p><code>synchronizer</code>是需要同步的数据对象(必须具备Backbone.Event)，<code>events</code>是绑定的事件，而<code>syncName</code>就是在<code>_sync</code>属性中的key，在默认的<code>serializeData</code>中，<code>_sync</code>会被带到数据中，从而传递给模板。</p>
-<p>在Backbone中，<code>Backbone.Model</code>和<code>Backbone.Collection</code>都可以很容易地用作这里的<code>synchronizer</code>来使用，只要<code>events</code>传各种内置事件(<a href="http://backbonejs.org/#Events-catalog" target="_blank">参考文档</a>)，即可完成Model/Collection更新时自动重绘View。</p>
+<p>在Backbone中，<code>Backbone.Model</code>和<code>Backbone.Collection</code>都可以很容易地用作这里的<code>synchronizer</code>来使用，只要<code>events</code>传各种内置事件(<a href="http://backbonejs.org/#Events-catalog" target="_blank" rel="external">参考文档</a>)，即可完成Model/Collection更新时自动重绘View。</p>
 <p>一个更好的数据对象是<code>Joint.ViewModel</code>，它基本就是一个<code>Joint.Emitter</code>，主要的区别是有一个<code>sync</code>方法，会触发<code>$J:sync</code>内置事件，而这个事件同样也会触发视图渲染，但这个事件的参数可以影响渲染过程，使后述的局部渲染成为可能。</p>
 <h4 id="局部渲染">局部渲染</h4>
 <p>实际开发中，我发现经常有一些更新页面局部的需求，页面局部可能非常小，或者在DOM中不连续，或者涉及View的多个数据源，又或者含有表单等不适合反复重绘的元素，导致拆分subView难以满足需求。这时就要“局部渲染”出场了，局部渲染是在整个View的内部，通过HTML属性标识出需要更新的页面局部，从而在数据源更新时，精准地替换页面局部。</p>
@@ -248,7 +242,7 @@ Backbone.Joint主要针对Backbone.View，对Backbone.Model和Backbone.Collectio
   </div>
   <footer id="footer" class="inner"><div class="alignleft">
   
-  &copy; 2014 McFog W
+  &copy; 2015 McFog W
   
 </div>
 <div class="clearfix"></div></footer>

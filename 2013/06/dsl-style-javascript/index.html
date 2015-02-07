@@ -37,6 +37,7 @@
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-41595211-1']);
+  
   _gaq.push(['_trackPageview']);
 
   (function() {
@@ -45,6 +46,7 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
+
 
 </head>
 
@@ -112,19 +114,7 @@
 </ul>
 <p>订好接口以后，每个字段只需要自己都实现接口，除了每个字段自己的实现代码之外，外部一律通过接口来和字段交互。这样代码就整体可控可维护，扩展性和可读性都能令人满意。</p>
 <p>有了这样的接口，我们的逻辑实现就可以非常语义化，比如折扣锁定为=现价/原价</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre>1
-2
-3
-4
-5
-6
-</pre></td><td class="code"><pre>good.discount.setReadonly();
-<span class="keyword">var</span> discountUpdate = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
-    good.discount.val(good.price.val() / good.originalPrice.val());
-};
-good.price.addListener(<span class="string">'change'</span>, discountUpdate); <span class="comment">//注意：这不是DOM事件</span>
-good.originalPrice.addListener(<span class="string">'change'</span>, discountUpdate);
-</pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">good.discount.setReadonly();</div><div class="line"><span class="keyword">var</span> discountUpdate = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{</div><div class="line">    good.discount.val(good.price.val() / good.originalPrice.val());</div><div class="line">};</div><div class="line">good.price.addListener(<span class="string">'change'</span>, discountUpdate); <span class="comment">//注意：这不是DOM事件</span></div><div class="line">good.originalPrice.addListener(<span class="string">'change'</span>, discountUpdate);</div></pre></td></tr></table></figure>
 
 <p>这样一段代码完全不涉及dom交互，所以无论价格如何输入展示，折扣如何展示都没有问题。而实现dom交互的代码也完全不必关心这个字段的逻辑如何，只需要实现前述接口，将输入输出、只读、提示信息这些行为和DOM绑定即可。</p>
 <p>最常用也是最多的绑定就是一个字段对应一个DOM控件，这种绑定只需要简单地将DOM事件转发成自定义事件，将读写转换成DOM控件读写即可；稍微复杂一些的交互涉及富文本编辑、日历控件等输入形式，由于我们的接口非常小，所以一般也无需太多的代码。</p>
@@ -233,7 +223,7 @@ good.originalPrice.addListener(<span class="string">'change'</span>, discountUpd
   </div>
   <footer id="footer" class="inner"><div class="alignleft">
   
-  &copy; 2014 McFog W
+  &copy; 2015 McFog W
   
 </div>
 <div class="clearfix"></div></footer>

@@ -1,0 +1,272 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>一种API代码结构的设计思路 | McFog＠がんばらない</title>
+  <meta name="author" content="McFog W">
+  
+  <meta name="description" content="Prologue
+在写API的过程中有这样三种产物
+
+文档
+几乎没人爱写文档，写了也懒得维护。可是同时API的文档对于其他程序员来说又是赖以生存的必需品。因此大家对文档都是爱恨交加，恨自己要维护文档，爱别人写好的漂亮文档；恨别人的烂文档错文档，爱自己随便乱写乃至不写文档。
+
+操场
+比文档更高一个层次的奢侈品，不用写代码简单点点或者repl形式马上就能探索接口的行为。不像仅对别人，操场的存在对自己开发接口也是很有帮助的。
+没操场的时候，大家往往人肉建一个文件当操场用，在里面各种玩API，但使着编译型语言的兄弟们没那么好运，他们更需要有操场。
+当然如果实践TDD或BDD的话，用例大概能代替操场一部分的作用，但这只对写接口的人管用。对调用接口的人来说，还是操场好用。
+
+字段校验逻辑
+自己写接口的时候必须要做的事情。没做那是100%bug。
+
+
+想想这三个产物的共同特点是什么？插入一段广告，哦不，我先把他们捏成一张表">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="一种API代码结构的设计思路"/>
+  <meta property="og:site_name" content="McFog＠がんばらない"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="McFog＠がんばらない" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//cdn.jsdelivr.net/html5shiv/3.7.0/html5shiv.js"></script><![endif]-->
+  <script src="//cdn.jsdelivr.net/jquery/1.10.2/jquery-1.10.2.min.js"></script>
+  
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41595211-1']);
+  
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1>
+    <i class="icon-dollar"></i>
+    <a href="/">McFog＠がんばらない</a>
+    <b>McFog＠がんばらない</b>
+    <em>_</em>
+  </h1>
+  <h2><a href="/">McPress - the tech blog of mcfog</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        
+            <img src="/2015/02/my-api-programming-style/jace.png" class="thumb" />
+        
+        <time datetime="2015-02-05T16:00:00.000Z"><a href="/2015/02/my-api-programming-style/">2月 6 2015</a></time>
+      
+      
+  
+    <h1 class="title">一种API代码结构的设计思路</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h3 id="Prologue">Prologue</h3>
+<p>在写API的过程中有这样三种产物</p>
+<ul>
+<li><p>文档</p>
+<p>几乎没人爱写文档，写了也懒得维护。可是同时API的文档对于其他程序员来说又是赖以生存的必需品。因此大家对文档都是爱恨交加，恨自己要维护文档，爱别人写好的漂亮文档；恨别人的烂文档错文档，爱自己随便乱写乃至不写文档。</p>
+</li>
+<li><p>操场</p>
+<p>比文档更高一个层次的奢侈品，不用写代码简单点点或者repl形式马上就能探索接口的行为。不像仅对别人，操场的存在对自己开发接口也是很有帮助的。</p>
+<p>没操场的时候，大家往往人肉建一个文件当操场用，在里面各种玩API，但使着编译型语言的兄弟们没那么好运，他们更需要有操场。</p>
+<p>当然如果实践TDD或BDD的话，用例大概能代替操场一部分的作用，但这只对写接口的人管用。对调用接口的人来说，还是操场好用。</p>
+</li>
+<li><p>字段校验逻辑</p>
+<p>自己写接口的时候必须要做的事情。没做那是100%bug。</p>
+</li>
+</ul>
+<p>想想这三个产物的共同特点是什么？插入一段广告，哦不，我先把他们捏成一张表</p>
+<a id="more"></a>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th>别人的接口</th>
+<th>自己的接口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文档</td>
+<td>没有会死</td>
+<td>没用，不想写</td>
+</tr>
+<tr>
+<td>操场</td>
+<td>超级提升幸福感</td>
+<td>想用，懒得写</td>
+</tr>
+<tr>
+<td>字段校验</td>
+<td>不太关心</td>
+<td>必须写</td>
+</tr>
+</tbody>
+</table>
+<p>他们的共同特点是<strong>均源自接口输入的schema</strong></p>
+<p>大家为啥不喜欢写文档？为啥懒得实现操场？我觉得很可能源自<em>程序员的直觉</em>。程序员天生讨厌重复，他们知道重复意味着修改的时候要同步维护，意味着大量重复的劳动和不同步带来的各种巨坑，<strong>Duplicate Is Evil</strong>。<strong>DUPLICATE IS EVIL</strong></p>
+<p>换个角度说，怎么诱使程序员乖乖地写文档呢？首先利诱“写文档的话送你个操场玩玩”，然后威逼“反正你也得校验字段，咱们校验字段的方式就是写文档”，最后再给个枣子“这文档不用维护，以后改程序的同时文档自动一起改”</p>
+<p>前言到此为止，结论只有一个：</p>
+<blockquote>
+<p>我们要让文档、操场、字段校验三位一体！让不写文档比写文档难！让所有接口都有100%准确的文档和操场！消灭天下没文档的接口！消灭一切和实际接口不符的文档！</p>
+</blockquote>
+<p><img src="/2015/02/my-api-programming-style/32.jpg" alt=""></p>
+<p>具体实现的思路其实刚才已经偷偷提到了，那就是聚焦接口的<strong>输入schema</strong>，以schema作为数据源，文档、操场、字段校验是schema的3种不同的应用。所以我们要构建的就是 a)meta-schema，即如何定义schema b)如何通过schema生成3种不同的产物。</p>
+<h3 id="Meta-Schema">Meta-Schema</h3>
+<p>程序员做事大体上有两种选择：找现成的轮子削成方的来用或自己造个方的轮子。我们想要的轮子“方”在哪里呢？嗯，schema大家都拿来做校验，但我们希望不仅能校验，还能生成文档和操场，也就是说希望它能够内嵌一些描述文字，最好校验规则也能轻松转换成文字展示。</p>
+<p>自己造轮子的话，下面是一个基本的结构可以参考</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Schema</span> </span>{</div><div class="line">    <span class="keyword">string</span> uri;<span class="comment">//接口位置/调用时的名称/url等</span></div><div class="line">    <span class="keyword">string</span> name;<span class="comment">//接口中文名</span></div><div class="line">    <span class="keyword">string</span> desc;<span class="comment">//说明</span></div><div class="line">    array fields;<span class="comment">//接口字段</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Field</span> </span>{</div><div class="line">    <span class="keyword">string</span> key;<span class="comment">//字段key</span></div><div class="line">    <span class="keyword">string</span> desc;<span class="comment">//说明</span></div><div class="line">    <span class="keyword">bool</span> required;<span class="comment">//是否必填</span></div><div class="line">    array constraints;<span class="comment">//字段约束</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Constraint</span> </span>{</div><div class="line">    <span class="keyword">bool</span> check(value);<span class="comment">//校验</span></div><div class="line">    <span class="keyword">string</span> describe();<span class="comment">//描述</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="comment">//Constraint常见的子类有：类型校验，长度／范围校验，正则校验等</span></div></pre></td></tr></table></figure>
+
+<p>找轮子的话，我用过<a href="http://json-schema.org/" target="_blank" rel="external">json-schema</a>做这一块，能用，很多语言都有校验的实现，还有类似<a href="https://github.com/jdorn/json-editor" target="_blank" rel="external">json-editor</a>这样的web editor实现，操场比较好搞。大体上能内嵌说明文字，各种语言都有良好实现，数据结构清晰容易导入导出的schema都可以用。</p>
+<h3 id="DSL_for_Meta-Schema">DSL for Meta-Schema</h3>
+<p>只有schema还不够爽，你会需要负责教会所有同事一门新语言，这可能将我们的努力毁于一旦，自己用起来也不爽。我们要的是DSL，要IDE的代码提示，要code-as-configuration。</p>
+<p>怎么实现DSL超出本文范围，有机会我会再写这方面的东西，js的话大概<a href="https://github.com/mcfog/legate/tree/a87ecc367b297643e299f1ce4d6685fbbd0444df/lib" target="_blank" rel="external">300行代码</a>就能实现类似这样的dsl了</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">legate().define</div><div class="line">    .name(<span class="string">'测试接口'</span>)</div><div class="line">    .desc(<span class="string">'演示API用的测试接口'</span>)</div><div class="line">    .cmd(<span class="string">'test'</span>)</div><div class="line">    .param</div><div class="line">        .int(<span class="string">'num'</span>, <span class="string">'一个数字'</span>, [<span class="number">3</span>, <span class="number">100</span>])</div><div class="line">        .string(<span class="string">'str'</span>, <span class="string">'字符串'</span>, [<span class="number">2</span>, <span class="number">5</span>])</div><div class="line">        .regex(<span class="string">'reg'</span>, <span class="string">'有追求的字符串'</span>, <span class="regexp">/a.+b/</span>)</div><div class="line">    .endParam</div><div class="line">    .logic(<span class="function"><span class="keyword">function</span><span class="params">(param)</span> </span>{</div><div class="line">        <span class="keyword">return</span> {</div><div class="line">            result: <span class="string">'from remote'</span>,</div><div class="line">            param: param</div><div class="line">        };</div><div class="line">    })</div><div class="line">.endDefine</div><div class="line">.mount(legateServer);</div></pre></td></tr></table></figure>
+
+<p>有了DSL，基本上已经可以宣告<strong>不写文档比写文档难</strong>了，下面要给按我们的meta-schema做事的乖孩子说好的三大产物。</p>
+<h3 id="显灵">显灵</h3>
+<p>其实原本写到这里就可以收笔了，因为定义好了数据结构，写写视图对程序员来说实在没啥挑战，不是么？</p>
+<p>文档就是</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">loop schemas schema</div><div class="line">  <span class="operator"><span class="keyword">show</span> <span class="keyword">schema</span></span></div><div class="line">  loop <span class="keyword">schema</span>.<span class="keyword">fields</span> <span class="keyword">field</span></div><div class="line">    <span class="keyword">show</span> <span class="keyword">field</span></div></pre></td></tr></table></figure>
+
+<p>操场就是文档套上</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="title">form</span> <span class="attribute">target</span>=<span class="value">"result"</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="title">form</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="title">iframe</span> <span class="attribute">id</span>=<span class="value">"result"</span>&gt;</span></div></pre></td></tr></table></figure>
+
+<p>校验就是</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">loop schema.fields <span class="keyword">field</span></div><div class="line">  <span class="keyword">if</span> no <span class="number">$da</span>ta[<span class="keyword">field</span>]</div><div class="line">    <span class="keyword">if</span> <span class="keyword">field</span>.required</div><div class="line">      BIG-BANG!</div><div class="line">    <span class="keyword">else</span></div><div class="line">      <span class="keyword">continue</span></div><div class="line"></div><div class="line">  loop <span class="keyword">field</span>.constraints constraint</div><div class="line">    constraint.check <span class="number">$da</span>ta[<span class="keyword">field</span>]</div></pre></td></tr></table></figure>
+
+<p>啊，不小心还顺便实现了分发或者说路由呢</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">loop</span> schemas schema</div><div class="line">  <span class="keyword">if</span> <span class="variable">$request</span> <span class="keyword">match</span> schema<span class="built_in">.</span>uri</div><div class="line">    <span class="keyword">return</span> run schema, <span class="variable">$request</span></div><div class="line"></div><div class="line"><span class="literal">NOT</span><span class="attribute">-FOUND</span><span class="subst">!</span></div></pre></td></tr></table></figure>
+
+<p>是不是根本停不下来？</p>
+<p>另一个好消息是，API编写这个巨大的领域有大量现成项目，这个思路下随便喜欢什么项目都很容易拿过来套上，比如之前提过的<a href="http://json-schema.org/" target="_blank" rel="external">json-schema</a>和<a href="https://github.com/jdorn/json-editor" target="_blank" rel="external">json-editor</a>，比如最近听说的<a href="http://petstore.swagger.wordnik.com/#!/pet/addPet" target="_blank" rel="external">swagger.io</a>等等</p>
+<p><img src="/2015/02/my-api-programming-style/63.jpg" alt=""></p>
+<p>附《The Pragmatic Programmer》中的相关tips</p>
+<blockquote>
+<p>[11] Don’t Repeat Yourself<br>[12] Make It Easy to Reuse<br>[17] Program Close to the Problem domain<br>[68] Build Documentation In, Don’t Bolt It On  </p>
+</blockquote>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+		
+			
+		
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:mcfog.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/css/">css</a><small>1</small></li>
+  
+    <li><a href="/categories/javascript/">javascript</a><small>6</small></li>
+  
+    <li><a href="/categories/javascript/programming/">programming</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/coco/">coco</a><small>1</small></li>
+  
+    <li><a href="/tags/design/">design</a><small>2</small></li>
+  
+    <li><a href="/tags/dom/">dom</a><small>1</small></li>
+  
+    <li><a href="/tags/grunt/">grunt</a><small>1</small></li>
+  
+    <li><a href="/tags/inspiration/">inspiration</a><small>1</small></li>
+  
+    <li><a href="/tags/jquery/">jquery</a><small>2</small></li>
+  
+    <li><a href="/tags/stylus/">stylus</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2015 McFog W
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//cdn.jsdelivr.net/imagesloaded/3.0.4/imagesloaded.pkgd.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.min.css" media="screen" type="text/css">
+<script src="//cdn.jsdelivr.net/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
