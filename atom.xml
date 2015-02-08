@@ -4,7 +4,7 @@
   <subtitle><![CDATA[McPress - the tech blog of mcfog]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://mcfog.github.io/"/>
-  <updated>2015-02-07T18:16:04.470Z</updated>
+  <updated>2015-02-08T05:24:57.756Z</updated>
   <id>http://mcfog.github.io/</id>
   
   <author>
@@ -19,8 +19,9 @@
     <link href="http://mcfog.github.io/2015/02/my-api-programming-style/"/>
     <id>http://mcfog.github.io/2015/02/my-api-programming-style/</id>
     <published>2015-02-05T16:00:00.000Z</published>
-    <updated>2015-02-07T18:12:30.000Z</updated>
-    <content type="html"><![CDATA[<h3 id="Prologue">Prologue</h3>
+    <updated>2015-02-08T05:22:21.000Z</updated>
+    <content type="html"><![CDATA[<p><img src="/2015/02/my-api-programming-style/playground.png" alt="Twitter&#39;s API Playground"></p>
+<h3 id="Prologue">Prologue</h3>
 <p>在写API的过程中有这样三种产物</p>
 <ul>
 <li><p>文档</p>
@@ -29,7 +30,7 @@
 <li><p>操场</p>
 <p>比文档更高一个层次的奢侈品，不用写代码简单点点或者repl形式马上就能探索接口的行为。不像仅对别人，操场的存在对自己开发接口也是很有帮助的。</p>
 <p>没操场的时候，大家往往人肉建一个文件当操场用，在里面各种玩API，但使着编译型语言的兄弟们没那么好运，他们更需要有操场。</p>
-<p>当然如果实践TDD或BDD的话，用例大概能代替操场一部分的作用，但这只对写接口的人管用。对调用接口的人来说，还是操场好用。</p>
+<p>当然如果实践TDD或BDD的话，用例大概能代替操场一部分的作用，但这只对写接口的人管用。对调用接口的人来说，操场的作用是难以取代的。</p>
 </li>
 <li><p>字段校验逻辑</p>
 <p>自己写接口的时候必须要做的事情。没做那是100%bug。</p>
@@ -78,9 +79,12 @@
 <p>自己造轮子的话，下面是一个基本的结构可以参考</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Schema</span> </span>{</div><div class="line">    <span class="keyword">string</span> uri;<span class="comment">//接口位置/调用时的名称/url等</span></div><div class="line">    <span class="keyword">string</span> name;<span class="comment">//接口中文名</span></div><div class="line">    <span class="keyword">string</span> desc;<span class="comment">//说明</span></div><div class="line">    array fields;<span class="comment">//接口字段</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Field</span> </span>{</div><div class="line">    <span class="keyword">string</span> key;<span class="comment">//字段key</span></div><div class="line">    <span class="keyword">string</span> desc;<span class="comment">//说明</span></div><div class="line">    <span class="keyword">bool</span> required;<span class="comment">//是否必填</span></div><div class="line">    array constraints;<span class="comment">//字段约束</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Constraint</span> </span>{</div><div class="line">    <span class="keyword">bool</span> check(value);<span class="comment">//校验</span></div><div class="line">    <span class="keyword">string</span> describe();<span class="comment">//描述</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="comment">//Constraint常见的子类有：类型校验，长度／范围校验，正则校验等</span></div></pre></td></tr></table></figure>
 
-<p>找轮子的话，我用过<a href="http://json-schema.org/" target="_blank" rel="external">json-schema</a>做这一块，能用，很多语言都有校验的实现，还有类似<a href="https://github.com/jdorn/json-editor" target="_blank" rel="external">json-editor</a>这样的web editor实现，操场比较好搞。大体上能内嵌说明文字，各种语言都有良好实现，数据结构清晰容易导入导出的schema都可以用。</p>
+<p>找轮子的话，我用过<a href="http://json-schema.org/" target="_blank" rel="external">json-schema</a>做这一块，能用，很多语言都有校验的实现，还有类似<a href="https://github.com/jdorn/json-editor" target="_blank" rel="external">json-editor</a>这样的web editor实现，操场比较好搞。大体上能内嵌说明文字，各种语言都有良好实现，数据结构清晰容易导入导出的schema项目都可以用。</p>
 <h3 id="DSL_for_Meta-Schema">DSL for Meta-Schema</h3>
-<p>只有schema还不够爽，你会需要负责教会所有同事一门新语言，这可能将我们的努力毁于一旦，自己用起来也不爽。我们要的是DSL，要IDE的代码提示，要code-as-configuration。</p>
+<blockquote>
+<p>“好麻烦，我还是if if if吧”</p>
+</blockquote>
+<p>只有schema还不够，你会需要负责教会所有同事一门新手艺，这可能将我们的努力毁于一旦，自己用起来也不爽。我们要的是DSL，要IDE的代码提示，要code-as-configuration。</p>
 <p>怎么实现DSL超出本文范围，有机会我会再写这方面的东西，js的话大概<a href="https://github.com/mcfog/legate/tree/a87ecc367b297643e299f1ce4d6685fbbd0444df/lib" target="_blank" rel="external">300行代码</a>就能实现类似这样的dsl了</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">legate().define</div><div class="line">    .name(<span class="string">'测试接口'</span>)</div><div class="line">    .desc(<span class="string">'演示API用的测试接口'</span>)</div><div class="line">    .cmd(<span class="string">'test'</span>)</div><div class="line">    .param</div><div class="line">        .int(<span class="string">'num'</span>, <span class="string">'一个数字'</span>, [<span class="number">3</span>, <span class="number">100</span>])</div><div class="line">        .string(<span class="string">'str'</span>, <span class="string">'字符串'</span>, [<span class="number">2</span>, <span class="number">5</span>])</div><div class="line">        .regex(<span class="string">'reg'</span>, <span class="string">'有追求的字符串'</span>, <span class="regexp">/a.+b/</span>)</div><div class="line">    .endParam</div><div class="line">    .logic(<span class="function"><span class="keyword">function</span><span class="params">(param)</span> </span>{</div><div class="line">        <span class="keyword">return</span> {</div><div class="line">            result: <span class="string">'from remote'</span>,</div><div class="line">            param: param</div><div class="line">        };</div><div class="line">    })</div><div class="line">.endDefine</div><div class="line">.mount(legateServer);</div></pre></td></tr></table></figure>
 
@@ -100,7 +104,7 @@
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">loop</span> schemas schema</div><div class="line">  <span class="keyword">if</span> <span class="variable">$request</span> <span class="keyword">match</span> schema<span class="built_in">.</span>uri</div><div class="line">    <span class="keyword">return</span> run schema, <span class="variable">$request</span></div><div class="line"></div><div class="line"><span class="literal">NOT</span><span class="attribute">-FOUND</span><span class="subst">!</span></div></pre></td></tr></table></figure>
 
 <p>是不是根本停不下来？</p>
-<p>另一个好消息是，API编写这个巨大的领域有大量现成项目，这个思路下随便喜欢什么项目都很容易拿过来套上，比如之前提过的<a href="http://json-schema.org/" target="_blank" rel="external">json-schema</a>和<a href="https://github.com/jdorn/json-editor" target="_blank" rel="external">json-editor</a>，比如最近听说的<a href="http://petstore.swagger.wordnik.com/#!/pet/addPet" target="_blank" rel="external">swagger.io</a>等等</p>
+<p>另一个好消息是，这个思路下各种其他开源项目都很容易拿过来套上，比如之前提过的<a href="http://json-schema.org/" target="_blank" rel="external">json-schema</a>和<a href="https://github.com/jdorn/json-editor" target="_blank" rel="external">json-editor</a>，比如最近的<a href="http://petstore.swagger.wordnik.com/#!/pet/addPet" target="_blank" rel="external">swagger.io</a>等等，只要把握住核心是schema，操场／文档／校验逻辑等都是schema的视图，世界便尽在我们的掌握之中。</p>
 <p><img src="/2015/02/my-api-programming-style/63.jpg" alt=""></p>
 <p>附《The Pragmatic Programmer》中的相关tips</p>
 <blockquote>
@@ -108,7 +112,8 @@
 </blockquote>
 ]]></content>
     <summary type="html">
-    <![CDATA[<h3 id="Prologue">Prologue</h3>
+    <![CDATA[<p><img src="/2015/02/my-api-programming-style/playground.png" alt="Twitter&#39;s API Playground"></p>
+<h3 id="Prologue">Prologue</h3>
 <p>在写API的过程中有这样三种产物</p>
 <ul>
 <li><p>文档</p>
@@ -117,7 +122,7 @@
 <li><p>操场</p>
 <p>比文档更高一个层次的奢侈品，不用写代码简单点点或者repl形式马上就能探索接口的行为。不像仅对别人，操场的存在对自己开发接口也是很有帮助的。</p>
 <p>没操场的时候，大家往往人肉建一个文件当操场用，在里面各种玩API，但使着编译型语言的兄弟们没那么好运，他们更需要有操场。</p>
-<p>当然如果实践TDD或BDD的话，用例大概能代替操场一部分的作用，但这只对写接口的人管用。对调用接口的人来说，还是操场好用。</p>
+<p>当然如果实践TDD或BDD的话，用例大概能代替操场一部分的作用，但这只对写接口的人管用。对调用接口的人来说，操场的作用是难以取代的。</p>
 </li>
 <li><p>字段校验逻辑</p>
 <p>自己写接口的时候必须要做的事情。没做那是100%bug。</p>
