@@ -2,6 +2,7 @@
 title: 一种API代码结构的设计思路
 date: 2015-02-06
 thumb: jace.png
+slug: my-api-programming-style
 aliases:
   - /2015/02/my-api-programming-style/
 ---
