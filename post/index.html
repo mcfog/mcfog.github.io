@@ -198,20 +198,14 @@
   &copy; 2018 McFog W. All rights reserved. 
   <small>がんばらない</small>
 </div>
-<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1,instantclick@3.1.0,highlight.js@9.2.0" data-no-instant></script>
+<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1,highlight.js@9.2.0" data-no-instant></script>
 <script data-no-instant>
   (function() {
-    InstantClick.init();
     theaterJS()
       .addActor('slogan', {speed: 0.5, accuracy: 1})
       .addScene(500, 'slogan:', 'McFog', 400, '＠がん', 100, 'ばらない');
-    InstantClick.on('change', function () {
-      document.getElementById('slogan').innerText = 'McFog＠がんばらない';
-      hljs.initHighlighting();
-    });
 
     hljs.initHighlightingOnLoad();
-    
   })();
 </script>
 </body>
