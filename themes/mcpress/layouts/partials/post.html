@@ -1,0 +1,18 @@
+
+<article class="post box">
+{{ if eq .Section "post"}}
+<div class="thumb" style="background-image: url({{ .RelPermalink }}{{ .Params.thumb }})"></div>
+
+<section class="post-header">
+    <h4>
+        <a href="{{ .Permalink }}">
+            {{ .Title }}
+        </a>
+    </h4>
+    <h5>{{ .Date.Format "2006-01-02" }}</h5>
+</section>
+{{ end }}
+
+<section class="content markdown-body">{{ .Content }}</section>
+
+</article>

@@ -1,0 +1,15 @@
+{{ partial "header.html" . }}
+
+<div class="main container">
+
+<section class="list row">
+{{ range .Paginator.Pages }}
+    {{ partial "summary.html" . }}
+{{ end }}
+</section>
+
+{{ partial "paginator.html" . }}
+
+</div>
+
+{{ partial "footer.html" . }}

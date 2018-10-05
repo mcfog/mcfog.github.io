@@ -1,0 +1,18 @@
+{{ partial "header.html" . }}
+
+<div class="main container">
+{{ partial "post" . }}
+
+  <div class="row">
+    {{ if .PrevInSection }}
+      {{ partial "summary.html" .PrevInSection }}
+    {{ end }}
+    {{ if .NextInSection }}
+      {{ partial "summary.html" .NextInSection }}
+    {{ end }}
+  </div>
+</div>
+
+
+
+{{ partial "footer.html" . }}

@@ -1,0 +1,9 @@
+<article class="six columns post-header box">
+  <div class="thumb" style="background-image: url({{ .RelPermalink }}{{ .Params.thumb }})"></div>
+  <h4>
+      <a href="{{ .Permalink }}">
+          {{ .Title }}
+      </a>
+  </h4>
+  <h5>{{ .Date.Format "2006-01-02" }}</h5>
+</article>
