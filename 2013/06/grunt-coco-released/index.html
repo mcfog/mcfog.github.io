@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="author" content="McFog Wang,mcfogw@gmail.com">
+  <meta name="generator" content="Hugo 0.48" />
+  
+
+  <title>McFog＠がんばらない</title>
+  <link rel="canonical" href="http://press.mcfog.wang/2013/06/grunt-coco-released/"/> 
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1,highlight.js@9.2.0(styles/github.min.css)" />
+  <link rel="alternate" href="/index.xml" title="McFog＠がんばらない" type="application/atom+xml">  
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<header class="container">
+  <h1>
+    <a href="/">
+      <span id="slogan_shadow">McFog＠がんばらない</span>
+      <span id="slogan"></span>
+    </a>  
+  </h1>
+</header>
+
+
+
+<div class="main container">
+
+<article class="post box">
+
+<div class="thumb" style="background-image: url(/2013/06/grunt-coco-released/grunt-coco.jpg)"></div>
+
+<section class="post-header">
+    <h4>
+        <a href="http://press.mcfog.wang/2013/06/grunt-coco-released/">
+            grunt-coco released
+        </a>
+    </h4>
+    <h5>2013-06-14</h5>
+</section>
+
+
+<section class="content markdown-body"><p>最近在看各种自动化工具，有集成化程度高，比起编译工具更像“IDE减文本编辑”的<a href="http://mimosajs.com">mimosajs</a>，也有被业界广泛认可，开放易配置的<a href="http://gruntjs.com">gruntjs</a>。作为一个<a href="https://github.com/satyr/coco">coco</a>语言支持者，看自动化工具当然是先看能不能支持coco。</p>
+
+<p></p>
+
+<p>grunt的开放模块机制非常稳定靠谱(所以才会被社区高度认可的吧)，根据官网文档亦步亦趋很快就实现出了支持编译coco文件的 <code>grunt-coco</code>。说来这是我第一个上npm的repo呢。</p>
+
+<h3 id="使用方法">使用方法</h3>
+
+<p>安装</p>
+
+<pre><code class="language-shell">npm i grunt-coco --save-dev
+</code></pre>
+
+<p>在Gruntfile中引用</p>
+
+<pre><code class="language-js">grunt.loadNpmTasks('grunt-coco');
+</code></pre>
+
+<p>配置： 目前配置仅支持<code>separator</code>、<code>bare</code>和<code>join</code>，含义和<a href="https://github.com/gruntjs/grunt-contrib-coffee#options">grunt-contrib-coffee</a>里的相同。<code>globals</code>配置项等coco下个版本发布把bug修掉以后就可以有效。</p>
+
+<p>最后附repo传送门 <a href="https://github.com/mcfog/grunt-coco">https://github.com/mcfog/grunt-coco</a></p>
+
+<h5 id="题外话">题外话</h5>
+
+<p>mimosa是一个自动工具和todo框架的合成体，其开放的module机制相对grunt不算清晰，所幸作者正在积极开发中，丢去的<a href="https://github.com/dbashford/mimosa/pull/214">Pull Request</a>很快就被merge了，下个版本的mimosa就将支持coco。</p></section>
+
+</article>
+
+
+  <div class="row">
+    
+      <article class="six columns post-header box">
+  <div class="thumb" style="background-image: url(/2013/06/an-elegant-design-to-unify-async-and-sync-callback-based-on-promise-object/promise.jpg)"></div>
+  <h4>
+      <a href="http://press.mcfog.wang/2013/06/an-elegant-design-to-unify-async-and-sync-callback-based-on-promise-object/">
+          An elegant design to unify async and sync callback based on promise object
+      </a>
+  </h4>
+  <h5>2013-06-09</h5>
+</article>
+
+    
+    
+      <article class="six columns post-header box">
+  <div class="thumb" style="background-image: url(/2013/06/undocumented-stylus-built-in-functions/stylus.jpg)"></div>
+  <h4>
+      <a href="http://press.mcfog.wang/2013/06/undocumented-stylus-built-in-functions/">
+          Undocumented stylus built-in functions
+      </a>
+  </h4>
+  <h5>2013-06-14</h5>
+</article>
+
+    
+  </div>
+</div>
+
+
+
+
+<div class="container copy">
+  &copy; 2018 McFog W. All rights reserved. 
+  <small>がんばらない</small>
+</div>
+<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1,instantclick@3.1.0,highlight.js@9.2.0" data-no-instant></script>
+<script data-no-instant>
+  (function() {
+    InstantClick.init();
+    theaterJS()
+      .addActor('slogan', {speed: 0.5, accuracy: 1})
+      .addScene(500, 'slogan:', 'McFog', 400, '＠がん', 100, 'ばらない');
+    InstantClick.on('change', function () {
+      document.getElementById('slogan').innerText = 'McFog＠がんばらない';
+      hljs.initHighlighting();
+    });
+
+    hljs.initHighlightingOnLoad();
+    
+  })();
+</script>
+</body>
+</html>

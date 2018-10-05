@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="author" content="McFog Wang,mcfogw@gmail.com">
+  <meta name="generator" content="Hugo 0.48" />
+  
+
+  <title>McFog＠がんばらない</title>
+  <link rel="canonical" href="http://press.mcfog.wang/2013/06/undocumented-stylus-built-in-functions/"/> 
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1,highlight.js@9.2.0(styles/github.min.css)" />
+  <link rel="alternate" href="/index.xml" title="McFog＠がんばらない" type="application/atom+xml">  
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<header class="container">
+  <h1>
+    <a href="/">
+      <span id="slogan_shadow">McFog＠がんばらない</span>
+      <span id="slogan"></span>
+    </a>  
+  </h1>
+</header>
+
+
+
+<div class="main container">
+
+<article class="post box">
+
+<div class="thumb" style="background-image: url(/2013/06/undocumented-stylus-built-in-functions/stylus.jpg)"></div>
+
+<section class="post-header">
+    <h4>
+        <a href="http://press.mcfog.wang/2013/06/undocumented-stylus-built-in-functions/">
+            Undocumented stylus built-in functions
+        </a>
+    </h4>
+    <h5>2013-06-14</h5>
+</section>
+
+
+<section class="content markdown-body"><p>Stylus的文档更新相对不怎么及时，这里记录一下如何找到内置函数的列表，目前最新的内置函数列表，以及其中一些比较有用的文档中没有提及的</p>
+
+<p></p>
+
+<h3 id="获取最新的内置函数">获取最新的内置函数</h3>
+
+<p>源码文件 <a href="https://raw.github.com/LearnBoost/stylus/master/lib/functions/index.styl">https://raw.github.com/LearnBoost/stylus/master/lib/functions/index.styl</a></p>
+
+<p>用浏览器打开，执行</p>
+
+<pre><code class="language-javascript">document.body.innerHTML.match(/^([-\w]+)\(.+\)/gm).join('\n')
+</code></pre>
+
+<p>来获取最新的内置函数列表，当然由于文件不长，直接目测也行</p>
+
+<h3 id="目前最新的内置函数列表及简单介绍">目前最新的内置函数列表及简单介绍</h3>
+
+<ul>
+<li>断言/打印
+
+<ul>
+<li>-string(arg)
+
+<ul>
+<li>debug用来打印变量用</li>
+</ul></li>
+<li>require-color(color)
+
+<ul>
+<li>要求输入是一个颜色，否则在控制台报错，下同</li>
+</ul></li>
+<li>require-unit(n)</li>
+<li>require-string(str)</li>
+</ul></li>
+<li>数学
+
+<ul>
+<li>math(n, fn)
+
+<ul>
+<li>返回js的 <code>Math[fn](n)</code> 单位维持不变</li>
+</ul></li>
+<li>adjust(color, prop, amount)</li>
+<li>abs(n)</li>
+<li>sin(n)</li>
+<li>cos(n)</li>
+<li>min(a, b)</li>
+<li>max(a, b)</li>
+<li>ceil(n, precision = 0)</li>
+<li>floor(n, precision = 0)</li>
+<li>round(n, precision = 0)</li>
+<li>sum(nums)</li>
+<li>avg(nums)</li>
+<li>remove-unit(n)
+
+<ul>
+<li>移除单位</li>
+</ul></li>
+<li>percent-to-decimal(n)</li>
+<li>odd(n)
+
+<ul>
+<li>是否为单数</li>
+</ul></li>
+<li>even(n)
+
+<ul>
+<li>是否为双数</li>
+</ul></li>
+</ul></li>
+<li>获取颜色信息
+
+<ul>
+<li>alpha(color)</li>
+<li>hue(color)</li>
+<li>saturation(color)</li>
+<li>lightness(color)</li>
+<li>light(color)
+
+<ul>
+<li>颜色是否为亮？</li>
+</ul></li>
+<li>dark(color)
+
+<ul>
+<li>颜色是否为暗？</li>
+</ul></li>
+</ul></li>
+<li>颜色调整
+
+<ul>
+<li>desaturate(color, amount)
+
+<ul>
+<li>减小饱和度</li>
+</ul></li>
+<li>saturate(color, amount)
+
+<ul>
+<li>增加饱和度</li>
+</ul></li>
+<li>darken(color, amount)
+
+<ul>
+<li>减小亮度</li>
+</ul></li>
+<li>lighten(color, amount)
+
+<ul>
+<li>增加亮度</li>
+</ul></li>
+<li>fade-out(color, amount)
+
+<ul>
+<li>降低透明度</li>
+</ul></li>
+<li>fade-in(color, amount)
+
+<ul>
+<li>提升透明度</li>
+</ul></li>
+<li>spin(color, amount)
+
+<ul>
+<li>转色调</li>
+</ul></li>
+<li>mix(color1, color2, weight = 50%)
+
+<ul>
+<li>混色</li>
+</ul></li>
+<li>invert(color)
+
+<ul>
+<li>反色</li>
+</ul></li>
+</ul></li>
+<li>helpers
+
+<ul>
+<li>last(expr)</li>
+<li>keys(pairs)</li>
+<li>values(pairs)</li>
+<li>join(delim, vals&hellip;)</li>
+<li>add-property(name, expr)</li>
+</ul></li>
+</ul>
+
+<p>&ndash;EOF&ndash;</p></section>
+
+</article>
+
+
+  <div class="row">
+    
+      <article class="six columns post-header box">
+  <div class="thumb" style="background-image: url(/2013/06/grunt-coco-released/grunt-coco.jpg)"></div>
+  <h4>
+      <a href="http://press.mcfog.wang/2013/06/grunt-coco-released/">
+          grunt-coco released
+      </a>
+  </h4>
+  <h5>2013-06-14</h5>
+</article>
+
+    
+    
+      <article class="six columns post-header box">
+  <div class="thumb" style="background-image: url(/2013/06/inspiring-cduk-the-modularized-and-flexible-docco/cduk.jpg)"></div>
+  <h4>
+      <a href="http://press.mcfog.wang/2013/06/inspiring-cduk-the-modularized-and-flexible-docco/">
+          inspiring CDUK the modularized and flexible docco
+      </a>
+  </h4>
+  <h5>2013-06-15</h5>
+</article>
+
+    
+  </div>
+</div>
+
+
+
+
+<div class="container copy">
+  &copy; 2018 McFog W. All rights reserved. 
+  <small>がんばらない</small>
+</div>
+<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1,instantclick@3.1.0,highlight.js@9.2.0" data-no-instant></script>
+<script data-no-instant>
+  (function() {
+    InstantClick.init();
+    theaterJS()
+      .addActor('slogan', {speed: 0.5, accuracy: 1})
+      .addScene(500, 'slogan:', 'McFog', 400, '＠がん', 100, 'ばらない');
+    InstantClick.on('change', function () {
+      document.getElementById('slogan').innerText = 'McFog＠がんばらない';
+      hljs.initHighlighting();
+    });
+
+    hljs.initHighlightingOnLoad();
+    
+  })();
+</script>
+</body>
+</html>

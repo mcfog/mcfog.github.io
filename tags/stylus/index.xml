@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Stylus on McFog＠がんばらない</title>
+    <link>http://press.mcfog.wang/tags/stylus/</link>
+    <description>Recent content in Stylus on McFog＠がんばらない</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <copyright>2018 McFog W. All rights reserved.</copyright>
+    <lastBuildDate>Fri, 14 Jun 2013 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://press.mcfog.wang/tags/stylus/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Undocumented stylus built-in functions</title>
+      <link>http://press.mcfog.wang/2013/06/undocumented-stylus-built-in-functions/</link>
+      <pubDate>Fri, 14 Jun 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2013/06/undocumented-stylus-built-in-functions/</guid>
+      <description>&lt;p&gt;Stylus的文档更新相对不怎么及时，这里记录一下如何找到内置函数的列表，目前最新的内置函数列表，以及其中一些比较有用的文档中没有提及的&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

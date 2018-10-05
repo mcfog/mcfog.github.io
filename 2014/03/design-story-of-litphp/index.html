@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="author" content="McFog Wang,mcfogw@gmail.com">
+  <meta name="generator" content="Hugo 0.48" />
+  
+
+  <title>McFog＠がんばらない</title>
+  <link rel="canonical" href="http://press.mcfog.wang/2014/03/design-story-of-litphp/"/> 
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1,highlight.js@9.2.0(styles/github.min.css)" />
+  <link rel="alternate" href="/index.xml" title="McFog＠がんばらない" type="application/atom+xml">  
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<header class="container">
+  <h1>
+    <a href="/">
+      <span id="slogan_shadow">McFog＠がんばらない</span>
+      <span id="slogan"></span>
+    </a>  
+  </h1>
+</header>
+
+
+
+<div class="main container">
+
+<article class="post box">
+
+<div class="thumb" style="background-image: url(/2014/03/design-story-of-litphp/lit.png)"></div>
+
+<section class="post-header">
+    <h4>
+        <a href="http://press.mcfog.wang/2014/03/design-story-of-litphp/">
+            Design story of LitPHP
+        </a>
+    </h4>
+    <h5>2014-03-02</h5>
+</section>
+
+
+<section class="content markdown-body"><p>LitPHP(<a href="http://litphp.github.io/">官网</a> | <a href="http://github.com/litphp/lit">Repo</a>) 昨天正式开源了，这是喜欢框架的我的第一个自认为能拿出手的作品。终于有了这么个作品让我相当地感想万千。先贴上12个类+1个接口的类图</p>
+
+<p><img src="https://rawgithub.com/LitPHP/litphp.github.io/115d5ed1f2d1884b2ac1a147c1583fc50c2e4f84/doc/graphs/classes.svg" alt="" /></p>
+
+<h3 id="litphp的设计哲学">LitPHP的设计哲学</h3>
+
+<p></p>
+
+<ul>
+<li><p>让程序员选择 @<a href="http://backbonejs.org/">Backbone</a></p>
+
+<ul>
+<li><p>在Backbone官网中，找到<a href="http://backbonejs.org/#FAQ-why-backbone">这样一段话</a></p>
+
+<blockquote>
+<p>Backbone.js aims to provide the common foundation that data-rich web applications with ambitious interfaces require — <strong>while very deliberately avoiding painting you into a corner by making any decisions that you&rsquo;re better equipped to make yourself</strong>.</p>
+</blockquote></li>
+
+<li><p>我太喜欢『paint into corner』这样的说法了，这是我用很多其他框架的直观感受，可以翻成『画地为牢』吧，我把这段话翻译一下套到LitPHP上来</p>
+
+<p>LitPHP希望提供一个性质良好的PHP程序结构。为了避免画地为牢，LitPHP刻意减少功能，不作任何我们认为应当由实际开发者来做出的决策（比如视图层究竟包含哪些职责/如何嵌套，又比如ORM或模板引擎的选择）</p></li>
+
+<li><p>为什么选择LitPHP？因为它让你选择！</p></li>
+</ul></li>
+
+<li><p>『中间件』及其支点 @<a href="http://www.senchalabs.org/connect/">connect</a></p>
+
+<ul>
+<li>connect作为一个非常成功的框架，其中间件的理念让nodejs在webserver方面的成就拔高了一截。</li>
+<li>中间件(middleware)模式和插件(plugin)模式的区别，在我看来可以理解成插件是『改变原有功能』而中间件是『拼接出需要的功能』。插件主要『覆盖』而中间件主要『连接』。</li>
+<li>中间件为了达成连接的目的，需要不动的支点，nodejs天然提供了<code>request</code>对象和<code>response</code>对象，connect的中间件便以这两个对象为支点，通过这两个对象来协作。</li>
+
+<li><p>LitPHP中，Route相关代码扮演connect的角色，让中间件得以执行，而其他代码就聚焦于扮演支点的角色：<code>Lit_Result</code>大约是<code>response</code>的角色，而看似突兀又简陋的<code>Lit_Http_Conversation</code>，其实扮演了非常重要的<code>request</code>的角色。<code>Lit_App</code>作为全局工厂，让动态程度不及JS的PHP能够更好的改变/添加各个组件的功能，还提供了context作为全局黑板便于信息交换。</p>
+
+<p>虽然尚未经过实践，但我可以想象负责缓存的中间件在判断缓存命中后，设置一个<code>Cache_Hit_Result</code>后中断后续路由逻辑；负责用户登录的中间件在发现用户未登录时设置跳转Result并中断，否则将用户信息写入app context……</p></li>
+</ul></li>
+
+<li><p>无招胜有招</p>
+
+<ul>
+<li>LitPHP基本没有<code>::</code>符号写死类名，也不存在<code>final</code>的方法，而每个方法都不超过10行代码，你可以而且很容易通过继承来控制所有行为。</li>
+<li>LitPHP没有刻板的MVC划分。只要有接受<code>Lit_App</code>的callback，就可以作为C；只要继承<code>Lit_Result</code>，或与其组合，就可以作为V；只要不是V，就可以视为M。实际应用中如何分层如何配合，完全由使用者自己决定。</li>
+</ul></li>
+</ul>
+
+<p>最后贴上QQ群<strong>341338880</strong>，欢迎加群讨论</p>
+
+<p><a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=e0ce42feb7d8f8b7de8b2ab6bdac26d62e1cd34189ea767127f1e41ea70df0d8"><img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="LitPHP讨论" title="LitPHP讨论"></a></p></section>
+
+</article>
+
+
+  <div class="row">
+    
+      <article class="six columns post-header box">
+  <div class="thumb" style="background-image: url(/2014/02/introducing-backbone.joint/joint.jpg)"></div>
+  <h4>
+      <a href="http://press.mcfog.wang/2014/02/introducing-backbone.joint/">
+          Introducing Backbone.Joint
+      </a>
+  </h4>
+  <h5>2014-02-18</h5>
+</article>
+
+    
+    
+      <article class="six columns post-header box">
+  <div class="thumb" style="background-image: url(/2014/05/easy-ecma-1/ecma_org.png)"></div>
+  <h4>
+      <a href="http://press.mcfog.wang/2014/05/easy-ecma-1/">
+          Easy ECMA 1
+      </a>
+  </h4>
+  <h5>2014-05-08</h5>
+</article>
+
+    
+  </div>
+</div>
+
+
+
+
+<div class="container copy">
+  &copy; 2018 McFog W. All rights reserved. 
+  <small>がんばらない</small>
+</div>
+<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1,instantclick@3.1.0,highlight.js@9.2.0" data-no-instant></script>
+<script data-no-instant>
+  (function() {
+    InstantClick.init();
+    theaterJS()
+      .addActor('slogan', {speed: 0.5, accuracy: 1})
+      .addScene(500, 'slogan:', 'McFog', 400, '＠がん', 100, 'ばらない');
+    InstantClick.on('change', function () {
+      document.getElementById('slogan').innerText = 'McFog＠がんばらない';
+      hljs.initHighlighting();
+    });
+
+    hljs.initHighlightingOnLoad();
+    
+  })();
+</script>
+</body>
+</html>

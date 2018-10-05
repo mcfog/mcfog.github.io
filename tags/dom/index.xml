@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Dom on McFog＠がんばらない</title>
+    <link>http://press.mcfog.wang/tags/dom/</link>
+    <description>Recent content in Dom on McFog＠がんばらない</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <copyright>2018 McFog W. All rights reserved.</copyright>
+    <lastBuildDate>Sun, 23 Jun 2013 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://press.mcfog.wang/tags/dom/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>a browser incompatibility behavior about jquery and unattached element</title>
+      <link>http://press.mcfog.wang/2013/06/a-browser-incompatibility-behavior-about-jquery-and-unattached-element/</link>
+      <pubDate>Sun, 23 Jun 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2013/06/a-browser-incompatibility-behavior-about-jquery-and-unattached-element/</guid>
+      <description>&lt;h3 id=&#34;摘要&#34;&gt;摘要&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;jQuery.fn.hide 会读取元素的display样式&lt;/li&gt;
+&lt;li&gt;读取尚未插入dom树的脱机元素的样式时，不同浏览器行为不同&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;场景&#34;&gt;场景&lt;/h3&gt;
+
+&lt;p&gt;在一段显示错误提示的代码中，发现firefox下显示异常，错误提示tips的宽度没有自适应内容而是占满了整个容器。inspect后发现，本应是由CSS控制的&lt;code&gt;display:inline-block&lt;/code&gt;被元素的&lt;code&gt;style=&amp;quot;display:block&amp;quot;&lt;/code&gt;覆盖，chrome下没有这个问题&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

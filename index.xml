@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>McFog＠がんばらない</title>
+    <link>http://press.mcfog.wang/</link>
+    <description>Recent content on McFog＠がんばらない</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <copyright>2018 McFog W. All rights reserved.</copyright>
+    <lastBuildDate>Fri, 06 Feb 2015 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://press.mcfog.wang/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>一种API代码结构的设计思路</title>
+      <link>http://press.mcfog.wang/2015/02/%E4%B8%80%E7%A7%8Dapi%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/</link>
+      <pubDate>Fri, 06 Feb 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2015/02/%E4%B8%80%E7%A7%8Dapi%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;./playground.png&#34; alt=&#34;Twitter&#39;s API Playground&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;prologue&#34;&gt;Prologue&lt;/h3&gt;
+
+&lt;p&gt;在写API的过程中有这样三种产物&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;文档&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;几乎没人爱写文档，写了也懒得维护。可是同时API的文档对于其他程序员来说又是赖以生存的必需品。因此大家对文档都是爱恨交加，恨自己要维护文档，爱别人写好的漂亮文档；恨别人的烂文档错文档，爱自己随便乱写乃至不写文档。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;操场&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;比文档更高一个层次的奢侈品，不用写代码简单点点或者repl形式马上就能探索接口的行为。不像仅对别人，操场的存在对自己开发接口也是很有帮助的。&lt;/p&gt;
+
+&lt;p&gt;没操场的时候，大家往往人肉建一个文件当操场用，在里面各种玩API，但使着编译型语言的兄弟们没那么好运，他们更需要有操场。&lt;/p&gt;
+
+&lt;p&gt;当然如果实践TDD或BDD的话，用例大概能代替操场一部分的作用，但这只对写接口的人管用。对调用接口的人来说，操场的作用是难以取代的。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;字段校验逻辑&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;自己写接口的时候必须要做的事情。没做那是100%bug。&lt;/p&gt;
+
+&lt;p&gt;想想这三个产物的共同特点是什么？插入一段广告，哦不，我先把他们捏成一张表&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Easy ECMA 1</title>
+      <link>http://press.mcfog.wang/2014/05/easy-ecma-1/</link>
+      <pubDate>Thu, 08 May 2014 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2014/05/easy-ecma-1/</guid>
+      <description>&lt;h1 id=&#34;简单易懂的ecma规范导读1&#34;&gt;简单易懂的ECMA规范导读1&lt;/h1&gt;
+
+&lt;h3 id=&#34;序&#34;&gt;序&lt;/h3&gt;
+
+&lt;p&gt;最近混&lt;a href=&#34;http://segmentfault.com/&#34;&gt;SF&lt;/a&gt;，恰巧又逢工作方面有了NodeJS的机会，迫切地有教别人怎么写JS的需求，
+我发现JS这个东西其实真没那么容易理解。&lt;/p&gt;
+
+&lt;p&gt;为了加深和纠正自己对JS的理解，也为了以后能直接甩别人一脸文章，所以开始挖这样一个大坑：&lt;strong&gt;简单易懂的ECMA规范导读&lt;/strong&gt;。
+希望能以专题的形式有线索地基于ECMA标准介绍Javascript的方方面面。本文不是ECMA标准的中文翻译，也不是Javascript的入门教程，
+本文虽然以JS的常见问题切入，但并不适合想要快速了解这些问题的人（Google才是快速了解问题的正解）。
+本文的聚焦于标准如何决定了JS的各种行为，JS引擎的水面下在发生些什么。&lt;/p&gt;
+
+&lt;p&gt;本文描述的是&lt;a href=&#34;http://www.ecma-international.org/ecma-262/5.1/&#34;&gt;ECMA262的5.1版本&lt;/a&gt; 也是现在最为流行和主流的标准，
+现代浏览器和NodeJS默认均遵循此标准。尽量以英文原版为基础，为了流畅，可能会使用某些名词的中文翻译，
+但会将匹配的英文名词以&lt;code&gt;此种样式&lt;/code&gt;中出现一次以避免误解。&lt;/p&gt;
+
+&lt;h3 id=&#34;topic1-that-s-this&#34;&gt;Topic1. that&amp;rsquo;s this&lt;/h3&gt;
+
+&lt;p&gt;我们的第一个话题是：this指向哪里?&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Design story of LitPHP</title>
+      <link>http://press.mcfog.wang/2014/03/design-story-of-litphp/</link>
+      <pubDate>Sun, 02 Mar 2014 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2014/03/design-story-of-litphp/</guid>
+      <description>&lt;p&gt;LitPHP(&lt;a href=&#34;http://litphp.github.io/&#34;&gt;官网&lt;/a&gt; | &lt;a href=&#34;http://github.com/litphp/lit&#34;&gt;Repo&lt;/a&gt;) 昨天正式开源了，这是喜欢框架的我的第一个自认为能拿出手的作品。终于有了这么个作品让我相当地感想万千。先贴上12个类+1个接口的类图&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://rawgithub.com/LitPHP/litphp.github.io/115d5ed1f2d1884b2ac1a147c1583fc50c2e4f84/doc/graphs/classes.svg&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;litphp的设计哲学&#34;&gt;LitPHP的设计哲学&lt;/h3&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Introducing Backbone.Joint</title>
+      <link>http://press.mcfog.wang/2014/02/introducing-backbone.joint/</link>
+      <pubDate>Tue, 18 Feb 2014 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2014/02/introducing-backbone.joint/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;http://press.mcfog.wang/2013/05/backbone-first-glance/&#34;&gt;接触Backbone&lt;/a&gt;已经半年有余，也有机会在各种项目中实践。自己的&lt;a href=&#34;https://github.com/mcfog/backbone.joint/&#34;&gt;mcfog/Backbone.Joint&lt;/a&gt; 也从一个玩票儿小lib慢慢演化成一个经受过生产环境考验的backbone扩展。一直没有机会写点字介绍一下，终于在14年新春之际，码了这么一篇介绍出来。&lt;/p&gt;
+
+&lt;p&gt;Backbone.Joint 从13/06/14开始挖坑，7月7日登上github至今，可以说已经进入一个比较稳定的0.1版本。在Readme.md中我写的desc是这样描述这个扩展的&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;another extension of backbone.js aims to support common situation with small &amp;amp; flexible codebase&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Backbone.Joint主要针对&lt;code&gt;Backbone.View&lt;/code&gt;，对&lt;code&gt;Backbone.Model&lt;/code&gt;和&lt;code&gt;Backbone.Collection&lt;/code&gt;的补充暂时在另一个repo &lt;a href=&#34;https://github.com/mcfog/backbone.storageEngine&#34;&gt;Backbone.storageEngine&lt;/a&gt; 中。由于最开始的练手性质，开发语言一直是&lt;a href=&#34;https://github.com/satyr/coco#readme&#34;&gt;coco&lt;/a&gt;，这是一种coffeescript的方言。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>a browser incompatibility behavior about jquery and unattached element</title>
+      <link>http://press.mcfog.wang/2013/06/a-browser-incompatibility-behavior-about-jquery-and-unattached-element/</link>
+      <pubDate>Sun, 23 Jun 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2013/06/a-browser-incompatibility-behavior-about-jquery-and-unattached-element/</guid>
+      <description>&lt;h3 id=&#34;摘要&#34;&gt;摘要&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;jQuery.fn.hide 会读取元素的display样式&lt;/li&gt;
+&lt;li&gt;读取尚未插入dom树的脱机元素的样式时，不同浏览器行为不同&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;场景&#34;&gt;场景&lt;/h3&gt;
+
+&lt;p&gt;在一段显示错误提示的代码中，发现firefox下显示异常，错误提示tips的宽度没有自适应内容而是占满了整个容器。inspect后发现，本应是由CSS控制的&lt;code&gt;display:inline-block&lt;/code&gt;被元素的&lt;code&gt;style=&amp;quot;display:block&amp;quot;&lt;/code&gt;覆盖，chrome下没有这个问题&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>inspiring CDUK the modularized and flexible docco</title>
+      <link>http://press.mcfog.wang/2013/06/inspiring-cduk-the-modularized-and-flexible-docco/</link>
+      <pubDate>Sat, 15 Jun 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2013/06/inspiring-cduk-the-modularized-and-flexible-docco/</guid>
+      <description>&lt;p&gt;最近在看Backbone&amp;amp;Underscore的时候，对他们的annoted source（&lt;a href=&#34;http://backbonejs.org/docs/backbone.html&#34;&gt;backbone&lt;/a&gt; / &lt;a href=&#34;http://underscorejs.org/docs/underscore.html&#34;&gt;underscore&lt;/a&gt;）产生了好感，然后发现他们都是用
+&lt;a href=&#34;http://jashkenas.github.io/docco/&#34;&gt;&lt;strong&gt;Docco&lt;/strong&gt;&lt;/a&gt; 来做的。&lt;/p&gt;
+
+&lt;p&gt;后来顺藤摸瓜发现除了类似backbone/underscore的将注释按markdown写的做法，还有更加彻底的将代码写进markdown中的做法，coffeescript已经有支持（&lt;a href=&#34;http://ashkenas.com/literate-coffeescript/&#34;&gt;literate-coffeescript&lt;/a&gt;）。&lt;/p&gt;
+
+&lt;p&gt;挖进源码看docco，我发现他的可扩展性存在问题，用少量代码迅速完成了核心功能但并不易扩展。最近又手痒的厉害于是干脆挖坑自己写一个literal programming用的工具。&lt;/p&gt;
+
+&lt;p&gt;这里记录下最初的目的和一些想法，目前的进度是基于markdown四空格的lexer已经可以跑了。
+&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Undocumented stylus built-in functions</title>
+      <link>http://press.mcfog.wang/2013/06/undocumented-stylus-built-in-functions/</link>
+      <pubDate>Fri, 14 Jun 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2013/06/undocumented-stylus-built-in-functions/</guid>
+      <description>&lt;p&gt;Stylus的文档更新相对不怎么及时，这里记录一下如何找到内置函数的列表，目前最新的内置函数列表，以及其中一些比较有用的文档中没有提及的&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>grunt-coco released</title>
+      <link>http://press.mcfog.wang/2013/06/grunt-coco-released/</link>
+      <pubDate>Fri, 14 Jun 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2013/06/grunt-coco-released/</guid>
+      <description>&lt;p&gt;最近在看各种自动化工具，有集成化程度高，比起编译工具更像“IDE减文本编辑”的&lt;a href=&#34;http://mimosajs.com&#34;&gt;mimosajs&lt;/a&gt;，也有被业界广泛认可，开放易配置的&lt;a href=&#34;http://gruntjs.com&#34;&gt;gruntjs&lt;/a&gt;。作为一个&lt;a href=&#34;https://github.com/satyr/coco&#34;&gt;coco&lt;/a&gt;语言支持者，看自动化工具当然是先看能不能支持coco。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>An elegant design to unify async and sync callback based on promise object</title>
+      <link>http://press.mcfog.wang/2013/06/an-elegant-design-to-unify-async-and-sync-callback-based-on-promise-object/</link>
+      <pubDate>Sun, 09 Jun 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2013/06/an-elegant-design-to-unify-async-and-sync-callback-based-on-promise-object/</guid>
+      <description>&lt;p&gt;在JS代码的设计中，“回调”是非常重要而有效的手段，这里讨论的是框架需要获取回调结果的，更加注重IoC的回调。（另一种回调的使用往往更接近订阅者模式，强调信息的单向下发）往往框架代码需要获取某些信息，但如何获取的逻辑需要留待使用者实现，此时回调就是非常直接的选择。&lt;/p&gt;
+
+&lt;p&gt;获取回调的输出信息有最直接的使用返回值（同步），但异步有时是无法避免的。本文不准备讨论设计回调时应该设计成同步返回还是异步返回，而是讨论如何简洁而优雅地兼容两者，使回调既能够直接返回结果，又可以通知框架等待异步返回结果。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>DSL style javascript design</title>
+      <link>http://press.mcfog.wang/2013/06/dsl-style-javascript-design/</link>
+      <pubDate>Mon, 03 Jun 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2013/06/dsl-style-javascript-design/</guid>
+      <description>&lt;h2 id=&#34;组织大表单应用中javascript代码的一种方法&#34;&gt;组织大表单应用中javascript代码的一种方法&lt;/h2&gt;
+
+&lt;h3 id=&#34;问题-动机-目的&#34;&gt;问题，动机，目的&lt;/h3&gt;
+
+&lt;p&gt;超过一屏，属性复杂到一定程度的录入界面/系统中，缺乏良好架构的javascript代码往往容易失控。尤其是当规模从小型表单开始逐渐变大时，javascript代码很容易演变成已DOM为核心的、缺乏结构、满是hack且难以维护的状态。&lt;/p&gt;
+
+&lt;p&gt;我认为良好可维护的JS代码应该具有以下的特性&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;单个文件应该控制在一千行以内&lt;/li&gt;
+&lt;li&gt;依赖管理和合并，开发应该单看一个JS文件就知道它依赖别的哪些代码，而不是在HTML中直接列举所有依赖，或者更糟，把所有超过2个页面要用的JS全写一起。&lt;/li&gt;
+&lt;li&gt;良好的代码复用，清晰的模块划分&lt;/li&gt;
+&lt;li&gt;改变字段的表现形式或逻辑时，不应该需要修改/考虑/知道其他字段的逻辑和展现形式。改变DOM树结构、更换表单控件等改变展现方式的需求不应当对JS产生毁灭性打击。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;前三个问题基本可以归结为，超过一千行的或是需要复用的JS代码使用RequireJS / SeaJS 等方案进行分解和管理。由于这是复杂JS工程的共性，这里不多做展开讨论。本文主要关注最后一点，也就是如何解除字段逻辑和展示之间的耦合，如何解除字段和其他字段的耦合。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Backbone first glance</title>
+      <link>http://press.mcfog.wang/2013/05/backbone-first-glance/</link>
+      <pubDate>Sat, 25 May 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2013/05/backbone-first-glance/</guid>
+      <description>&lt;p&gt;昨夜开始实现&lt;a href=&#34;http://press.mcfog.wang/2013/05/hello/&#34;&gt;利用github api 把文章评论丢到Issue里面&lt;/a&gt;，选型时选择了Backbone作为基础，对比以往研究过的其他各类框架，Backbone是崭新而让我震惊的&lt;/p&gt;
+
+&lt;p&gt;先说结论：Backbone是_framework of MV* frameworks_，是框架的框架；或者说，Backbone仅仅抽象了web app framework中多数都需要的功能组织成api接口，但并没有将自己限制在任何一种风格，而是要求开发者先以Backbone为基础自己定义出一种框架（完成MV*中“*”部分和V部分的定义），然后再实现自己的业务。&lt;/p&gt;
+
+&lt;h3 id=&#34;不是mvc-mvp-mvvm&#34;&gt;不是MVC, MVP, MVVM&lt;/h3&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Hello, Hello, Alone</title>
+      <link>http://press.mcfog.wang/2013/05/hello-hello-alone/</link>
+      <pubDate>Wed, 22 May 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2013/05/hello-hello-alone/</guid>
+      <description>这是第一个帖子
+前几天突然想写点字，于是准备开搞github pages，于是开搞 octopress，于是又重新装了个Linux，于是现在比起写字，我更想看看有没有除了Disqus之外的评论方案，比如利用github api 把文章评论丢到Issue里面去之类的
+Hello Alone (俺ガイル ED)
+&amp;ndash;EOF&amp;ndash;</description>
+    </item>
+    
+  </channel>
+</rss>

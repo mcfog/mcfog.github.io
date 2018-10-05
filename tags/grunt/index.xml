@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Grunt on McFog＠がんばらない</title>
+    <link>http://press.mcfog.wang/tags/grunt/</link>
+    <description>Recent content in Grunt on McFog＠がんばらない</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <copyright>2018 McFog W. All rights reserved.</copyright>
+    <lastBuildDate>Fri, 14 Jun 2013 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://press.mcfog.wang/tags/grunt/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>grunt-coco released</title>
+      <link>http://press.mcfog.wang/2013/06/grunt-coco-released/</link>
+      <pubDate>Fri, 14 Jun 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2013/06/grunt-coco-released/</guid>
+      <description>&lt;p&gt;最近在看各种自动化工具，有集成化程度高，比起编译工具更像“IDE减文本编辑”的&lt;a href=&#34;http://mimosajs.com&#34;&gt;mimosajs&lt;/a&gt;，也有被业界广泛认可，开放易配置的&lt;a href=&#34;http://gruntjs.com&#34;&gt;gruntjs&lt;/a&gt;。作为一个&lt;a href=&#34;https://github.com/satyr/coco&#34;&gt;coco&lt;/a&gt;语言支持者，看自动化工具当然是先看能不能支持coco。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

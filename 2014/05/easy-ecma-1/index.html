@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="author" content="McFog Wang,mcfogw@gmail.com">
+  <meta name="generator" content="Hugo 0.48" />
+  
+
+  <title>McFog＠がんばらない</title>
+  <link rel="canonical" href="http://press.mcfog.wang/2014/05/easy-ecma-1/"/> 
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1,highlight.js@9.2.0(styles/github.min.css)" />
+  <link rel="alternate" href="/index.xml" title="McFog＠がんばらない" type="application/atom+xml">  
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<header class="container">
+  <h1>
+    <a href="/">
+      <span id="slogan_shadow">McFog＠がんばらない</span>
+      <span id="slogan"></span>
+    </a>  
+  </h1>
+</header>
+
+
+
+<div class="main container">
+
+<article class="post box">
+
+<div class="thumb" style="background-image: url(/2014/05/easy-ecma-1/ecma_org.png)"></div>
+
+<section class="post-header">
+    <h4>
+        <a href="http://press.mcfog.wang/2014/05/easy-ecma-1/">
+            Easy ECMA 1
+        </a>
+    </h4>
+    <h5>2014-05-08</h5>
+</section>
+
+
+<section class="content markdown-body"><h1 id="简单易懂的ecma规范导读1">简单易懂的ECMA规范导读1</h1>
+
+<h3 id="序">序</h3>
+
+<p>最近混<a href="http://segmentfault.com/">SF</a>，恰巧又逢工作方面有了NodeJS的机会，迫切地有教别人怎么写JS的需求，
+我发现JS这个东西其实真没那么容易理解。</p>
+
+<p>为了加深和纠正自己对JS的理解，也为了以后能直接甩别人一脸文章，所以开始挖这样一个大坑：<strong>简单易懂的ECMA规范导读</strong>。
+希望能以专题的形式有线索地基于ECMA标准介绍Javascript的方方面面。本文不是ECMA标准的中文翻译，也不是Javascript的入门教程，
+本文虽然以JS的常见问题切入，但并不适合想要快速了解这些问题的人（Google才是快速了解问题的正解）。
+本文的聚焦于标准如何决定了JS的各种行为，JS引擎的水面下在发生些什么。</p>
+
+<p>本文描述的是<a href="http://www.ecma-international.org/ecma-262/5.1/">ECMA262的5.1版本</a> 也是现在最为流行和主流的标准，
+现代浏览器和NodeJS默认均遵循此标准。尽量以英文原版为基础，为了流畅，可能会使用某些名词的中文翻译，
+但会将匹配的英文名词以<code>此种样式</code>中出现一次以避免误解。</p>
+
+<h3 id="topic1-that-s-this">Topic1. that&rsquo;s this</h3>
+
+<p>我们的第一个话题是：this指向哪里?</p>
+
+<p></p>
+
+<h4 id="什么是this">什么是this</h4>
+
+<p><a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.1">11.1.1 The this Keyword</a></p>
+
+<blockquote>
+<p>The this keyword evaluates to the value of the ThisBinding of the current execution context.</p>
+</blockquote>
+
+<p>计算this关键字时，取当前执行上下文的ThisBinding的值</p>
+
+<p><a href="http://www.ecma-international.org/ecma-262/5.1/#sec-10.3">10.3 Execution Contexts</a></p>
+
+<p>执行上下文<code>Execution Context</code> 从逻辑上形成栈结构，栈顶(活跃)的执行上下文包含了追踪当前正在执行的代码的全部状态。</p>
+
+<p>执行上下文包含了LexicalEnvironment、VariableEnvironment和ThisBinding三部分，在这个话题中我们主要关心ThisBinding，
+也就是代码中出现this所代指的值的绑定</p>
+
+<h4 id="全局代码中的this">全局代码中的this</h4>
+
+<p>从最简单的开始</p>
+
+<p><a href="http://www.ecma-international.org/ecma-262/5.1/#sec-10.4.1">10.4.1 Entering Global Code</a>
+在进入全局代码的流程中，规范明确指出：全局代码对应的执行上下文中，</p>
+
+<blockquote>
+<p>Set the ThisBinding to the global object.</p>
+</blockquote>
+
+<p>所以全局代码中，this指向全局对象</p>
+
+<h4 id="函数调用表达式时提供的this值">函数调用表达式时提供的this值</h4>
+
+<p><strong>注意：this值<code>this value</code>是不同于this关键词的概念，是调用[[Call]]内部方法的参数之一，并不等同于用户代码中的this关键字</strong></p>
+
+<p>函数调用表达式<code>CallExpression</code>的过程中，按照<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.3">标准的描述</a>，
+计算this值的伪代码如下</p>
+
+<pre><code>if Type(ref) is &lt;Reference&gt;
+    if IsPropertyReference(ref)
+        thisValue := getBase(ref)
+    else # assert Type(getBase(ref)) is &lt;Environment Record&gt;
+        thisValue := getBase(ref).ImplicitThisValue()
+else
+    thisValue := undefined
+</code></pre>
+
+<ul>
+<li>ref是函数调用参数左侧(括号左侧)的表达式计算的结果</li>
+<li><code>&lt;Reference&gt;</code>引用类型常见的有
+
+<ul>
+<li>标示符引用<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.2">Identifier Reference</a>
+即变量引用，引用base是环境记录<code>Environment Record</code></li>
+<li>字面量引用<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.3">Literal Reference</a>
+引用base也是环境记录</li>
+<li>属性访问<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.1">Property Accessors</a>
+包括点运算和<code>[]</code>运算，引用base是左值</li>
+</ul></li>
+<li>非引用类型常见的有
+
+<ul>
+<li>全部ECMA内置函数和所有用户定义函数的返回结果（例外是host objects，也就是假设DOM之类的宿主对象如果需要，
+可以定义一些函数返回引用）</li>
+</ul></li>
+<li>环境记录是前述的执行上下文中的LexicalEnvironment和VariableEnvironment的构成要素
+
+<ul>
+<li>不考虑with语句的话，环境记录只有<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-10.2.1">Declarative Environment Records</a>一种，它的<code>ImplicitThisValue</code>始终返回undefined</li>
+</ul></li>
+</ul>
+
+<p>综上所述，排除with语句的情况下，想让thisValue不是undefined，就只有属性访问一种办法而已。</p>
+
+<p>计算得到thisValue后，调用被调函数func的<code>[[call]]</code>内部方法，提供thisValue作为this的值</p>
+
+<h4 id="new表达式时提供的this值">new表达式时提供的this值</h4>
+
+<p>new表达式<code>NewExpression</code>的<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.2">执行过程</a>
+基本上委托给了<code>[[Construct]]</code>内部方法，我们看这个方法的<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-13.2.2">定义</a>，
+关注其中第8步</p>
+
+<blockquote>
+<p>Let result be the result of calling the [[Call]] internal property of F, providing
+obj as the this value and providing the argument list passed into [[Construct]] as args.</p>
+</blockquote>
+
+<p>其中F是构造函数，而obj是本次新建的对象，非常清楚。</p>
+
+<h4 id="this值如何转变为thisbinding">this值如何转变为ThisBinding</h4>
+
+<p>前两节我们描述了两种触发函数体内代码的办法各自如何构造this值，但正如前述，this关键字的值是执行上下文中的ThisBinding决定的，
+this值转变为ThisBinding的过程发生在调用<code>[[Call]]</code>内部方法时，我们看<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-13.2.1">标准</a></p>
+
+<blockquote>
+<p>Let funcCtx be the result of establishing a new execution context for function
+code using the value of F&rsquo;s [[FormalParameters]] internal property, the passed
+arguments List args, and the this value as described in 10.4.3.</p>
+</blockquote>
+
+<p>阿哈，第一步就是建立新的执行上下文，其中thisBinding的构建在<a href="http://www.ecma-international.org/ecma-262/5.1/#sec-10.4.3">10.4.3 Entering Function Code
+</a>中描述,</p>
+
+<pre><code>if function-code is &lt;strict code&gt;
+    ThisBinding = thisArg
+else if thisArg is null or thisArg is undefined
+    ThisBinding = global object
+else if Type(thisArg) is not &lt;Object&gt;
+    ThisBinding = ToObject(thisArg)
+else
+    ThisBinding = thisArg
+</code></pre>
+
+<p>这就是魔术的秘密</p>
+
+<ul>
+<li>null 和 undefined 的this在此时会绑定为全局对象</li>
+<li>其他三种非对象 String / Boolean / Number 在此时被转化为对象（auto boxing）</li>
+<li>但是，<strong>strict mode下不进行任何转换</strong></li>
+</ul>
+
+<p>That&rsquo;s <code>this</code> in Javascript.</p>
+
+<hr />
+
+<p>本节思考题：</p>
+
+<ul>
+<li>找找看关于apply和call的标准，为何this会变？</li>
+<li>找找看关于bind的标准，哪里体现了bind后的函数内的this无视环境和调用方式，总是固定值？</li>
+<li>with语句并不是一个良好的实践，所以我避开了它，不过这可以作为阅读标准的练习：with语句如何影响this关键词？请试着写一句代码展示此种影响</li>
+<li>eval的内部的this如何确定？</li>
+</ul></section>
+
+</article>
+
+
+  <div class="row">
+    
+      <article class="six columns post-header box">
+  <div class="thumb" style="background-image: url(/2014/03/design-story-of-litphp/lit.png)"></div>
+  <h4>
+      <a href="http://press.mcfog.wang/2014/03/design-story-of-litphp/">
+          Design story of LitPHP
+      </a>
+  </h4>
+  <h5>2014-03-02</h5>
+</article>
+
+    
+    
+      <article class="six columns post-header box">
+  <div class="thumb" style="background-image: url(/2015/02/%E4%B8%80%E7%A7%8Dapi%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/jace.png)"></div>
+  <h4>
+      <a href="http://press.mcfog.wang/2015/02/%E4%B8%80%E7%A7%8Dapi%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF/">
+          一种API代码结构的设计思路
+      </a>
+  </h4>
+  <h5>2015-02-06</h5>
+</article>
+
+    
+  </div>
+</div>
+
+
+
+
+<div class="container copy">
+  &copy; 2018 McFog W. All rights reserved. 
+  <small>がんばらない</small>
+</div>
+<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1,instantclick@3.1.0,highlight.js@9.2.0" data-no-instant></script>
+<script data-no-instant>
+  (function() {
+    InstantClick.init();
+    theaterJS()
+      .addActor('slogan', {speed: 0.5, accuracy: 1})
+      .addScene(500, 'slogan:', 'McFog', 400, '＠がん', 100, 'ばらない');
+    InstantClick.on('change', function () {
+      document.getElementById('slogan').innerText = 'McFog＠がんばらない';
+      hljs.initHighlighting();
+    });
+
+    hljs.initHighlightingOnLoad();
+    
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="author" content="McFog Wang,mcfogw@gmail.com">
+  <meta name="generator" content="Hugo 0.48" />
+  
+
+  <title>McFog＠がんばらない</title>
+  <link rel="canonical" href="http://press.mcfog.wang/2013/06/a-browser-incompatibility-behavior-about-jquery-and-unattached-element/"/> 
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1,highlight.js@9.2.0(styles/github.min.css)" />
+  <link rel="alternate" href="/index.xml" title="McFog＠がんばらない" type="application/atom+xml">  
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<header class="container">
+  <h1>
+    <a href="/">
+      <span id="slogan_shadow">McFog＠がんばらない</span>
+      <span id="slogan"></span>
+    </a>  
+  </h1>
+</header>
+
+
+
+<div class="main container">
+
+<article class="post box">
+
+<div class="thumb" style="background-image: url(/2013/06/a-browser-incompatibility-behavior-about-jquery-and-unattached-element/browsers.jpg)"></div>
+
+<section class="post-header">
+    <h4>
+        <a href="http://press.mcfog.wang/2013/06/a-browser-incompatibility-behavior-about-jquery-and-unattached-element/">
+            a browser incompatibility behavior about jquery and unattached element
+        </a>
+    </h4>
+    <h5>2013-06-23</h5>
+</section>
+
+
+<section class="content markdown-body"><h3 id="摘要">摘要</h3>
+
+<ul>
+<li>jQuery.fn.hide 会读取元素的display样式</li>
+<li>读取尚未插入dom树的脱机元素的样式时，不同浏览器行为不同</li>
+</ul>
+
+<h3 id="场景">场景</h3>
+
+<p>在一段显示错误提示的代码中，发现firefox下显示异常，错误提示tips的宽度没有自适应内容而是占满了整个容器。inspect后发现，本应是由CSS控制的<code>display:inline-block</code>被元素的<code>style=&quot;display:block&quot;</code>覆盖，chrome下没有这个问题</p>
+
+<p></p>
+
+<h3 id="jquery-fn-show">jQuery.fn.show</h3>
+
+<p>断点调查后发现在jQ的<code>show</code>方法中有这样<a href="https://github.com/jquery/jquery/blob/1.7.2/src/effects.js#L57">一段代码</a></p>
+
+<pre><code class="language-js">    elem.style.display = jQuery._data( elem, &quot;olddisplay&quot; ) || &quot;&quot;;
+</code></pre>
+
+<p>也就是说jQ为了hide和show后能够保持原有的display属性，会将元素原来的display属性暂存起来，这样一个原本<code>inline-block</code>的元素经过hide和show之后不会被改成<code>block</code>，firefox下问题tips元素的<code>jQuery._data( elem, &quot;olddisplay&quot; )</code>值是<code>block</code>，所以show的行为没有问题，问题应当是hide的时候这个计算算错了</p>
+
+<h3 id="jquery-fn-hide">jQuery.fn.hide</h3>
+
+<p>再来看hide的<a href="https://github.com/jquery/jquery/blob/1.7.2/src/effects.js#L81">相关代码</a>，中规中矩，用<code>jQuery.css</code>获取display属性</p>
+
+<pre><code class="language-js">display = jQuery.css( elem, &quot;display&quot; );
+
+if ( display !== &quot;none&quot; &amp;&amp; !jQuery._data( elem, &quot;olddisplay&quot; ) ) {
+	jQuery._data( elem, &quot;olddisplay&quot;, display );
+}
+</code></pre>
+
+<p>继续追踪后在<code>jQuery.css</code>的实现中发现了<a href="https://github.com/jquery/jquery/blob/1.7.2/src/css.js#L179">浏览器不一致的来源</a></p>
+
+<pre><code class="language-js">if ( (defaultView = elem.ownerDocument.defaultView) &amp;&amp;
+		(computedStyle = defaultView.getComputedStyle( elem, null )) ) {
+
+	ret = computedStyle.getPropertyValue( name );
+</code></pre>
+
+<p>这里的elem是一个未加入dom树的“脱机”元素，<code>defaultView</code>火狐和chrome计算后都等于<code>window</code>，<code>name</code>是要获取的属性名，这里是display。chrome下<code>ret</code>拿到的值是空字符串，而火狐下拿到的是<code>block</code>，从而火狐会将这个值写入<code>olddisplay</code>，最终导致show的时候元素被加上<code>display:block</code></p>
+
+<h3 id="观察-总结">观察&amp;总结</h3>
+
+<p>最后我计算了<code>getComputedStyle(document.createElement('div'), null)</code>，发现chrome基本上都是空，而火狐则填充了各种各样的默认属性（顺带一提IE9的行为和火狐类似）</p>
+
+<p><img src="/images/201306/unattached-styles.jpg" alt="unattached styles" /></p>
+
+<p>究竟哪种行为才符合标准已经不重要，总之<strong>避免读取脱机元素的样式</strong>才能避开这里的问题，虽然脱机元素操作完再插入DOM是性能友好的做法，但浏览器兼容性多数情况下还是比性能更重要的</p>
+
+<h3 id="本次问题代码fiddle">本次问题代码fiddle</h3>
+
+<p>chrome下显示inline-block，火狐/IE9则显示block</p>
+
+
+<iframe width="100%" height="300" src="http://jsfiddle.net/PrmgJ/embedded/result,js,css/light" frameborder="0" allowfullscreen></iframe></section>
+
+</article>
+
+
+  <div class="row">
+    
+      <article class="six columns post-header box">
+  <div class="thumb" style="background-image: url(/2013/06/inspiring-cduk-the-modularized-and-flexible-docco/cduk.jpg)"></div>
+  <h4>
+      <a href="http://press.mcfog.wang/2013/06/inspiring-cduk-the-modularized-and-flexible-docco/">
+          inspiring CDUK the modularized and flexible docco
+      </a>
+  </h4>
+  <h5>2013-06-15</h5>
+</article>
+
+    
+    
+      <article class="six columns post-header box">
+  <div class="thumb" style="background-image: url(/2014/02/introducing-backbone.joint/joint.jpg)"></div>
+  <h4>
+      <a href="http://press.mcfog.wang/2014/02/introducing-backbone.joint/">
+          Introducing Backbone.Joint
+      </a>
+  </h4>
+  <h5>2014-02-18</h5>
+</article>
+
+    
+  </div>
+</div>
+
+
+
+
+<div class="container copy">
+  &copy; 2018 McFog W. All rights reserved. 
+  <small>がんばらない</small>
+</div>
+<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1,instantclick@3.1.0,highlight.js@9.2.0" data-no-instant></script>
+<script data-no-instant>
+  (function() {
+    InstantClick.init();
+    theaterJS()
+      .addActor('slogan', {speed: 0.5, accuracy: 1})
+      .addScene(500, 'slogan:', 'McFog', 400, '＠がん', 100, 'ばらない');
+    InstantClick.on('change', function () {
+      document.getElementById('slogan').innerText = 'McFog＠がんばらない';
+      hljs.initHighlighting();
+    });
+
+    hljs.initHighlightingOnLoad();
+    
+  })();
+</script>
+</body>
+</html>
