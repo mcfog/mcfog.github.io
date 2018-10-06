@@ -1,4 +1,14 @@
 
+<article class="prepost post-header box">
+  <div class="thumb" style="background-image: url({{ .RelPermalink }}{{ .Params.thumb }})"></div>
+  <h4>
+      <a>
+          {{ .Title }}
+      </a>
+  </h4>
+  <h5>{{ .Date.Format "2006-01-02" }}</h5>
+</article>
+
 <article class="post box">
 {{ if eq .Section "post"}}
 <div class="thumb" style="background-image: url({{ .RelPermalink }}{{ .Params.thumb }})"></div>

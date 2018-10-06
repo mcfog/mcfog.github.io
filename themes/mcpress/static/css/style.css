@@ -451,3 +451,35 @@ h1 span {
   color: white;
   opacity: 0.7;
 }
+
+.prepost {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 0;
+    width: 99%;
+  }
+
+  .post {
+    padding: 3px;
+  }
+  .post .post-header, .post .thumb {
+    display: none;
+  }
+  .post .content {
+    margin-top: .5em;
+    margin-bottom: 1em;
+  }
+
+  .prepost {
+    display: block;
+  }
+
+  .copy {
+    padding: 0;
+    margin-top: 1em;
+  }
+}
+
