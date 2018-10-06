@@ -1,6 +1,12 @@
 {{ partial "header.html" . }}
 
 <div class="main container">
+{{ if (and (eq 1 .Paginator.PageNumber) .Content) }}
+<article class="box intro">
+  <header>Updates:</header>
+  <section class="content markdown-body">{{ .Content }}</section>
+</article>
+{{ end }}
 
 <section class="list row">
 {{ range .Paginator.Pages }}
