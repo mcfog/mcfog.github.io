@@ -63,6 +63,11 @@
   </url>
   
   <url>
+    <loc>http://press.mcfog.wang/</loc>
+    <lastmod>2015-02-06T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://press.mcfog.wang/categories/</loc>
     <priority>0</priority>
   </url>
@@ -112,12 +117,6 @@
   <url>
     <loc>http://press.mcfog.wang/tags/jquery/</loc>
     <lastmod>2013-06-23T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/</loc>
-    <lastmod>2015-02-06T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
