@@ -7,10 +7,21 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>2018 McFog W. All rights reserved.</copyright>
-    <lastBuildDate>Fri, 06 Feb 2015 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 07 Oct 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="http://press.mcfog.wang/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Ability model of software engineer</title>
+      <link>http://press.mcfog.wang/2018/10/ability-model-of-software-engineer/</link>
+      <pubDate>Sun, 07 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/2018/10/ability-model-of-software-engineer/</guid>
+      <description>Gist url
+
+本作品采用知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议进行许可。</description>
+    </item>
     
     <item>
       <title>一种API代码结构的设计思路</title>
