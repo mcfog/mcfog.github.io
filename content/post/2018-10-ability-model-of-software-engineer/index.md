@@ -4,7 +4,7 @@ date: 2018-10-07
 thumb: dna.png
 ---
 
-![](https://cdn.rawgit.com/mcfog/70411189992cee788f15c21f68bba1ae/raw/ability-model.svg)
+![](https://gitcdn.xyz/repo/mcfog/70411189992cee788f15c21f68bba1ae/raw/5edbfe00ef5b2629bf4e282f8549599392c064b0/ability-model.svg)
 
 [Gist url](https://gist.github.com/mcfog/70411189992cee788f15c21f68bba1ae)
 
