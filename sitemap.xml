@@ -1,6 +1,22 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>http://press.mcfog.wang/</loc>
+    <lastmod>2020-07-18T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://press.mcfog.wang/post/</loc>
+    <lastmod>2020-07-18T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://press.mcfog.wang/2020/07/possibly-better-name-for-microservices/</loc>
+    <lastmod>2020-07-18T00:00:00+00:00</lastmod>
+  </url>
   
   <url>
     <loc>http://press.mcfog.wang/2018/10/ability-model-of-software-engineer/</loc>
@@ -33,12 +49,57 @@
   </url>
   
   <url>
+    <loc>http://press.mcfog.wang/categories/</loc>
+    <lastmod>2013-06-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://press.mcfog.wang/tags/dom/</loc>
+    <lastmod>2013-06-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://press.mcfog.wang/categories/javascript/</loc>
+    <lastmod>2013-06-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://press.mcfog.wang/tags/jquery/</loc>
+    <lastmod>2013-06-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://press.mcfog.wang/tags/</loc>
+    <lastmod>2013-06-23T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://press.mcfog.wang/tags/inspiration/</loc>
+    <lastmod>2013-06-15T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://press.mcfog.wang/2013/06/inspiring-cduk-the-modularized-and-flexible-docco/</loc>
     <lastmod>2013-06-15T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>http://press.mcfog.wang/2013/06/undocumented-stylus-built-in-functions/</loc>
+    <loc>http://press.mcfog.wang/categories/programming/</loc>
+    <lastmod>2013-06-15T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://press.mcfog.wang/tags/coco/</loc>
+    <lastmod>2013-06-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://press.mcfog.wang/categories/css/</loc>
+    <lastmod>2013-06-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://press.mcfog.wang/tags/grunt/</loc>
     <lastmod>2013-06-14T00:00:00+00:00</lastmod>
   </url>
   
@@ -48,7 +109,22 @@
   </url>
   
   <url>
+    <loc>http://press.mcfog.wang/tags/stylus/</loc>
+    <lastmod>2013-06-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://press.mcfog.wang/2013/06/undocumented-stylus-built-in-functions/</loc>
+    <lastmod>2013-06-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>http://press.mcfog.wang/2013/06/an-elegant-design-to-unify-async-and-sync-callback-based-on-promise-object/</loc>
+    <lastmod>2013-06-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://press.mcfog.wang/tags/design/</loc>
     <lastmod>2013-06-09T00:00:00+00:00</lastmod>
   </url>
   
@@ -65,88 +141,6 @@
   <url>
     <loc>http://press.mcfog.wang/2013/05/hello-hello-alone/</loc>
     <lastmod>2013-05-22T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/</loc>
-    <lastmod>2018-10-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/categories/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/tags/coco/</loc>
-    <lastmod>2013-06-14T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/categories/css/</loc>
-    <lastmod>2013-06-14T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/tags/design/</loc>
-    <lastmod>2013-06-09T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/tags/dom/</loc>
-    <lastmod>2013-06-23T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/tags/grunt/</loc>
-    <lastmod>2013-06-14T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/tags/inspiration/</loc>
-    <lastmod>2013-06-15T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/categories/javascript/</loc>
-    <lastmod>2013-06-23T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/tags/jquery/</loc>
-    <lastmod>2013-06-23T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/post/</loc>
-    <lastmod>2018-10-07T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/categories/programming/</loc>
-    <lastmod>2013-06-15T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/tags/stylus/</loc>
-    <lastmod>2013-06-14T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://press.mcfog.wang/tags/</loc>
-    <lastmod>2013-06-14T00:00:00+00:00</lastmod>
-    <priority>0</priority>
   </url>
   
 </urlset>

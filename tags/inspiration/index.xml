@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Inspiration on McFog＠がんばらない</title>
+    <title>inspiration on McFog＠がんばらない</title>
     <link>http://press.mcfog.wang/tags/inspiration/</link>
-    <description>Recent content in Inspiration on McFog＠がんばらない</description>
+    <description>Recent content in inspiration on McFog＠がんばらない</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <copyright>2018 McFog W. All rights reserved.</copyright>
+    <copyright>2020 McFog W. All rights reserved.</copyright>
     <lastBuildDate>Sat, 15 Jun 2013 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="http://press.mcfog.wang/tags/inspiration/index.xml" rel="self" type="application/rss+xml" />
@@ -20,13 +20,9 @@
       <guid>http://press.mcfog.wang/2013/06/inspiring-cduk-the-modularized-and-flexible-docco/</guid>
       <description>&lt;p&gt;最近在看Backbone&amp;amp;Underscore的时候，对他们的annoted source（&lt;a href=&#34;http://backbonejs.org/docs/backbone.html&#34;&gt;backbone&lt;/a&gt; / &lt;a href=&#34;http://underscorejs.org/docs/underscore.html&#34;&gt;underscore&lt;/a&gt;）产生了好感，然后发现他们都是用
 &lt;a href=&#34;http://jashkenas.github.io/docco/&#34;&gt;&lt;strong&gt;Docco&lt;/strong&gt;&lt;/a&gt; 来做的。&lt;/p&gt;
-
 &lt;p&gt;后来顺藤摸瓜发现除了类似backbone/underscore的将注释按markdown写的做法，还有更加彻底的将代码写进markdown中的做法，coffeescript已经有支持（&lt;a href=&#34;http://ashkenas.com/literate-coffeescript/&#34;&gt;literate-coffeescript&lt;/a&gt;）。&lt;/p&gt;
-
 &lt;p&gt;挖进源码看docco，我发现他的可扩展性存在问题，用少量代码迅速完成了核心功能但并不易扩展。最近又手痒的厉害于是干脆挖坑自己写一个literal programming用的工具。&lt;/p&gt;
-
-&lt;p&gt;这里记录下最初的目的和一些想法，目前的进度是基于markdown四空格的lexer已经可以跑了。
-&lt;/p&gt;</description>
+&lt;p&gt;这里记录下最初的目的和一些想法，目前的进度是基于markdown四空格的lexer已经可以跑了。&lt;/p&gt;</description>
     </item>
     
   </channel>

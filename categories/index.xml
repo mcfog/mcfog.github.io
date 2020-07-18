@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on McFog＠がんばらない</title>
@@ -6,22 +6,14 @@
     <description>Recent content in Categories on McFog＠がんばらない</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <copyright>2018 McFog W. All rights reserved.</copyright>
+    <copyright>2020 McFog W. All rights reserved.</copyright>
+    <lastBuildDate>Sun, 23 Jun 2013 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="http://press.mcfog.wang/categories/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Css</title>
-      <link>http://press.mcfog.wang/categories/css/</link>
-      <pubDate>Fri, 14 Jun 2013 00:00:00 +0000</pubDate>
-      
-      <guid>http://press.mcfog.wang/categories/css/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Javascript</title>
+      <title>javascript</title>
       <link>http://press.mcfog.wang/categories/javascript/</link>
       <pubDate>Sun, 23 Jun 2013 00:00:00 +0000</pubDate>
       
@@ -30,11 +22,20 @@
     </item>
     
     <item>
-      <title>Programming</title>
+      <title>programming</title>
       <link>http://press.mcfog.wang/categories/programming/</link>
       <pubDate>Sat, 15 Jun 2013 00:00:00 +0000</pubDate>
       
       <guid>http://press.mcfog.wang/categories/programming/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>css</title>
+      <link>http://press.mcfog.wang/categories/css/</link>
+      <pubDate>Fri, 14 Jun 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/categories/css/</guid>
       <description></description>
     </item>
     

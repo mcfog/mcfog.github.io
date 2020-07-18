@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on McFog＠がんばらない</title>
@@ -6,32 +6,14 @@
     <description>Recent content in Tags on McFog＠がんばらない</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <copyright>2018 McFog W. All rights reserved.</copyright>
-    <lastBuildDate>Fri, 14 Jun 2013 00:00:00 +0000</lastBuildDate>
+    <copyright>2020 McFog W. All rights reserved.</copyright>
+    <lastBuildDate>Sun, 23 Jun 2013 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="http://press.mcfog.wang/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Coco</title>
-      <link>http://press.mcfog.wang/tags/coco/</link>
-      <pubDate>Fri, 14 Jun 2013 00:00:00 +0000</pubDate>
-      
-      <guid>http://press.mcfog.wang/tags/coco/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Design</title>
-      <link>http://press.mcfog.wang/tags/design/</link>
-      <pubDate>Sun, 09 Jun 2013 00:00:00 +0000</pubDate>
-      
-      <guid>http://press.mcfog.wang/tags/design/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Dom</title>
+      <title>dom</title>
       <link>http://press.mcfog.wang/tags/dom/</link>
       <pubDate>Sun, 23 Jun 2013 00:00:00 +0000</pubDate>
       
@@ -40,25 +22,7 @@
     </item>
     
     <item>
-      <title>Grunt</title>
-      <link>http://press.mcfog.wang/tags/grunt/</link>
-      <pubDate>Fri, 14 Jun 2013 00:00:00 +0000</pubDate>
-      
-      <guid>http://press.mcfog.wang/tags/grunt/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Inspiration</title>
-      <link>http://press.mcfog.wang/tags/inspiration/</link>
-      <pubDate>Sat, 15 Jun 2013 00:00:00 +0000</pubDate>
-      
-      <guid>http://press.mcfog.wang/tags/inspiration/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Jquery</title>
+      <title>jquery</title>
       <link>http://press.mcfog.wang/tags/jquery/</link>
       <pubDate>Sun, 23 Jun 2013 00:00:00 +0000</pubDate>
       
@@ -67,11 +31,47 @@
     </item>
     
     <item>
-      <title>Stylus</title>
+      <title>inspiration</title>
+      <link>http://press.mcfog.wang/tags/inspiration/</link>
+      <pubDate>Sat, 15 Jun 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/tags/inspiration/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>coco</title>
+      <link>http://press.mcfog.wang/tags/coco/</link>
+      <pubDate>Fri, 14 Jun 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/tags/coco/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>grunt</title>
+      <link>http://press.mcfog.wang/tags/grunt/</link>
+      <pubDate>Fri, 14 Jun 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/tags/grunt/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>stylus</title>
       <link>http://press.mcfog.wang/tags/stylus/</link>
       <pubDate>Fri, 14 Jun 2013 00:00:00 +0000</pubDate>
       
       <guid>http://press.mcfog.wang/tags/stylus/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>design</title>
+      <link>http://press.mcfog.wang/tags/design/</link>
+      <pubDate>Sun, 09 Jun 2013 00:00:00 +0000</pubDate>
+      
+      <guid>http://press.mcfog.wang/tags/design/</guid>
       <description></description>
     </item>
     

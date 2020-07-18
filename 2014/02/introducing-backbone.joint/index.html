@@ -7,7 +7,7 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="Cache-Control" content="no-siteapp">
   <meta name="author" content="McFog Wang">
-  <meta name="generator" content="Hugo 0.48" />
+  <meta name="generator" content="Hugo 0.69.2" />
   
 
   <title>McFog＠がんばらない</title>
@@ -56,144 +56,99 @@
 
 
 <section class="content markdown-body"><p><a href="/2013/05/backbone-first-glance/">接触Backbone</a>已经半年有余，也有机会在各种项目中实践。自己的<a href="https://github.com/mcfog/backbone.joint/">mcfog/Backbone.Joint</a> 也从一个玩票儿小lib慢慢演化成一个经受过生产环境考验的backbone扩展。一直没有机会写点字介绍一下，终于在14年新春之际，码了这么一篇介绍出来。</p>
-
 <p>Backbone.Joint 从13/06/14开始挖坑，7月7日登上github至今，可以说已经进入一个比较稳定的0.1版本。在Readme.md中我写的desc是这样描述这个扩展的</p>
-
 <blockquote>
 <p>another extension of backbone.js aims to support common situation with small &amp; flexible codebase</p>
 </blockquote>
-
 <p>Backbone.Joint主要针对<code>Backbone.View</code>，对<code>Backbone.Model</code>和<code>Backbone.Collection</code>的补充暂时在另一个repo <a href="https://github.com/mcfog/backbone.storageEngine">Backbone.storageEngine</a> 中。由于最开始的练手性质，开发语言一直是<a href="https://github.com/satyr/coco#readme">coco</a>，这是一种coffeescript的方言。</p>
-
-<p></p>
-
 <p>下面按照源码的顺序一点点介绍，想看重点可以直接往下拉到View部分</p>
-
-<h2 id="基础设施-index-co-https-github-com-mcfog-backbone-joint-blob-0-1-src-index-co">基础设施 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/_index.co">_index.co</a></h2>
-
-<h4 id="joint-和joint">Joint.$和Joint._</h4>
-
+<h2 id="基础设施-_indexcohttpsgithubcommcfogbackbonejointblob01src_indexco">基础设施 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/_index.co">_index.co</a></h2>
+<h4 id="joint和joint_">Joint.$和Joint._</h4>
 <p>jQuery和underscore的引用，除了内部使用之外，也方便amd风格的情况下可以减少一些dep</p>
-
-<h4 id="joint-assert和joint-advice">Joint.assert和Joint.advice</h4>
-
+<h4 id="jointassert和jointadvice">Joint.assert和Joint.advice</h4>
 <p>用于内部进行一些断言式判断，在可能的情况下打出console方便调试</p>
-
-<h4 id="joint-before和joint-after">Joint.before和Joint.after</h4>
-
+<h4 id="jointbefore和jointafter">Joint.before和Joint.after</h4>
 <p>用于在函数前后追加逻辑，追加逻辑中可以通过<code>arguments.callee.state[0]</code>对象实现一些干涉逻辑。</p>
-
-<h4 id="joint-emitter">Joint.Emitter</h4>
-
+<h4 id="jointemitter">Joint.Emitter</h4>
 <p>这是Joint中所有模块的基础，由<code>Backbone.Event</code>的全部事件能力和<code>extend</code>方法组成</p>
-
-<h2 id="deferred抽象-defer-co-https-github-com-mcfog-backbone-joint-blob-0-1-src-defer-co">Deferred抽象 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/defer.co">defer.co</a></h2>
-
+<h2 id="deferred抽象-defercohttpsgithubcommcfogbackbonejointblob01srcdeferco">Deferred抽象 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/defer.co">defer.co</a></h2>
 <p>以jQuery为对象，抽象了Deferred/Promise机制的基本接口，主要做了如下处理</p>
-
 <ul>
 <li>针对jQ1.5~1.7的非标准的then方法补丁，转发到<code>pipe</code>方法</li>
 <li><code>Joint.Deferred.defer</code>方法返回读写分离，分成resolver和promise两部分，而非原本jQ的读写混合在同一个对象中</li>
 <li>一个用于将标准Backbone事件转换成promise的<code>Joint.Deferred.listen</code>方法，不过注意只是once，而且必须保证在时间触发前调用</li>
 <li>其他的when/resolve/reject方法原样转发</li>
 </ul>
-
-<h2 id="dom抽象-dom-co-https-github-com-mcfog-backbone-joint-blob-0-1-src-dom-co">DOM抽象 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/dom.co">dom.co</a></h2>
-
+<h2 id="dom抽象-domcohttpsgithubcommcfogbackbonejointblob01srcdomco">DOM抽象 <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/dom.co">dom.co</a></h2>
 <p>分离了一些需要用到的DOM操作，如果需要脱离jQ时可以统一移植这里的方法即可。注意在dom对象中存放view对象依赖$.fn.data，Zepto.js需要编译时增加依赖data模块</p>
-
-<h2 id="view-view-co-https-github-com-mcfog-backbone-joint-blob-0-1-src-view-co-和viewmodel-view-model-co-https-github-com-mcfog-backbone-joint-blob-master-src-view-model-co"><strong>View</strong> <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/view.co">view.co</a> 和ViewModel <a href="https://github.com/mcfog/backbone.joint/blob/master/src/view_model.co">view_model.co</a></h2>
-
+<h2 id="view-viewcohttpsgithubcommcfogbackbonejointblob01srcviewco-和viewmodel-view_modelcohttpsgithubcommcfogbackbonejointblobmastersrcview_modelco"><strong>View</strong> <a href="https://github.com/mcfog/backbone.joint/blob/0.1/src/view.co">view.co</a> 和ViewModel <a href="https://github.com/mcfog/backbone.joint/blob/master/src/view_model.co">view_model.co</a></h2>
 <h4 id="fetch-serialize-render">Fetch-Serialize-Render</h4>
-
 <p>Joint对View的增强首先聚焦于<code>render</code>方法，我希望(尽可能)所有的DOM写操作均通过render一个方法来进行。统一DOM写最常见也最容易维护的便是“模板渲染”模式了。Joint将其分解为Fetch-Serialize-Render三步，期望应用继承<code>Joint.View</code>后在自己的基类中分别解释这三步来组建起视图渲染体系。</p>
-
 <ul>
-<li><p>fetchTemplate()</p>
-
-<p>拉取模板，一般来说每个视图都需要自己的模板，所以一般需要一个属性来指明使用哪个模板，建议直接使用<code>template</code>。模板可以是任何形式，如果是异步拉取，只要返回&rdquo;thenable&rdquo;对象，Joint通过<code>Joint.Deferred.when</code>，也就是<code>jQuery.when</code>来等待。</p>
-
-<p>默认值是<code>$J.Dom.html($(&quot;#&quot; + this.template&quot;))</code>，也就是在<code>template</code>属性中放DOM对象的id，取其源码。和<code>&lt;script id=&quot;TPLNAME&quot; type=&quot;x-template&quot;&gt;</code>DOM标签配合。在大型应用中默认值不可取，务必实现自己的拉取模板（以及缓存）逻辑</p></li>
-
-<li><p>serializeData()</p>
-
-<p>组装(序列化)数据，将当前视图的状态抽成一个数据对象用于填充模板。虽然想不出实用的案例，但也还是支持了&rdquo;thenable&rdquo;</p>
-
-<p>默认值是<code>$.extend({}, this.data, this._sync)</code>，<code>data</code>是默认初始化的数据对象，<code>_sync</code>和稍后的数据有关，后详。一般来说这个默认值不太需要覆盖。</p></li>
-
-<li><p>renderHtml(template, data)</p>
-
+<li>
+<p>fetchTemplate()</p>
+<p>拉取模板，一般来说每个视图都需要自己的模板，所以一般需要一个属性来指明使用哪个模板，建议直接使用<code>template</code>。模板可以是任何形式，如果是异步拉取，只要返回&quot;thenable&quot;对象，Joint通过<code>Joint.Deferred.when</code>，也就是<code>jQuery.when</code>来等待。</p>
+<p>默认值是<code>$J.Dom.html($(&quot;#&quot; + this.template&quot;))</code>，也就是在<code>template</code>属性中放DOM对象的id，取其源码。和<code>&lt;script id=&quot;TPLNAME&quot; type=&quot;x-template&quot;&gt;</code>DOM标签配合。在大型应用中默认值不可取，务必实现自己的拉取模板（以及缓存）逻辑</p>
+</li>
+<li>
+<p>serializeData()</p>
+<p>组装(序列化)数据，将当前视图的状态抽成一个数据对象用于填充模板。虽然想不出实用的案例，但也还是支持了&quot;thenable&rdquo;</p>
+<p>默认值是<code>$.extend({}, this.data, this._sync)</code>，<code>data</code>是默认初始化的数据对象，<code>_sync</code>和稍后的数据有关，后详。一般来说这个默认值不太需要覆盖。</p>
+</li>
+<li>
+<p>renderHtml(template, data)</p>
 <p>最终渲染方法，会得到前面两部输出的模板和数据作为参数，这里将他们结合渲染为HTML代码，返回字符串即可。Joint会负责将其填充到dom中</p>
-
-<p>默认值是<code>_.template(tpl, data)</code>，使用underscore的模板输出，不过并没有缓存模板结果。如果需要别的模板引擎或者想缓存underscore模板结果，可以改造这个方法。同样支持异步返回&rdquo;thenable&rdquo;（比如DustJS的渲染就是异步的接口）</p></li>
+<p>默认值是<code>_.template(tpl, data)</code>，使用underscore的模板输出，不过并没有缓存模板结果。如果需要别的模板引擎或者想缓存underscore模板结果，可以改造这个方法。同样支持异步返回&quot;thenable&rdquo;（比如DustJS的渲染就是异步的接口）</p>
+</li>
 </ul>
-
 <h4 id="subview体系">SubView体系</h4>
-
 <p>子视图是经常需要又在Backbone中缺失的概念。Joint给出了自己的SubView实现</p>
-
 <ul>
 <li>parent掌握child的引用，将其绑定在自身的一个选择器上，渲染时先渲染自己，然后在selector找到的元素中渲染child</li>
 <li>child没有parent的引用，也不了解parent的任何信息，应该可以独立于parent工作。但child上的自定义事件会冒泡的parent上。</li>
 <li>使用<code>setView</code>方法来添加子视图，如果需要一个DOM容器中存在多个子视图，则可以用<code>appendView</code></li>
 <li>child可以不是<code>Joint.View</code>的实例，但parent必须拥有<code>Joint.View</code>的特征，才能实现上述功能</li>
 </ul>
-
 <p>当子视图是<code>Joint.View</code>时，便同样拥有一切特性，也支持多层子视图嵌套</p>
-
 <h4 id="数据同步机制和viewmodel">数据同步机制和ViewModel</h4>
-
 <p>如果视图的数据源复杂，或者多个视图共享一个数据源的时候，一个好的数据同步机制就变得很有必要<code>Joint.View</code>提供了<code>sync</code>和<code>unsync</code>两个方法来同步数据。</p>
-
 <p><code>sync(syncName, synchronizer, events)</code> 方法的核心可以简写成</p>
-
-<pre><code class="language-js">    this._sync[syncName] = synchronizer;
-    this.listenTo(synchronizer, events, function(){
-      this$.render();
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">_sync</span>[<span style="color:#a6e22e">syncName</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">synchronizer</span>;
+    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">listenTo</span>(<span style="color:#a6e22e">synchronizer</span>, <span style="color:#a6e22e">events</span>, <span style="color:#66d9ef">function</span>(){
+      <span style="color:#66d9ef">this</span><span style="color:#a6e22e">$</span>.<span style="color:#a6e22e">render</span>();
     });
-</code></pre>
-
-<p><code>synchronizer</code>是需要同步的数据对象(必须具备Backbone.Event)，<code>events</code>是绑定的事件，而<code>syncName</code>就是在<code>_sync</code>属性中的key，在默认的<code>serializeData</code>中，<code>_sync</code>会被带到数据中，从而传递给模板。</p>
-
+</code></pre></div><p><code>synchronizer</code>是需要同步的数据对象(必须具备Backbone.Event)，<code>events</code>是绑定的事件，而<code>syncName</code>就是在<code>_sync</code>属性中的key，在默认的<code>serializeData</code>中，<code>_sync</code>会被带到数据中，从而传递给模板。</p>
 <p>在Backbone中，<code>Backbone.Model</code>和<code>Backbone.Collection</code>都可以很容易地用作这里的<code>synchronizer</code>来使用，只要<code>events</code>传各种内置事件(<a href="http://backbonejs.org/#Events-catalog">参考文档</a>)，即可完成Model/Collection更新时自动重绘View。</p>
-
 <p>一个更好的数据对象是<code>Joint.ViewModel</code>，它基本就是一个<code>Joint.Emitter</code>，主要的区别是有一个<code>sync</code>方法，会触发<code>$J:sync</code>内置事件，而这个事件同样也会触发视图渲染，但这个事件的参数可以影响渲染过程，使后述的局部渲染成为可能。</p>
-
 <h4 id="局部渲染">局部渲染</h4>
-
 <p>实际开发中，我发现经常有一些更新页面局部的需求，页面局部可能非常小，或者在DOM中不连续，或者涉及View的多个数据源，又或者含有表单等不适合反复重绘的元素，导致拆分subView难以满足需求。这时就要“局部渲染”出场了，局部渲染是在整个View的内部，通过HTML属性标识出需要更新的页面局部，从而在数据源更新时，精准地替换页面局部。</p>
-
 <h5 id="绑定方法">绑定方法</h5>
-
 <ul>
-<li>View::sync时，第二个参数(synchronizer)传一个ViewModel对象</li>
-
-<li><p>ViewModel中，当数据有更新时，调用ViewModel::sync(fieldNames) 即可，字段名支持空格分隔或数组表示多个字段同时更新。</p>
-
-<p>此时相关的View中的DOM元素不会像普通的渲染过程，整个被替换成新的元素，而是仅仅被标识有更新的字段的DOM元素被替换。</p></li>
+<li>
+<p>View::sync时，第二个参数(synchronizer)传一个ViewModel对象</p>
+</li>
+<li>
+<p>ViewModel中，当数据有更新时，调用ViewModel::sync(fieldNames) 即可，字段名支持空格分隔或数组表示多个字段同时更新。</p>
+<p>此时相关的View中的DOM元素不会像普通的渲染过程，整个被替换成新的元素，而是仅仅被标识有更新的字段的DOM元素被替换。</p>
+</li>
 </ul>
-
 <h5 id="标识">标识</h5>
-
 <ul>
-<li><p><code>j-field</code> 属性</p>
-
+<li>
+<p><code>j-field</code> 属性</p>
 <p>表示哪些字段更新时需要更新此DOM元素，空格分隔字段，支持有限的通配符：</p>
-
 <ul>
 <li><code>syncName.fieldName</code> syncName即调用View::sync时指定的名字，fieldName即ViewModel::sync时传的名字。</li>
 <li><code>syncName.*</code> syncName所指的ViewModel中任意字段被更新时均更新此元素</li>
-</ul></li>
-
-<li><p><code>j-id</code> 属性</p>
-
-<p>Joint根据这个属性来确认渲染前后DOM元素的对应关系，即渲染后，字段有改变的DOM元素代码覆盖到DOM树上<code>j-id</code>相同的节点。</p>
-
-<p>默认值是和<code>j-field</code>相同。如果页面上存在<code>j-field</code>相同的元素时，则必须指定不同的<code>j-id</code>来避免混淆</p></li>
 </ul>
-
-<hr />
-
+</li>
+<li>
+<p><code>j-id</code> 属性</p>
+<p>Joint根据这个属性来确认渲染前后DOM元素的对应关系，即渲染后，字段有改变的DOM元素代码覆盖到DOM树上<code>j-id</code>相同的节点。</p>
+<p>默认值是和<code>j-field</code>相同。如果页面上存在<code>j-field</code>相同的元素时，则必须指定不同的<code>j-id</code>来避免混淆</p>
+</li>
+</ul>
+<hr>
 <p>写完感觉好乱，以后慢慢按照Tutorial 和 Document整理吧</p></section>
 
 </article>
@@ -231,7 +186,7 @@
 
 
 <div class="container copy">
-  &copy; 2018 McFog W. All rights reserved. 
+  &copy; 2020 McFog W. All rights reserved. 
   <small>がんばらない</small>
 </div>
 <script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1,highlight.js@9.2.0" data-no-instant></script>
