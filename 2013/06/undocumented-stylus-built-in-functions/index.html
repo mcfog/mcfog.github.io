@@ -12,7 +12,7 @@
 
   <title>McFog＠がんばらない</title>
   <link rel="canonical" href="http://press.mcfog.wang/2013/06/undocumented-stylus-built-in-functions/"/> 
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1,highlight.js@9.2.0(styles/github.min.css)" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1" />
   <link rel="alternate" href="/index.xml" title="McFog＠がんばらない" type="application/atom+xml">  
   <link rel="stylesheet" href="/css/style.css" />
 </head>
@@ -59,7 +59,7 @@
 <h3 id="获取最新的内置函数">获取最新的内置函数</h3>
 <p>源码文件 <a href="https://raw.github.com/LearnBoost/stylus/master/lib/functions/index.styl">https://raw.github.com/LearnBoost/stylus/master/lib/functions/index.styl</a></p>
 <p>用浏览器打开，执行</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">document.<span style="color:#a6e22e">body</span>.<span style="color:#a6e22e">innerHTML</span>.<span style="color:#a6e22e">match</span>(<span style="color:#e6db74">/^([-\w]+)\(.+\)/gm</span>).<span style="color:#a6e22e">join</span>(<span style="color:#e6db74">&#39;\n&#39;</span>)
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#0086b3">document</span>.body.innerHTML.match(<span style="color:#009926">/^([-\w]+)\(.+\)/gm</span>).join(<span style="color:#d14">&#39;\n&#39;</span>)
 </code></pre></div><p>来获取最新的内置函数列表，当然由于文件不长，直接目测也行</p>
 <h3 id="目前最新的内置函数列表及简单介绍">目前最新的内置函数列表及简单介绍</h3>
 <ul>
@@ -232,14 +232,12 @@
   &copy; 2020 McFog W. All rights reserved. 
   <small>がんばらない</small>
 </div>
-<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1,highlight.js@9.2.0" data-no-instant></script>
+<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1" data-no-instant></script>
 <script data-no-instant>
   (function() {
     theaterJS()
       .addActor('slogan', {speed: 0.5, accuracy: 1})
       .addScene(500, 'slogan:', 'McFog', 400, '＠がん', 100, 'ばらない');
-
-    hljs.initHighlightingOnLoad();
   })();
 </script>
 </body>

@@ -12,7 +12,7 @@
 
   <title>McFog＠がんばらない</title>
   <link rel="canonical" href="http://press.mcfog.wang/2013/06/an-elegant-design-to-unify-async-and-sync-callback-based-on-promise-object/"/> 
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1,highlight.js@9.2.0(styles/github.min.css)" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1" />
   <link rel="alternate" href="/index.xml" title="McFog＠がんばらない" type="application/atom+xml">  
   <link rel="stylesheet" href="/css/style.css" />
 </head>
@@ -60,76 +60,76 @@
 <p>在JS中，可以和回调交互的地方一共有3个，分别是<code>this</code>对象、参数(<code>arguments</code>)和返回值。我们先看看利用this和arguments来实现的兼容同步异步的大致做法，再来看看利用返回值并引入deferred机制后对代码的提升。</p>
 <h3 id="替换this">替换this</h3>
 <p><a href="http://layoutmanager.org">backbone layoutmanager</a>中采用了替换<code>this</code>对象的方式实现兼容同步和异步的模板获取/渲染。好处是业务代码看起来相对清晰，但由于替换掉了this，比较依赖this的逻辑会碰到麻烦。另外实现相对复杂</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">//同步回调
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">fetchSync</span>(<span style="color:#a6e22e">path</span>) {
-  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">_</span>.<span style="color:#a6e22e">template</span>(<span style="color:#a6e22e">$</span>(<span style="color:#a6e22e">path</span>).<span style="color:#a6e22e">html</span>());
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#998;font-style:italic">//同步回调
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">function</span> fetchSync(path) {
+  <span style="color:#000;font-weight:bold">return</span> _.template($(path).html());
 }
-<span style="color:#75715e">//异步回调
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">fetchAsync</span>(<span style="color:#a6e22e">path</span>) {
-  <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">done</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">async</span>();
+<span style="color:#998;font-style:italic">//异步回调
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">function</span> fetchAsync(path) {
+  <span style="color:#000;font-weight:bold">var</span> done <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">this</span>.async();
 
-  <span style="color:#a6e22e">$</span>.<span style="color:#a6e22e">get</span>(<span style="color:#a6e22e">path</span>, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">contents</span>) {
-    <span style="color:#a6e22e">done</span>(<span style="color:#a6e22e">_</span>.<span style="color:#a6e22e">template</span>(<span style="color:#a6e22e">contents</span>));
-  }, <span style="color:#e6db74">&#34;text&#34;</span>);
+  $.get(path, <span style="color:#000;font-weight:bold">function</span>(contents) {
+    done(_.template(contents));
+  }, <span style="color:#d14">&#34;text&#34;</span>);
 }
 </code></pre></div><p>大致框架实现</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">makeAsync</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">done</span>) {
-    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">handler</span> <span style="color:#f92672">=</span> {};
-    <span style="color:#a6e22e">handler</span>.<span style="color:#a6e22e">async</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
-        <span style="color:#a6e22e">handler</span>.<span style="color:#a6e22e">_isAsync</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
-        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">done</span>;
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#000;font-weight:bold">var</span> makeAsync <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">function</span>(done) {
+    <span style="color:#000;font-weight:bold">var</span> handler <span style="color:#000;font-weight:bold">=</span> {};
+    handler.async <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">function</span>() {
+        handler._isAsync <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">true</span>;
+        <span style="color:#000;font-weight:bold">return</span> done;
     }
 
-    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">handler</span>;
+    <span style="color:#000;font-weight:bold">return</span> handler;
 }
 
-<span style="color:#a6e22e">exports</span>.<span style="color:#a6e22e">AwesomeFunction</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">path</span>, <span style="color:#a6e22e">callback</span>) {
-    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">done</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">result</span>) {
-        <span style="color:#75715e">//handle result
-</span><span style="color:#75715e"></span>    };
-    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">handler</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">makeAsync</span>(<span style="color:#a6e22e">done</span>);
-    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">result</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">callback</span>.<span style="color:#a6e22e">call</span>(<span style="color:#a6e22e">handler</span>, <span style="color:#a6e22e">path</span>);
-    <span style="color:#66d9ef">if</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">handler</span>.<span style="color:#a6e22e">_isAsync</span>) <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">done</span>(<span style="color:#a6e22e">result</span>);
+exports.AwesomeFunction <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">function</span>(path, callback) {
+    <span style="color:#000;font-weight:bold">var</span> done <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">function</span>(result) {
+        <span style="color:#998;font-style:italic">//handle result
+</span><span style="color:#998;font-style:italic"></span>    };
+    <span style="color:#000;font-weight:bold">var</span> handler <span style="color:#000;font-weight:bold">=</span> makeAsync(done);
+    <span style="color:#000;font-weight:bold">var</span> result <span style="color:#000;font-weight:bold">=</span> callback.call(handler, path);
+    <span style="color:#000;font-weight:bold">if</span>(<span style="color:#000;font-weight:bold">!</span>handler._isAsync) <span style="color:#000;font-weight:bold">return</span> done(result);
 }
 </code></pre></div><p>可以发现为了制造出this对象以及判断是否异步的逻辑比较生硬，另外替换掉this的做法不是所有场景都可以接受。回调和框架的耦合也比较强，离开了框架的话回调由于有<code>done=this.async()</code>基本没法用。</p>
 <h3 id="追加arguments">追加arguments</h3>
 <p>对参数动手脚来实现异步/同步兼容的话，一般选择在参数列表最前/最后追加 <em>回调的回调</em> 用来和框架交换数据。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">//同步回调
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">fetchSync</span>(<span style="color:#a6e22e">path</span>, <span style="color:#a6e22e">done</span>) {
-  <span style="color:#a6e22e">done</span>(<span style="color:#a6e22e">_</span>.<span style="color:#a6e22e">template</span>(<span style="color:#a6e22e">$</span>(<span style="color:#a6e22e">path</span>).<span style="color:#a6e22e">html</span>()));
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#998;font-style:italic">//同步回调
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">function</span> fetchSync(path, done) {
+  done(_.template($(path).html()));
 }
-<span style="color:#75715e">//异步回调
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">fetchAsync</span>(<span style="color:#a6e22e">path</span>, <span style="color:#a6e22e">done</span>) {
-  <span style="color:#a6e22e">$</span>.<span style="color:#a6e22e">get</span>(<span style="color:#a6e22e">path</span>, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">contents</span>) {
-    <span style="color:#a6e22e">done</span>(<span style="color:#a6e22e">_</span>.<span style="color:#a6e22e">template</span>(<span style="color:#a6e22e">contents</span>));
-  }, <span style="color:#e6db74">&#34;text&#34;</span>);
+<span style="color:#998;font-style:italic">//异步回调
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">function</span> fetchAsync(path, done) {
+  $.get(path, <span style="color:#000;font-weight:bold">function</span>(contents) {
+    done(_.template(contents));
+  }, <span style="color:#d14">&#34;text&#34;</span>);
 }
 </code></pre></div><p>大致框架实现</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">exports</span>.<span style="color:#a6e22e">AwesomeFunction</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">path</span>, <span style="color:#a6e22e">callback</span>) {
-    <span style="color:#a6e22e">callback</span>(<span style="color:#a6e22e">path</span>, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">result</span>) {
-        <span style="color:#75715e">//handle result
-</span><span style="color:#75715e"></span>    });
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">exports.AwesomeFunction <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">function</span>(path, callback) {
+    callback(path, <span style="color:#000;font-weight:bold">function</span>(result) {
+        <span style="color:#998;font-style:italic">//handle result
+</span><span style="color:#998;font-style:italic"></span>    });
 }
 </code></pre></div><p>比起上一种方法，这种方法的优点是实现简洁明了，如果需要可以保持this，缺点是需要改变函数签名，对签名不定长的情形比较恶心。另外，同步返回的回调不能简单地return返回值也是比较严重的缺点。</p>
 <h3 id="__利用返回值和deferred机制__"><strong>利用返回值和deferred机制</strong></h3>
 <p><a href="http://wiki.commonjs.org/wiki/Promises/A">deferred/promise机制</a>天生对回调非常友好，只要定义回调返回普通值=同步，返回promise=异步，就可以很优雅地做到兼容同步和异步。所需的仅仅是一个简单的包装器<code>isPromise(foo) ? foo : makePromise(foo)</code>的实现。这里以jQuery为例，<code>jQuery.when</code>就是一个不错的包装器</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">//同步
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">fetchSync</span>(<span style="color:#a6e22e">path</span>) {
-  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">_</span>.<span style="color:#a6e22e">template</span>(<span style="color:#a6e22e">$</span>(<span style="color:#a6e22e">path</span>).<span style="color:#a6e22e">html</span>());
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#998;font-style:italic">//同步
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">function</span> fetchSync(path) {
+  <span style="color:#000;font-weight:bold">return</span> _.template($(path).html());
 }
-<span style="color:#75715e">//异步
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">fetchAsync</span>(<span style="color:#a6e22e">path</span>) {
-  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">$</span>.<span style="color:#a6e22e">get</span>(<span style="color:#a6e22e">path</span>, <span style="color:#e6db74">&#34;text&#34;</span>).<span style="color:#a6e22e">then</span>(<span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">contents</span>) {
-    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">_</span>.<span style="color:#a6e22e">template</span>(<span style="color:#a6e22e">contents</span>);
+<span style="color:#998;font-style:italic">//异步
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">function</span> fetchAsync(path) {
+  <span style="color:#000;font-weight:bold">return</span> $.get(path, <span style="color:#d14">&#34;text&#34;</span>).then(<span style="color:#000;font-weight:bold">function</span>(contents) {
+    <span style="color:#000;font-weight:bold">return</span> _.template(contents);
   });
 }
 </code></pre></div><p>大致框架实现</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#a6e22e">exports</span>.<span style="color:#a6e22e">AwesomeFunction</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">path</span>, <span style="color:#a6e22e">callback</span>) {
-    <span style="color:#a6e22e">$</span>.<span style="color:#a6e22e">when</span>(<span style="color:#a6e22e">callback</span>(<span style="color:#a6e22e">path</span>)).<span style="color:#a6e22e">then</span>(<span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">result</span>) {
-        <span style="color:#75715e">//handle result
-</span><span style="color:#75715e"></span>    }, <span style="color:#66d9ef">function</span>() {
-        <span style="color:#75715e">//handle error
-</span><span style="color:#75715e"></span>    });
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">exports.AwesomeFunction <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">function</span>(path, callback) {
+    $.when(callback(path)).then(<span style="color:#000;font-weight:bold">function</span>(result) {
+        <span style="color:#998;font-style:italic">//handle result
+</span><span style="color:#998;font-style:italic"></span>    }, <span style="color:#000;font-weight:bold">function</span>() {
+        <span style="color:#998;font-style:italic">//handle error
+</span><span style="color:#998;font-style:italic"></span>    });
 }
 </code></pre></div><p>利用返回值的好处在于完整保留了<code>this</code>和<code>arguments</code>，同步的情形下无论回调依赖this还是参数都无需包装回调，而异步的情况下，返回promise的回调的适用范围要比前两种机制的回调广泛的多。另外promise天生比较完备的错误处理，<code>jQuery.when</code>对多个参数的支持都使得这种方法在实践中具备很强的可操作性。</p>
 <h3 id="举一反三">举一反三……</h3>
@@ -180,14 +180,12 @@
   &copy; 2020 McFog W. All rights reserved. 
   <small>がんばらない</small>
 </div>
-<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1,highlight.js@9.2.0" data-no-instant></script>
+<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1" data-no-instant></script>
 <script data-no-instant>
   (function() {
     theaterJS()
       .addActor('slogan', {speed: 0.5, accuracy: 1})
       .addScene(500, 'slogan:', 'McFog', 400, '＠がん', 100, 'ばらない');
-
-    hljs.initHighlightingOnLoad();
   })();
 </script>
 </body>

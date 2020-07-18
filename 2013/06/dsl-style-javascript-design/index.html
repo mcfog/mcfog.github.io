@@ -12,7 +12,7 @@
 
   <title>McFog＠がんばらない</title>
   <link rel="canonical" href="http://press.mcfog.wang/2013/06/dsl-style-javascript-design/"/> 
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1,highlight.js@9.2.0(styles/github.min.css)" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1" />
   <link rel="alternate" href="/index.xml" title="McFog＠がんばらない" type="application/atom+xml">  
   <link rel="stylesheet" href="/css/style.css" />
 </head>
@@ -77,12 +77,12 @@
 </ul>
 <p>订好接口以后，每个字段只需要自己都实现接口，除了每个字段自己的实现代码之外，外部一律通过接口来和字段交互。这样代码就整体可控可维护，扩展性和可读性都能令人满意。</p>
 <p>有了这样的接口，我们的逻辑实现就可以非常语义化，比如折扣锁定为=现价/原价</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#a6e22e">good</span>.<span style="color:#a6e22e">discount</span>.<span style="color:#a6e22e">setReadonly</span>();
-<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">discountUpdate</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
-    <span style="color:#a6e22e">good</span>.<span style="color:#a6e22e">discount</span>.<span style="color:#a6e22e">val</span>(<span style="color:#a6e22e">good</span>.<span style="color:#a6e22e">price</span>.<span style="color:#a6e22e">val</span>() <span style="color:#f92672">/</span> <span style="color:#a6e22e">good</span>.<span style="color:#a6e22e">originalPrice</span>.<span style="color:#a6e22e">val</span>());
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">good.discount.setReadonly();
+<span style="color:#000;font-weight:bold">var</span> discountUpdate <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">function</span>() {
+    good.discount.val(good.price.val() <span style="color:#000;font-weight:bold">/</span> good.originalPrice.val());
 };
-<span style="color:#a6e22e">good</span>.<span style="color:#a6e22e">price</span>.<span style="color:#a6e22e">addListener</span>(<span style="color:#e6db74">&#39;change&#39;</span>, <span style="color:#a6e22e">discountUpdate</span>); <span style="color:#75715e">//注意：这不是DOM事件
-</span><span style="color:#75715e"></span><span style="color:#a6e22e">good</span>.<span style="color:#a6e22e">originalPrice</span>.<span style="color:#a6e22e">addListener</span>(<span style="color:#e6db74">&#39;change&#39;</span>, <span style="color:#a6e22e">discountUpdate</span>);
+good.price.addListener(<span style="color:#d14">&#39;change&#39;</span>, discountUpdate); <span style="color:#998;font-style:italic">//注意：这不是DOM事件
+</span><span style="color:#998;font-style:italic"></span>good.originalPrice.addListener(<span style="color:#d14">&#39;change&#39;</span>, discountUpdate);
 </code></pre></div><p>这样一段代码完全不涉及dom交互，所以无论价格如何输入展示，折扣如何展示都没有问题。而实现dom交互的代码也完全不必关心这个字段的逻辑如何，只需要实现前述接口，将输入输出、只读、提示信息这些行为和DOM绑定即可。</p>
 <p>最常用也是最多的绑定就是一个字段对应一个DOM控件，这种绑定只需要简单地将DOM事件转发成自定义事件，将读写转换成DOM控件读写即可；稍微复杂一些的交互涉及富文本编辑、日历控件等输入形式，由于我们的接口非常小，所以一般也无需太多的代码。</p>
 <p>问题往往来源于更复杂的一些字段，他们在持久化时往往体现成JSON/XML格式字符串，或者是额外的扩展表。这些字段往往无法轻易地用一个标准DOM控件来表现，也往往是混乱的来源。</p>
@@ -153,14 +153,12 @@
   &copy; 2020 McFog W. All rights reserved. 
   <small>がんばらない</small>
 </div>
-<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1,highlight.js@9.2.0" data-no-instant></script>
+<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1" data-no-instant></script>
 <script data-no-instant>
   (function() {
     theaterJS()
       .addActor('slogan', {speed: 0.5, accuracy: 1})
       .addScene(500, 'slogan:', 'McFog', 400, '＠がん', 100, 'ばらない');
-
-    hljs.initHighlightingOnLoad();
   })();
 </script>
 </body>

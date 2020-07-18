@@ -12,7 +12,7 @@
 
   <title>McFog＠がんばらない</title>
   <link rel="canonical" href="http://press.mcfog.wang/2013/06/grunt-coco-released/"/> 
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1,highlight.js@9.2.0(styles/github.min.css)" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1" />
   <link rel="alternate" href="/index.xml" title="McFog＠がんばらない" type="application/atom+xml">  
   <link rel="stylesheet" href="/css/style.css" />
 </head>
@@ -59,9 +59,9 @@
 <p>grunt的开放模块机制非常稳定靠谱(所以才会被社区高度认可的吧)，根据官网文档亦步亦趋很快就实现出了支持编译coco文件的 <code>grunt-coco</code>。说来这是我第一个上npm的repo呢。</p>
 <h3 id="使用方法">使用方法</h3>
 <p>安装</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">npm i grunt-coco --save-dev
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">npm i grunt-coco --save-dev
 </code></pre></div><p>在Gruntfile中引用</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js"><span style="color:#a6e22e">grunt</span>.<span style="color:#a6e22e">loadNpmTasks</span>(<span style="color:#e6db74">&#39;grunt-coco&#39;</span>);
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">grunt.loadNpmTasks(<span style="color:#d14">&#39;grunt-coco&#39;</span>);
 </code></pre></div><p>配置： 目前配置仅支持<code>separator</code>、<code>bare</code>和<code>join</code>，含义和<a href="https://github.com/gruntjs/grunt-contrib-coffee#options">grunt-contrib-coffee</a>里的相同。<code>globals</code>配置项等coco下个版本发布把bug修掉以后就可以有效。</p>
 <p>最后附repo传送门 <a href="https://github.com/mcfog/grunt-coco">https://github.com/mcfog/grunt-coco</a></p>
 <h5 id="题外话">题外话</h5>
@@ -105,14 +105,12 @@
   &copy; 2020 McFog W. All rights reserved. 
   <small>がんばらない</small>
 </div>
-<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1,highlight.js@9.2.0" data-no-instant></script>
+<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1" data-no-instant></script>
 <script data-no-instant>
   (function() {
     theaterJS()
       .addActor('slogan', {speed: 0.5, accuracy: 1})
       .addScene(500, 'slogan:', 'McFog', 400, '＠がん', 100, 'ばらない');
-
-    hljs.initHighlightingOnLoad();
   })();
 </script>
 </body>

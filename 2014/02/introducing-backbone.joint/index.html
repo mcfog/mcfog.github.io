@@ -12,7 +12,7 @@
 
   <title>McFog＠がんばらない</title>
   <link rel="canonical" href="http://press.mcfog.wang/2014/02/introducing-backbone.joint/"/> 
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1,highlight.js@9.2.0(styles/github.min.css)" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/g/github-markdown-css@2.2.1" />
   <link rel="alternate" href="/index.xml" title="McFog＠がんばらない" type="application/atom+xml">  
   <link rel="stylesheet" href="/css/style.css" />
 </head>
@@ -113,9 +113,9 @@
 <h4 id="数据同步机制和viewmodel">数据同步机制和ViewModel</h4>
 <p>如果视图的数据源复杂，或者多个视图共享一个数据源的时候，一个好的数据同步机制就变得很有必要<code>Joint.View</code>提供了<code>sync</code>和<code>unsync</code>两个方法来同步数据。</p>
 <p><code>sync(syncName, synchronizer, events)</code> 方法的核心可以简写成</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">_sync</span>[<span style="color:#a6e22e">syncName</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">synchronizer</span>;
-    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">listenTo</span>(<span style="color:#a6e22e">synchronizer</span>, <span style="color:#a6e22e">events</span>, <span style="color:#66d9ef">function</span>(){
-      <span style="color:#66d9ef">this</span><span style="color:#a6e22e">$</span>.<span style="color:#a6e22e">render</span>();
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-js" data-lang="js">    <span style="color:#000;font-weight:bold">this</span>._sync[syncName] <span style="color:#000;font-weight:bold">=</span> synchronizer;
+    <span style="color:#000;font-weight:bold">this</span>.listenTo(synchronizer, events, <span style="color:#000;font-weight:bold">function</span>(){
+      <span style="color:#000;font-weight:bold">this</span>$.render();
     });
 </code></pre></div><p><code>synchronizer</code>是需要同步的数据对象(必须具备Backbone.Event)，<code>events</code>是绑定的事件，而<code>syncName</code>就是在<code>_sync</code>属性中的key，在默认的<code>serializeData</code>中，<code>_sync</code>会被带到数据中，从而传递给模板。</p>
 <p>在Backbone中，<code>Backbone.Model</code>和<code>Backbone.Collection</code>都可以很容易地用作这里的<code>synchronizer</code>来使用，只要<code>events</code>传各种内置事件(<a href="http://backbonejs.org/#Events-catalog">参考文档</a>)，即可完成Model/Collection更新时自动重绘View。</p>
@@ -189,14 +189,12 @@
   &copy; 2020 McFog W. All rights reserved. 
   <small>がんばらない</small>
 </div>
-<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1,highlight.js@9.2.0" data-no-instant></script>
+<script src="//cdn.jsdelivr.net/g/theaterjs@2.0.1" data-no-instant></script>
 <script data-no-instant>
   (function() {
     theaterJS()
       .addActor('slogan', {speed: 0.5, accuracy: 1})
       .addScene(500, 'slogan:', 'McFog', 400, '＠がん', 100, 'ばらない');
-
-    hljs.initHighlightingOnLoad();
   })();
 </script>
 </body>
