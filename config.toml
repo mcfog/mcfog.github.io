@@ -3,7 +3,7 @@ languageCode = "zh-cn"
 title = "McFog＠がんばらない"
 
 theme = "mcpress"
-copyright = "2018 McFog W. All rights reserved."
+copyright = "2020 McFog W. All rights reserved."
 
 [permalinks]
   post = "/:year/:month/:slug/"
